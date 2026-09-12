@@ -4,7 +4,7 @@
 #include <kan/core/comments.hpp>
 #include <kan/core/issues.hpp>
 #include <kan/core/user.hpp>
-#include <kan/uuid.hpp>
+#include <kan/core/uuid.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
 

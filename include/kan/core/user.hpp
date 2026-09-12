@@ -9,11 +9,10 @@ namespace kan {
 struct User { // struct to represent a Git user
   std::string name, email;
 
-  User &from_json(nlohmann::json user);
+  User &fromJson(nlohmann::json user);
+  nlohmann::json toJson();
 
-  nlohmann::json to_json();
-
-  User &get_from_system();
+  User &getFromSystem();
 
   std::string toString();
   std::string Name();

@@ -17,9 +17,9 @@ struct Issue {
   Issue();
   Issue(nlohmann::json json);
 
-  void from_json(nlohmann::json json);
+  void fromJson(nlohmann::json json);
 
-  nlohmann::json to_json();
+  nlohmann::json toJson();
 };
 
 struct Issues {
