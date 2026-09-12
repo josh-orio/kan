@@ -1,0 +1,16 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+ColumnLimit: 160
+
+# BreakBeforeBraces: Stroustrup
+
+BreakConstructorInitializers: BeforeColon   # or BeforeComma / AfterColon
+ConstructorInitializerIndentWidth: 2        # indent of initializers
+PackConstructorInitializers: NextLine       # Never = one initializer per line
+
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCompound: true
+  PadOperators: false
