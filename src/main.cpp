@@ -33,11 +33,11 @@ int main(int argc, char *argv[]) {
 
   if (args.size() > 1) {
     throw std::invalid_argument("Too many arguments! - usage: kan <path>");
-
-  } else if (args.size() == 0) {
+  }
+  else if (args.size() == 0) {
     args.push_back("");
-
-  } else if (args[0] == "." || args[0] == "./") {
+  }
+  else if (args[0] == "." || args[0] == "./") {
     args[0] = "";
   }
 
@@ -46,14 +46,14 @@ int main(int argc, char *argv[]) {
     // run_program();
     KAN kan(args[0]);
     kan.start();
-
-  } catch (const nlohmann::json::exception &e) {
+  }
+  catch (const nlohmann::json::exception &e) {
     std::cerr << "!!!! JSON EXCEPTION !!!!\n";
     std::cerr << e.what() << '\n';
     std::abort();
-
-  } catch (const std::exception &e) {
-    std::cerr << "\nFATAL JSON ERROR:\n" << e.what() << "\n\n";
+  }
+  catch (const std::exception &e) {
+    std::cerr << "\nERROR:\n" << e.what() << "\n\n";
     std::abort();
   }
 

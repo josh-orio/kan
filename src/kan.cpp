@@ -63,13 +63,14 @@ void KAN::init() {
   std::ofstream out_file(_path / "kan.json");
   out_file << init_struct.dump(2);
 
-  time_t timestamp;
+  // time_t timestamp;
+  Timestamp timestamp;
 
   nlohmann::json first_job_json{{"title", "First Job"},
                                 {"description", "Welcome to KAN!"},
                                 {"status", "Backlog"},
-                                {"created", time(&timestamp)},
-                                {"updated", time(&timestamp)},
+                                {"created", timestamp.toJson()},
+                                {"updated", timestamp.toJson()},
                                 {"creator", kan::User().getFromSystem().toJson()},
                                 {"uuid", UUIDv7::generate().to_string()}};
 
@@ -118,20 +119,20 @@ void KAN::process_input() {
   if (inp == "q") {
     state = termui::Interface::State::Exit;
     // serialize board out to disk
-
-  } else if (inp == termui::key::U_ARROW) {
+  }
+  else if (inp == termui::key::U_ARROW) {
     _renderer.Up();
-
-  } else if (inp == termui::key::D_ARROW) {
+  }
+  else if (inp == termui::key::D_ARROW) {
     _renderer.Down();
-
-  } else if (inp == termui::key::L_ARROW) {
+  }
+  else if (inp == termui::key::L_ARROW) {
     _renderer.Left();
-
-  } else if (inp == termui::key::R_ARROW) {
+  }
+  else if (inp == termui::key::R_ARROW) {
     _renderer.Right();
-
-  } else if (inp == "n") {
+  }
+  else if (inp == "n") {
     auto [success, new_job] = tui::NewJob().show();
 
     if (success) {
@@ -143,12 +144,12 @@ void KAN::process_input() {
     }
 
     state = termui::Interface::State::Continue;
-
-  } else if (inp == "o" || inp == termui::key::ENTER) {
+  }
+  else if (inp == "o" || inp == termui::key::ENTER) {
 
     // seralize job out to disk
 
-    auto [modified, job] = tui::Window(board.Job(_renderer.ActiveColumn(), _renderer.ActiveRow()))
+    auto [modified, job] = tui::JobWindow(board.Job(_renderer.ActiveColumn(), _renderer.ActiveRow()))
                                .show(); // board._columns.at(_renderer.ActiveColumn())._jobs.at(_renderer.ActiveRow())).show();
 
     // if modified
@@ -158,8 +159,8 @@ void KAN::process_input() {
     }
 
     state = termui::Interface::State::Continue;
-
-  } else if (inp == "s") {
+  }
+  else if (inp == "s") {
 
     state = termui::Interface::State::Continue;
   }
@@ -220,7 +221,7 @@ void KAN::loadJobs() {
   // sort all the jobs oldest highest - newest lowest
 
   for (auto &col : board.Columns()) {
-    std::sort(col.Jobs().begin(), col.Jobs().end(), [](const kan::Job &a, const kan::Job &b) { return a.created < b.created; });
+    std::sort(col.Jobs().begin(), col.Jobs().end(), [](const kan::Job &a, const kan::Job &b) { return a.created.time < b.created.time; });
   }
 }
 

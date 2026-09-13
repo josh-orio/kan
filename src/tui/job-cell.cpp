@@ -3,23 +3,23 @@
 namespace kan {
 namespace tui {
 
-Cell::Cell(Job job) : _job(job) {}
+JobCell::JobCell(Job job) : _job(job) {}
 
-Cell &Cell::width(int n) {
+JobCell &JobCell::width(int n) {
   _width = n;
   return *this;
 }
 
-Cell &Cell::focus() {
+JobCell &JobCell::focus() {
   _focussed = true;
   return *this;
 }
-Cell &Cell::blur() {
+JobCell &JobCell::blur() {
   _focussed = false;
   return *this;
 }
 
-void Cell::render() {
+void JobCell::render() {
   // termui::Text(_job._title+ (_focussed ? " focussed": ""), _focussed ? _style_map.at("title_focus") : _style_map.at("title_blur"), _width - 12, 1).render();
   termui::Text(_job.title, _focussed ? _style_map.at("title_focus") : _style_map.at("title_blur"), _width - 12, 1).render();
   termui::Text(" #" + _job.uuid.substr(_job.uuid.size() - 8), _focussed ? _style_map.at("body_focus") : _style_map.at("body_blur"), 10, 1).render();

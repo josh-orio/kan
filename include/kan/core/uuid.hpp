@@ -49,7 +49,7 @@ public:
   static UUIDv7 from_string(const std::string &s) {
     UUIDv7 u;
     size_t byte_idx = 0;
-    int    hi = -1;
+    int    hi       = -1;
     for (char c : s) {
       if (c == '-')
         continue;
@@ -58,11 +58,12 @@ public:
         throw std::invalid_argument("UUIDv7::from_string: invalid character");
       if (hi < 0) {
         hi = v;
-      } else {
+      }
+      else {
         if (byte_idx >= 16)
           throw std::invalid_argument("UUIDv7::from_string: too many hex digits");
         u.bytes_[byte_idx++] = static_cast<uint8_t>((hi << 4) | v);
-        hi = -1;
+        hi                   = -1;
       }
     }
     if (byte_idx != 16 || hi != -1)
@@ -93,20 +94,20 @@ public:
 
     // byte 6: version (0111) in top nibble + top 4 bits of rand_a
     uint16_t rand_a = static_cast<uint16_t>(rand_bits_a & 0x0FFF); // 12 bits
-    b[6] = static_cast<uint8_t>(0x70 | ((rand_a >> 8) & 0x0F));
+    b[6]            = static_cast<uint8_t>(0x70 | ((rand_a >> 8) & 0x0F));
     // byte 7: low 8 bits of rand_a
     b[7] = static_cast<uint8_t>(rand_a & 0xFF);
 
     // byte 8: variant (10) in top 2 bits + top 6 bits of rand_b
     uint64_t rand_b = rand_bits_b & 0x3FFFFFFFFFFFFFFULL; // 62 bits
-    b[8] = static_cast<uint8_t>(0x80 | ((rand_b >> 56) & 0x3F));
-    b[9] = static_cast<uint8_t>((rand_b >> 48) & 0xFF);
-    b[10] = static_cast<uint8_t>((rand_b >> 40) & 0xFF);
-    b[11] = static_cast<uint8_t>((rand_b >> 32) & 0xFF);
-    b[12] = static_cast<uint8_t>((rand_b >> 24) & 0xFF);
-    b[13] = static_cast<uint8_t>((rand_b >> 16) & 0xFF);
-    b[14] = static_cast<uint8_t>((rand_b >> 8) & 0xFF);
-    b[15] = static_cast<uint8_t>(rand_b & 0xFF);
+    b[8]            = static_cast<uint8_t>(0x80 | ((rand_b >> 56) & 0x3F));
+    b[9]            = static_cast<uint8_t>((rand_b >> 48) & 0xFF);
+    b[10]           = static_cast<uint8_t>((rand_b >> 40) & 0xFF);
+    b[11]           = static_cast<uint8_t>((rand_b >> 32) & 0xFF);
+    b[12]           = static_cast<uint8_t>((rand_b >> 24) & 0xFF);
+    b[13]           = static_cast<uint8_t>((rand_b >> 16) & 0xFF);
+    b[14]           = static_cast<uint8_t>((rand_b >> 8) & 0xFF);
+    b[15]           = static_cast<uint8_t>(rand_b & 0xFF);
 
     return u;
   }

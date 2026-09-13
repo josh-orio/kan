@@ -13,8 +13,8 @@ namespace kan {
 struct Job {
   std::string title, description, status, uuid;
 
-  User   creator, modifier;
-  time_t created, updated;
+  User      creator, modifier;
+  Timestamp created, updated;
 
   Comments                 comments;
   Issues                   issues;

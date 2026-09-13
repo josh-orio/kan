@@ -25,8 +25,8 @@ void CommentList::ReloadComments(Comments comments) { _comments = comments; }
 
 void CommentList::CursorUp(unsigned int count) {
   internal_update();
-  _cursor = (_cursor > 0) ? std::max(0, int(_cursor - count)) : 0; // decrement but dont let (cursor < 0)
-  _start_line = (_cursor < _start_line) ? _cursor : _start_line;   // don't let cursor go 'above' start line
+  _cursor     = (_cursor > 0) ? std::max(0, int(_cursor - count)) : 0; // decrement but dont let (cursor < 0)
+  _start_line = (_cursor < _start_line) ? _cursor : _start_line;       // don't let cursor go 'above' start line
 }
 
 void CommentList::CursorDown(unsigned int count) {
@@ -45,10 +45,9 @@ void CommentList::render() {
   auto [row, col] = termui::terminal.GetCursorPosition();
 
   if (_comments.size() == 0) {
-    termui::Text("No issues to show.").style(termui::Styles::faint).align(termui::Text::Alignment::Center).width(_w).height(1).render();
-
-  } else {
-
+    termui::Text("No comments to show.").style(termui::Styles::faint).align(termui::Text::Alignment::Center).width(_w).height(1).render();
+  }
+  else {
     for (int i = _start_line; i < std::min(_comments.size(), static_cast<size_t>(_start_line + _visible_comments)); i++) {
 
       if (i + _start_line == _cursor) {

@@ -10,8 +10,8 @@ namespace tui {
 
 class ViewCommentWindow : termui::Interface {
 private:
-kan::Comment _comment;
-termui::Pager _pager;
+  kan::Comment  _comment;
+  termui::Pager _pager;
 
   uint _width = 80, _height = 40;
 
@@ -21,7 +21,7 @@ termui::Pager _pager;
 public:
   ViewCommentWindow(kan::Comment comment);
 
-  void show();
+  termui::Interface::State show();
 };
 
 } // namespace tui

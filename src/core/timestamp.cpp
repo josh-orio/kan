@@ -7,8 +7,12 @@
 
 namespace kan {
 
+Timestamp::Timestamp() { Now(); }
+
+Timestamp::Timestamp(nlohmann::json json) { fromJson(json); }
+
 Timestamp &Timestamp::fromJson(nlohmann::json timestamp) {
-  time = timestamp.at("time");
+  time     = timestamp.at("time");
   timezone = timestamp.at("timezone");
 
   return *this;

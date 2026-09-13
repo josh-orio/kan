@@ -37,12 +37,28 @@ void Board::fromJson(nlohmann::json json) {
 
 std::string Board::Title() { return _title; }
 
-std::vector<Column>& Board::Columns() { return _columns; }
+std::vector<Column> &Board::Columns() { return _columns; }
 
 Column &Board::Column(unsigned int idx) { return _columns.at(idx); }
 
 std::vector<Job> &Board::Jobs(unsigned int col_idx) { return _columns.at(col_idx).Jobs(); }
 
 Job &Board::Job(unsigned int col_idx, unsigned int row_idx) { return _columns.at(col_idx).Job(row_idx); }
+
+void Board::deleteJob(kan::Job job) {
+
+  for (auto &col : board.Columns()) {
+    auto &jobs = col.Jobs();
+    jobs.erase(std::remove_if(jobs.begin(), jobs.end(), [&](const kan::Job &j) { return j.uuid == job.uuid; }), jobs.end());
+  }
+
+  // for (auto &col : _columns) {
+  //   for (auto & jjob :col.Jobs()) {
+  //     if (job.uuid == jjob.uuid) {
+
+  //     }
+  //   }
+  // }
+}
 
 } // namespace kan

@@ -14,6 +14,8 @@ public:
   IssueList &width(unsigned int w);
   IssueList &height(unsigned int h);
 
+  void ReloadIssues(Issues issues);
+
   void CursorUp(unsigned int count = 1);
   void CursorDown(unsigned int count = 1);
 
@@ -22,12 +24,13 @@ public:
   void render();
 
 private:
-  kan::Issues _issues;
-  unsigned int  _w, _h;
-  unsigned int  _visible_issues;
-  unsigned int  _start_line;
-  unsigned int  _cursor;
-  unsigned int  _line_spacing = 1;
+  kan::Issues  _issues;
+  unsigned int _w, _h;
+  unsigned int _visible_issues;
+  unsigned int _start_line;
+  unsigned int _cursor;
+  unsigned int _cell_height  = 3;
+  unsigned int _line_spacing = 1;
 
   void internal_update();
 };

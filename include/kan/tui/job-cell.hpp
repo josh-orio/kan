@@ -7,7 +7,7 @@
 namespace kan {
 namespace tui {
 
-class Cell {
+class JobCell {
 private:
   kan::Job _job;
   int      _width, _height = 2;
@@ -21,12 +21,12 @@ private:
   });
 
 public:
-  Cell(kan::Job job);
+  JobCell(kan::Job job);
 
-  Cell &width(int n);
+  JobCell &width(int n);
 
-  Cell &focus();
-  Cell &blur();
+  JobCell &focus();
+  JobCell &blur();
 
   void render();
 };

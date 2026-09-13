@@ -7,14 +7,14 @@ MiniMenu::MiniMenu(std::string title, std::vector<std::string> choices) : _title
 
 void MiniMenu::CursorUp(unsigned int count) {
   internal_update();
-  _cursor = (_cursor > 0) ? std::max(0, int(_cursor - count)) : 0; // decrement but dont let (cursor < 0)
-  _start_line = (_cursor < _start_line) ? _cursor : _start_line;   // don't let cursor go 'above' start line
+  _cursor     = (_cursor > 0) ? std::max(0, int(_cursor - count)) : 0; // decrement but dont let (cursor < 0)
+  _start_line = (_cursor < _start_line) ? _cursor : _start_line;       // don't let cursor go 'above' start line
 }
 
 void MiniMenu::CursorDown(unsigned int count) {
   internal_update();
-  _cursor = (_cursor < _choices.size() - count) ? std::min(_choices.size() - 1, static_cast<size_t>(_cursor + count))
-                                                : _choices.size() - 1;                                  // increment but dont let (cursor > elements.size)
+  _cursor     = (_cursor < _choices.size() - count) ? std::min(_choices.size() - 1, static_cast<size_t>(_cursor + count))
+                                                    : _choices.size() - 1;                              // increment but dont let (cursor > elements.size)
   _start_line = (_cursor >= _start_line + _visible_lines) ? _cursor - _visible_lines + 1 : _start_line; // don't let cursor go 'below' bottom of visible lines
 }
 
@@ -67,14 +67,14 @@ void MiniMenu::process_input() {
 
   if (inp == termui::key::ESC) {
     state = termui::Interface::State::Exit;
-
-  } else if (inp == termui::key::U_ARROW) {
+  }
+  else if (inp == termui::key::U_ARROW) {
     CursorUp();
-
-  } else if (inp == termui::key::D_ARROW) {
+  }
+  else if (inp == termui::key::D_ARROW) {
     CursorDown();
-
-  } else if (inp == termui::key::ENTER) {
+  }
+  else if (inp == termui::key::ENTER) {
     state = termui::Interface::State::Submit;
   }
 }

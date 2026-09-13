@@ -3,8 +3,7 @@
 namespace kan {
 
 Job::Job() : title(), description(), status(), created(), updated(), creator(), uuid(UUIDv7::generate().to_string()) {
-  time_t timestamp;
-  created = time(&timestamp);
+  created = Timestamp().Now();
   updated = created;
 
   creator = User().getFromSystem();
@@ -14,13 +13,13 @@ Job::Job(nlohmann::json json) { fromJson(json); }
 
 nlohmann::json Job::toJson() {
   nlohmann::ordered_json job;
-  job["title"] = title;
+  job["title"]       = title;
   job["description"] = description;
-  job["status"] = status;
-  job["created"] = created;
-  job["updated"] = updated;
-  job["creator"] = creator.toJson();
-  job["uuid"] = uuid;
+  job["status"]      = status;
+  job["created"]     = created.toJson();
+  job["updated"]     = updated.toJson();
+  job["creator"]     = creator.toJson();
+  job["uuid"]        = uuid;
 
   job["comments"] = comments.toJson();
 
@@ -32,11 +31,11 @@ nlohmann::json Job::toJson() {
 void Job::fromJson(nlohmann::json json) {
   std::string tmp = json.dump();
 
-  title = json["title"];
+  title       = json["title"];
   description = json["description"];
-  status = json["status"];
-  created = json["created"];
-  updated = json["updated"];
+  status      = json["status"];
+  created     = Timestamp(json["created"]);
+  updated     = Timestamp(json["updated"]);
   //  creator.fromJson(json["creator"]);
   uuid = json["uuid"];
 

@@ -25,14 +25,14 @@ IssueList &IssueList::height(unsigned int h) {
 
 void IssueList::CursorUp(unsigned int count) {
   internal_update();
-  _cursor = (_cursor > 0) ? std::max(0, int(_cursor - count)) : 0; // decrement but dont let (cursor < 0)
-  _start_line = (_cursor < _start_line) ? _cursor : _start_line;   // don't let cursor go 'above' start line
+  _cursor     = (_cursor > 0) ? std::max(0, int(_cursor - count)) : 0; // decrement but dont let (cursor < 0)
+  _start_line = (_cursor < _start_line) ? _cursor : _start_line;       // don't let cursor go 'above' start line
 }
 
 void IssueList::CursorDown(unsigned int count) {
   internal_update();
-  _cursor = (_cursor < _issues.size() - count) ? std::min(_issues.size() - 1, static_cast<size_t>(_cursor + count))
-                                               : _issues.size() - 1;                                      // increment but dont let (cursor > elements.size)
+  _cursor     = (_cursor < _issues.size() - count) ? std::min(_issues.size() - 1, static_cast<size_t>(_cursor + count))
+                                                   : _issues.size() - 1;                                  // increment but dont let (cursor > elements.size)
   _start_line = (_cursor >= _start_line + _visible_issues) ? _cursor - _visible_issues + 1 : _start_line; // don't let cursor go 'below' bottom of visible lines
 }
 
@@ -45,9 +45,8 @@ void IssueList::render() {
 
   if (_issues.size() == 0) {
     termui::Text("No issues to show.").style(termui::Styles::faint).align(termui::Text::Alignment::Center).width(_w).height(1).render();
-
-  } else {
-
+  }
+  else {
     for (int i = _start_line; i < std::min(_issues.size(), static_cast<size_t>(_start_line + _visible_issues)); i++) {
 
       if (i + _start_line == _cursor) {
@@ -56,9 +55,7 @@ void IssueList::render() {
       }
 
       termui::terminal.MoveCursor(row + (4 * i), col + 2);
-      // termui::Text(_issues.at(i + _start_line).text).size(_w - 2, 2).render();
-
-      // termui::terminal.CursorLeft(_w).CursorDown(_line_spacing + 1);
+      termui::Text(_issues.at(i + _start_line).description).size(_w - 2, 2).render();
 
       termui::terminal.MoveCursor(row + (4 * i) + 2, col + 2);
       termui::Text(_issues.at(i + _start_line).creator.Name()).style(termui::Styles::bold).size(_w - 2 - 20, 1).render();
@@ -80,8 +77,8 @@ void IssueList::render() {
 void IssueList::internal_update() {
   _visible_issues = 0;
   while (true) {
-    // calculates lines used by displaying another row
-    int space_used = (3 * (_visible_issues + 1)) + (_line_spacing * _visible_issues); // 3* because cell is 3 lines high
+    // calculates lines used by displaying another row of cells
+    int space_used = (_cell_height * (_visible_issues + 1)) + (_line_spacing * _visible_issues);
 
     if (space_used > _h - 2) { // -2 for controlstrip space
       break;

@@ -50,8 +50,8 @@ void NewJob::display() {
                            })
         .width(_width - 4 - 1 - 8)
         .render();
-
-  } else {
+  }
+  else {
     kan::tui::ControlStrip({
                                {"esc", "close"},
                                {"↑↓", "navigate"},
@@ -67,7 +67,8 @@ void NewJob::display() {
 
   if (_selected_field == Focus::Finish) {
     b.focus();
-  } else {
+  }
+  else {
     b.blur();
   }
 
@@ -76,8 +77,8 @@ void NewJob::display() {
   if (_selected_field != Focus::Finish) {
     termui::terminal.RestoreCursorPosition();
     termui::terminal.ShowCursor();
-
-  } else {
+  }
+  else {
     termui::terminal.HideCursor();
   }
 
@@ -89,51 +90,51 @@ void NewJob::process_input() {
 
   if (inp == termui::key::ESC) {
     state = termui::Interface::State::Exit;
-
-  } else if (inp == termui::key::U_ARROW) {
+  }
+  else if (inp == termui::key::U_ARROW) {
     if (_selected_field == Focus::Description) {
       _selected_field = Focus::Title;
-
-    } else if (_selected_field == Focus::Finish) {
+    }
+    else if (_selected_field == Focus::Finish) {
       _selected_field = Focus::Description;
     }
-
-  } else if (inp == termui::key::D_ARROW) {
+  }
+  else if (inp == termui::key::D_ARROW) {
     if (_selected_field == Focus::Title) {
       _selected_field = Focus::Description;
-
-    } else if (_selected_field == Focus::Description) {
+    }
+    else if (_selected_field == Focus::Description) {
       _selected_field = Focus::Finish;
     }
-
-  } else if ((std::string{32} <= inp) && (inp <= std::string{126})) { // accept basically all chars
+  }
+  else if ((std::string{32} <= inp) && (inp <= std::string{126})) { // accept basically all chars
     if (_selected_field == Focus::Title) {
       new_job.title += inp;
-
-    } else if (_selected_field == Focus::Description) {
+    }
+    else if (_selected_field == Focus::Description) {
       new_job.description += inp;
     }
-
-  } else if (inp == termui::key::DEL) { // remove last char
+  }
+  else if (inp == termui::key::DEL) { // remove last char
     if (_selected_field == Focus::Title) {
       if (new_job.title.size() > 0) {
         new_job.title = std::string(new_job.title.begin(), new_job.title.end() - 1);
       }
-
-    } else if (_selected_field == Focus::Description) {
+    }
+    else if (_selected_field == Focus::Description) {
       if (new_job.description.size() > 0) {
         new_job.description = std::string(new_job.description.begin(), new_job.description.end() - 1);
       }
     }
-
-  } else if (inp == termui::key::ENTER) {
+  }
+  else if (inp == termui::key::ENTER) {
     if (_selected_field == Focus::Title) {
       new_job.title += "\n";
-
-    } else if (_selected_field == Focus::Description) {
+    }
+    else if (_selected_field == Focus::Description) {
       new_job.description += "\n";
-
-    } else if (_selected_field == Focus::Finish) {
+    }
+    else if (_selected_field == Focus::Finish) {
       state = termui::Interface::State::Submit;
     }
   }
@@ -152,8 +153,8 @@ std::pair<bool, kan::Job> NewJob::show() {
 
   if (state == termui::Interface::State::Submit) {
     return {true, new_job};
-
-  } else {
+  }
+  else {
     return {false, new_job};
   }
 }

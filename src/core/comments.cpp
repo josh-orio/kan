@@ -7,19 +7,15 @@ Comment::Comment() {}
 
 Comment::Comment(nlohmann::json json) { fromJson(json); }
 
-void Comment::fromJson(nlohmann::json comment)
-{
+void Comment::fromJson(nlohmann::json comment) {
 
-  text = comment.at("text");
+  text    = comment.at("text");
   creator = User().fromJson(comment.at("creator"));
   created = Timestamp().fromJson(comment.at("created"));
-  uuid = comment.at("uuid");
-
-  auto tmp = 0;
+  uuid    = comment.at("uuid");
 }
 
-nlohmann::json Comment::toJson()
-{
+nlohmann::json Comment::toJson() {
   return {
       {"text", text},
       {"creator", creator.toJson()},
@@ -33,8 +29,7 @@ Comments::Comments() : _comments() {}
 
 Comments::Comments(nlohmann::json json) { fromJson(json); }
 
-void Comments::fromJson(nlohmann::json comments)
-{
+void Comments::fromJson(nlohmann::json comments) {
   _comments.clear();
 
   if (comments.empty() || comments.is_null()) {
@@ -46,8 +41,7 @@ void Comments::fromJson(nlohmann::json comments)
   }
 }
 
-nlohmann::json Comments::toJson()
-{
+nlohmann::json Comments::toJson() {
   auto json = nlohmann::json::array();
 
   for (auto &c : _comments) {
@@ -64,5 +58,9 @@ Comment Comments::at(int i) { return _comments.at(i); }
 void Comments::addComment(Comment c) { _comments.push_back(c); }
 
 void Comments::deleteComment(int idx) { _comments.erase(_comments.begin() + idx); }
+
+void Comments::deleteComment(Comment c) {
+  _comments.erase(std::remove_if(_comments.begin(), _comments.end(), [&](const kan::Comment &comment) { return comment.uuid == c.uuid; }), _comments.end());
+}
 
 } // namespace kan

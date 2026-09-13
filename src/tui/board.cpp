@@ -5,7 +5,7 @@
 namespace kan {
 namespace tui {
 
-Board::Board(kan::Board &board) :/* _board(board), */_active_col(0), _active_row(0) {}
+Board::Board(kan::Board &board) : /* _board(board), */ _active_col(0), _active_row(0) {}
 
 Board &Board::width(uint n) {
   _width = n;
@@ -23,9 +23,7 @@ uint Board::ActiveRow() { return _active_row; }
 
 void Board::Up(uint n) { _active_row = std::max<int>(0, _active_row - n); }
 
-void Board::Down(uint n) {
-  _active_row = std::min<int>(board.Jobs(_active_col).size() == 0 ? 0 : board.Jobs(_active_col).size() - 1, _active_row + n);
-}
+void Board::Down(uint n) { _active_row = std::min<int>(board.Jobs(_active_col).size() == 0 ? 0 : board.Jobs(_active_col).size() - 1, _active_row + n); }
 
 void Board::Left(uint n) {
   _active_col = std::max<int>(0, _active_col - n);
@@ -58,10 +56,10 @@ void Board::render() {
   // termui::terminal.write(std::format("{} {}", _active_col, _active_row));
   termui::terminal.CursorDown(2).CursorLeft(20);
 
-  int w = _width;
-  int cols = board.Columns().size();
+  int w         = _width;
+  int cols      = board.Columns().size();
   int col_width = _width <= 0 ? 0 : [w, cols]() {
-    int overhead = 4;
+    int overhead    = 4;
     int col_spacing = 1;
 
     // cols = (h - overhead) / (line_height + line_spacing);
@@ -81,7 +79,8 @@ void Board::render() {
       }
 
       column.focus(_active_row);
-    } else {
+    }
+    else {
       column.blur();
     }
 

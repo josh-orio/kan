@@ -29,16 +29,16 @@ void NewCommentWindow::display() {
                                {"esc", "close"},
                                {"↑↓", "navigate"},
                            })
-        .width(_width - 4 - 6)
+        .width(_width - 11)
         .render();
-
-  } else if (_selected_field == Focus::Save) {
+  }
+  else if (_selected_field == Focus::Save) {
     kan::tui::ControlStrip({
                                {"esc", "close"},
                                {"↑↓", "navigate"},
                                {"↵", "save"},
                            })
-        .width(_width - 4 - 6)
+        .width(_width - 11)
         .render();
   }
 
@@ -48,7 +48,8 @@ void NewCommentWindow::display() {
 
   if (_selected_field == Focus::Save) {
     save.focus();
-  } else {
+  }
+  else {
     save.blur();
   }
 
@@ -62,7 +63,8 @@ void NewCommentWindow::display() {
 
   if (_selected_field == Focus::Text) {
     termui::terminal.ShowCursor();
-  } else {
+  }
+  else {
     termui::terminal.HideCursor();
   }
 
@@ -74,20 +76,20 @@ void NewCommentWindow::process_input() {
 
   if (inp == termui::key::ESC) {
     state = termui::Interface::State::Exit;
-
-  } else if (inp == termui::key::U_ARROW) {
+  }
+  else if (inp == termui::key::U_ARROW) {
     _selected_field = Focus::Text;
-
-  } else if (inp == termui::key::D_ARROW) {
+  }
+  else if (inp == termui::key::D_ARROW) {
     _selected_field = Focus::Save;
-
-  } else if ((std::string{32} <= inp) && (inp <= std::string{126})) { // accept basically all chars
+  }
+  else if ((std::string{32} <= inp) && (inp <= std::string{126})) { // accept basically all chars
     if (_selected_field == Focus::Text) {
       std::string &cmt = _comment;
       cmt += inp;
     }
-
-  } else if (inp == termui::key::DEL) { // remove last char
+  }
+  else if (inp == termui::key::DEL) { // remove last char
     if (_selected_field == Focus::Text) {
 
       std::string &cmt = _comment;
@@ -95,13 +97,13 @@ void NewCommentWindow::process_input() {
         cmt = std::string(cmt.begin(), cmt.end() - 1);
       }
     }
-
-  } else if (inp == termui::key::ENTER) {
+  }
+  else if (inp == termui::key::ENTER) {
     if (_selected_field == Focus::Text) {
       std::string &cmt = _comment;
       cmt += "\n";
-
-    } else if (_selected_field == Focus::Save) {
+    }
+    else if (_selected_field == Focus::Save) {
       state = termui::Interface::State::Submit;
     }
   }
@@ -120,17 +122,16 @@ std::pair<bool, kan::Comment> NewCommentWindow::show() {
 
   if (state == termui::Interface::State::Submit) {
     Comment comment;
-    comment.text = _comment;
+    comment.text    = _comment;
     comment.creator = User().getFromSystem();
     comment.created = Timestamp().Now();
-    comment.uuid = UUIDv7::generate().to_string();
+    comment.uuid    = UUIDv7::generate().to_string();
 
     return {true, comment};
-  } else if (state == termui::Interface::State::Exit) {
+  }
+  else /* Exit */ {
     return {false, Comment()};
   }
-
-  // return Comment();
 }
 
 } // namespace tui

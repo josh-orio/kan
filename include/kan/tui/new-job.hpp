@@ -12,7 +12,7 @@ class NewJob : termui::Interface {
 
   enum class Focus { Title, Description, Finish };
   Focus _selected_field = Focus::Title;
-  
+
   kan::Job new_job;
 
   void display();

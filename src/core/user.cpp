@@ -3,7 +3,7 @@
 namespace kan {
 
 User &User::fromJson(nlohmann::json user) {
-  name = user.at("name");
+  name  = user.at("name");
   email = user.at("email");
 
   return *this;
@@ -11,7 +11,7 @@ User &User::fromJson(nlohmann::json user) {
 
 nlohmann::json User::toJson() {
   nlohmann::ordered_json user;
-  user["name"] = name;
+  user["name"]  = name;
   user["email"] = email;
 
   return user;
@@ -39,7 +39,7 @@ std::string runCommand(const std::string &cmd) {
 };
 
 User &User::getFromSystem() {
-  name = runCommand("git config user.name 2>/dev/null");
+  name  = runCommand("git config user.name 2>/dev/null");
   email = runCommand("git config user.email 2>/dev/null");
 
   return *this;

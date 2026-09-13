@@ -37,6 +37,7 @@ public:
 
   void addComment(Comment c);
   void deleteComment(int idx);
+  void deleteComment(Comment c);
 };
 
 } // namespace kan

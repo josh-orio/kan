@@ -44,8 +44,8 @@ void TabBar::render() {
       termui::terminal.StyleStack(::tui::stl({termui::SGR::Bold, termui::SGR::Underlined}));
       termui::terminal.write(" " + _tabs.at(i) + " ");
       termui::terminal.StylePop();
-
-    } else {
+    }
+    else {
       termui::terminal.write(" " + _tabs.at(i) + " ");
     }
   }

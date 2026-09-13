@@ -29,7 +29,8 @@ public:
   Column           &Column(unsigned int idx);
   std::vector<Job> &Jobs(unsigned int col_idx);
   Job              &Job(unsigned int col_idx, unsigned int row_idx);
-  void              DeleteJob(kan::Job job);
+
+  void deleteJob(kan::Job job);
 };
 
 } // namespace kan

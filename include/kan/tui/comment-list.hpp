@@ -29,7 +29,7 @@ private:
   unsigned int  _visible_comments;
   unsigned int  _start_line;
   unsigned int  _cursor;
-  unsigned int  _cell_height = 3;
+  unsigned int  _cell_height  = 3;
   unsigned int  _line_spacing = 1;
 
   void internal_update();
