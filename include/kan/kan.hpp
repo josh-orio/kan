@@ -1,7 +1,8 @@
 #ifndef KAN_HPP
 #define KAN_HPP
 
-#include <nlohmann/json.hpp>
+// #include <nlohmann/json.hpp>
+#include <filesystem>
 #include <string>
 
 #include <kan/core.hpp>
@@ -9,7 +10,7 @@
 
 namespace kan {
 
-class Status {};
+class Status {}; // ??
 
 class KAN : termui::Interface {
 private:
@@ -18,21 +19,21 @@ private:
 
   void init();
 
-  void display();
-  void process_input();
-  void internal_update();
+  // void display();
+  // void process_input();
+  // void internal_update();
 
-  void loadBoard();
-  void saveBoard();
+  // void loadBoard();
+  // void saveBoard();
 
-  void loadJobs();
-  void saveJobs();
+  // void loadJobs();
+  // void saveJobs();
 
-  void loadJob();
-  void saveJob(uint col, uint row);
-  void saveJob(kan::Job);
+  // void loadJob();
+  // void saveJob(uint col, uint row);
+  // void saveJob(kan::Job);
 
-  void reloadJobs();
+  // void reloadJobs();
 
 public:
   KAN(std::string path);

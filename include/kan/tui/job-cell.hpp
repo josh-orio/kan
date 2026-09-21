@@ -27,6 +27,7 @@ public:
 
   JobCell &focus();
   JobCell &blur();
+  JobCell &setFocus(bool x);
 
   void render();
 };

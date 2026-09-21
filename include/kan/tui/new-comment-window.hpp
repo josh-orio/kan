@@ -10,9 +10,10 @@ namespace tui {
 
 class NewCommentWindow : termui::Interface {
 private:
-  termui::string _comment;
-  kan::User      _user;
-  kan::Timestamp _time;
+  // termui::string _comment;
+  // kan::User      _user;
+  // kan::Timestamp _time;
+  kan::Comment _comment;
 
   uint _width = 60, _height = 9;
 

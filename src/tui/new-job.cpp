@@ -152,6 +152,10 @@ std::pair<bool, kan::Job> NewJob::show() {
   termui::terminal.HideCursor(); // just in case
 
   if (state == termui::Interface::State::Submit) {
+
+    new_job.history.addEvent({"Job created.", User().getFromSystem(), Timestamp().Now()});
+    new_job.creator = User().getFromSystem();
+
     return {true, new_job};
   }
   else {

@@ -5,50 +5,88 @@ namespace kan {
 // ---- Comment ----
 Comment::Comment() {}
 
-Comment::Comment(nlohmann::json json) { fromJson(json); }
+// Comment::Comment(nlohmann::json json) { fromJson(json); }
 
-void Comment::fromJson(nlohmann::json comment) {
+Comment::Comment(YAML::Node yaml) { fromYaml(yaml); }
 
-  text    = comment.at("text");
-  creator = User().fromJson(comment.at("creator"));
-  created = Timestamp().fromJson(comment.at("created"));
-  uuid    = comment.at("uuid");
+// void Comment::fromJson(nlohmann::json comment) {
+//   text    = termui::string(comment.at("text"));
+//   creator = User().fromJson(comment.at("creator"));
+//   created = Timestamp().fromJson(comment.at("created"));
+//   uuid    = comment.at("uuid");
+// }
+
+// nlohmann::json Comment::toJson() {
+//   return {
+//       {"text", text},
+//       {"creator", creator.toJson()},
+//       {"created", created.toJson()},
+//       {"uuid", uuid},
+//   };
+// }
+
+void Comment::fromYaml(YAML::Node yaml) {
+  text    = yaml["text"].as<std::string>();
+  creator = User().fromYaml(yaml["creator"]);
+  created = Timestamp().fromYaml(yaml["created"]);
+  uuid    = yaml["uuid"].as<std::string>();
 }
 
-nlohmann::json Comment::toJson() {
-  return {
-      {"text", text},
-      {"creator", creator.toJson()},
-      {"created", created.toJson()},
-      {"uuid", uuid},
-  };
+YAML::Node Comment::toYaml() {
+  YAML::Node yaml;
+  yaml["text"]    = std::string(text);
+  yaml["creator"] = creator.toYaml();
+  yaml["created"] = created.toYaml();
+  yaml["uuid"]    = uuid;
+
+  return yaml;
 }
 
 // ---- Comments ----
 Comments::Comments() : _comments() {}
 
-Comments::Comments(nlohmann::json json) { fromJson(json); }
+// Comments::Comments(nlohmann::json json) { fromJson(json); }
 
-void Comments::fromJson(nlohmann::json comments) {
+Comments::Comments(YAML::Node yaml) { fromYaml(yaml); }
+
+// void Comments::fromJson(nlohmann::json comments) {
+//   _comments.clear();
+
+//   if (comments.empty() || comments.is_null()) {
+//     return;
+//   }
+
+//   for (auto &c : comments) {
+//     _comments.push_back(Comment(c));
+//   }
+// }
+
+// nlohmann::json Comments::toJson() {
+//   auto json = nlohmann::json::array();
+
+//   for (auto &c : _comments) {
+//     json.push_back(c.toJson());
+//   }
+
+//   return json;
+// }
+
+void Comments::fromYaml(YAML::Node yaml) {
   _comments.clear();
 
-  if (comments.empty() || comments.is_null()) {
-    return;
-  }
-
-  for (auto &c : comments) {
+  for (const auto &c : yaml) {
     _comments.push_back(Comment(c));
   }
 }
 
-nlohmann::json Comments::toJson() {
-  auto json = nlohmann::json::array();
+YAML::Node Comments::toYaml() {
+  YAML::Node yaml(YAML::NodeType::Sequence);
 
-  for (auto &c : _comments) {
-    json.push_back(c.toJson());
+  for (auto &e : _comments) {
+    yaml.push_back(e.toYaml());
   }
 
-  return json;
+  return yaml;
 }
 
 size_t Comments::size() { return _comments.size(); }

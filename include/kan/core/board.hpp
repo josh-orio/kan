@@ -1,25 +1,32 @@
 #ifndef CORE_BOARD_HPP
 #define CORE_BOARD_HPP
 
+#include <filesystem>
 #include <kan/core/column.hpp>
-#include <nlohmann/json.hpp>
+// #include <nlohmann/json.hpp>
 #include <vector>
 
 namespace kan {
 
-class Board {
-private:
-  std::string              _title;
-  std::vector<kan::Column> _columns;
+struct Board {
+  private:
+   std::filesystem::path  _path;
 
 public:
+  std::string              title;
+  std::vector<kan::Column> columns;
+
   static Board &instance();
 
-  Board() = default;
-  Board(nlohmann::json board);
+  // Board() = default;
+  Board(std::string path);
+  // Board(nlohmann::json board);
 
-  void           fromJson(nlohmann::json json);
-  nlohmann::json toJson();
+  // void           fromJson(nlohmann::json json);
+  // nlohmann::json toJson();
+
+  void       fromYaml(YAML::Node yaml);
+  YAML::Node toYaml();
 
   std::vector<std::string> Statuses();
 
@@ -31,6 +38,24 @@ public:
   Job              &Job(unsigned int col_idx, unsigned int row_idx);
 
   void deleteJob(kan::Job job);
+
+
+  void loadBoard();
+  void saveBoard();
+
+  void loadJobs();
+  void saveJobs();
+
+  void loadJob();
+  void saveJob(uint col, uint row);
+  void saveJob(kan::Job);
+
+  void reloadJobs();
+
+  // Board&
+  // void setTitle(std::string s);
+  // void setDescription(std::string s);
+  // void addColumn(std::string title);
 };
 
 } // namespace kan

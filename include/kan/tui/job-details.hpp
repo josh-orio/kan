@@ -12,7 +12,7 @@ namespace tui {
 
 class JobDetails {
 public:
-  enum class Focus { Status, Description, Archive, Delete };
+  enum class Focus { Status, Priority, Description, Archive, Delete };
 
   JobDetails(kan::Job job);
 

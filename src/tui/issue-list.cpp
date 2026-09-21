@@ -21,7 +21,7 @@ IssueList &IssueList::height(unsigned int h) {
   return *this;
 }
 
-// void IssueList::ReloadIssues() { }
+void IssueList::ReloadIssues(Issues issues) { _issues = issues; }
 
 void IssueList::CursorUp(unsigned int count) {
   internal_update();

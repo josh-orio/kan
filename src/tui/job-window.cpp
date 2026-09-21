@@ -3,7 +3,7 @@
 namespace kan {
 namespace tui {
 
-JobWindow::JobWindow(kan::Job job) : _job(job), _job_detail(job), _comment_list(job.comments) {}
+JobWindow::JobWindow(kan::Job job) : _job(job), _job_detail(job), _comment_list(job.comments), _issue_list(job.issues), _history_viewer(job.history) {}
 
 void JobWindow::display() {
   auto terminal_half_w = termui::terminal.halfWidth();
@@ -37,14 +37,16 @@ void JobWindow::display() {
   termui::terminal.flush(); // have to do this so child components can get an accurate cursor position
 
   if (tab == 0) {
-    // auto [row,col]=termui::terminal.GetCursorPosition();
     _job_detail.size(_width - 4, _height - 6).render();
   }
-  if (tab == 1) {
+  else if (tab == 1) {
     _comment_list.size(_width - 4, _height - 6).render();
   }
-  if (tab == 2) {
-    // _issue_list.size(_width - 4, _height - 6).render();
+  else if (tab == 2) {
+    _issue_list.size(_width - 4, _height - 6).render();
+  }
+  else if (tab == 3) {
+    _history_viewer.size(_width - 4, _height - 6).render();
   }
 
   termui::terminal.flush();
@@ -71,6 +73,12 @@ void JobWindow::process_input() {
     else if (tab == 1) {
       _comment_list.CursorUp();
     }
+    else if (tab == 2) {
+      _issue_list.CursorUp();
+    }
+    else if (tab == 3) {
+      _history_viewer.CursorUp();
+    }
   }
   else if (inp == termui::key::D_ARROW) {
     if (tab == 0) {
@@ -78,6 +86,12 @@ void JobWindow::process_input() {
     }
     else if (tab == 1) {
       _comment_list.CursorDown();
+    }
+    else if (tab == 2) {
+      _issue_list.CursorDown();
+    }
+    else if (tab == 3) {
+      _history_viewer.CursorDown();
     }
   }
   else if (inp == termui::key::L_ARROW) {
@@ -95,10 +109,32 @@ void JobWindow::process_input() {
       auto [success, comment] = NewCommentWindow().show();
 
       if (success) {
-        // _job.comments._comments.push_back(comment);
         _job.comments.addComment(comment);
-        // _comment_list = CommentList(_job._comments);// reload comments - very inefficient
         _comment_list.ReloadComments(_job.comments);
+
+        _job.history.addEvent({"Comment added.", User().getFromSystem(), Timestamp().Now()});
+        _history_viewer.Reload(_job.history);
+
+        _modified = true;
+      }
+    }
+  }
+  else if (inp == "i") {
+    if (tab == 2) {
+      auto [success, issue] = NewIssueWindow().show();
+
+      // save issue
+      
+
+      if (success) {
+        _job.issues.addIssue(issue);
+        _issue_list.ReloadIssues(_job.issues);
+
+
+
+        _job.history.addEvent({std::format("Issue added. Id: #{}", issue.uuid.substr(issue.uuid.size()-8)), User().getFromSystem(), Timestamp().Now()});
+        _history_viewer.Reload(_job.history);
+
         _modified = true;
       }
     }
@@ -106,17 +142,35 @@ void JobWindow::process_input() {
   else if (inp == "o" || inp == termui::key::ENTER) {
     if (tab == 0) {
       if (_job_detail.Focussed() == JobDetails::Focus::Status) {
-        // mini menu
         std::vector<std::string> statuses = board.Statuses();
 
-        auto [state, cursor] = tui::MiniMenu("Status", statuses).show(); // how to dynamically get this - create board singleton?
+        auto [state, cursor] = tui::MiniMenu("Status", statuses).show();
 
         if (state == termui::Interface::State::Submit) {
-          _job.status = statuses.at(cursor);
+          auto old_status = _job.status;
+          _job.status     = statuses.at(cursor);
+
+          _job.history.addEvent({std::format("Job status was updated: {} -> {}.", old_status, _job.status), User().getFromSystem(), Timestamp().Now()});
           _job_detail = JobDetails(_job);
+
+
           _modified   = true;
         }
       }
+
+      if (_job_detail.Focussed() == JobDetails::Focus::Priority) {
+        // std::vector<std::string> statuses = board.Statuses();
+        std::vector<std::string> priorities = {"Low", "Normal", "High"};
+
+        auto [state, cursor] = tui::MiniMenu("Priority", priorities).setCursor(1).show();
+
+        if (state == termui::Interface::State::Submit) {
+          _job.priority = Job::Priority(cursor);
+          _job_detail   = JobDetails(_job);
+          _modified     = true;
+        }
+      }
+
       else if (_job_detail.Focussed() == JobDetails::Focus::Description) {
         _job.description = EditWindow(_job.description).width(_width - 4).height(_height - 14).show();
         _job_detail      = JobDetails(_job);
@@ -125,8 +179,6 @@ void JobWindow::process_input() {
       else if (_job_detail.Focussed() == JobDetails::Focus::Archive) {
       }
       else if (_job_detail.Focussed() == JobDetails::Focus::Delete) {
-        // board.deleteJob(_job);
-        // state = termui::Interface::State::Exit;
         auto confirm = DialogBox("Confirm delete", "Are you sure you want to delete this job?", "Delete", "Cancel").show();
 
         if (confirm) {
@@ -135,12 +187,21 @@ void JobWindow::process_input() {
         }
       }
     }
-    if (tab == 1) {
+    else if (tab == 1) {
       auto comment_view_state = ViewCommentWindow(_job.comments.at(_comment_list.GetCursor())).show();
 
       if (comment_view_state == termui::Interface::State::Delete) {
         _job.comments.deleteComment(_job.comments.at(_comment_list.GetCursor()));
         _comment_list.ReloadComments(_job.comments);
+      }
+    }
+
+    else if (tab == 2) {
+      auto issue_view_state = ViewIssueWindow(_job.issues.at(_issue_list.GetCursor())).show();
+
+      if (issue_view_state == termui::Interface::State::Delete) {
+        // _job.comments.deleteComment(_job.comments.at(_comment_list.GetCursor()));
+        // _comment_list.ReloadComments(_job.comments);
       }
     }
   }

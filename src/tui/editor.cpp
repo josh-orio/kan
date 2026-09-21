@@ -21,6 +21,8 @@ void EditWindow::display() {
   termui::terminal.MoveCursor(window_start_row + 1, window_start_col + 1);
   termui::Input(_content).size(_width - 2, _height - 2).valueStyle(termui::Style(termui::Color::Inherit(), termui::Colors::Red)).render();
 
+  termui::terminal.ShowCursor();
+
   termui::terminal.flush();
 }
 
@@ -66,6 +68,8 @@ std::string EditWindow::show() {
     process_input();
 
   } while (state == State::Continue);
+
+  termui::terminal.HideCursor();
 
   return _content;
 }

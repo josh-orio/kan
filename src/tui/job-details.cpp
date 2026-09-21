@@ -3,6 +3,34 @@
 namespace kan {
 namespace tui {
 
+std::string priorityStr(Job::Priority p) {
+  switch (p) {
+  case Job::Priority::Low:
+    return "Low";
+    break;
+  case Job::Priority::Normal:
+    return "Normal";
+    break;
+  case Job::Priority::High:
+    return "High";
+    break;
+  }
+}
+
+std::string priorityIcon(Job::Priority p) {
+  switch (p) {
+  case Job::Priority::Low:
+    return "∨";
+    break;
+  case Job::Priority::Normal:
+    return "-";
+    break;
+  case Job::Priority::High:
+    return "∧";
+    break;
+  }
+}
+
 JobDetails::JobDetails(kan::Job job) : _job(job) {}
 
 JobDetails &JobDetails::size(uint w, uint h) {
@@ -29,6 +57,9 @@ JobDetails &JobDetails::CursorDown() {
   if (_selected_field == Focus::Status) {
     _selected_field = Focus::Description;
   }
+  else if (_selected_field == Focus::Priority) {
+    _selected_field = Focus::Description;
+  }
   else if (_selected_field == Focus::Description) {
     _selected_field = Focus::Archive;
   }
@@ -40,7 +71,10 @@ JobDetails &JobDetails::CursorDown() {
 }
 
 JobDetails &JobDetails::CursorLeft() {
-  if (_selected_field == Focus::Delete) {
+  if (_selected_field == Focus::Priority) {
+    _selected_field = Focus::Status;
+  }
+  else if (_selected_field == Focus::Delete) {
     _selected_field = Focus::Archive;
   }
 
@@ -48,7 +82,10 @@ JobDetails &JobDetails::CursorLeft() {
 }
 
 JobDetails &JobDetails::CursorRight() {
-  if (_selected_field == Focus::Archive) {
+  if (_selected_field == Focus::Status) {
+    _selected_field = Focus::Priority;
+  }
+  else if (_selected_field == Focus::Archive) {
     _selected_field = Focus::Delete;
   }
 
@@ -59,6 +96,7 @@ JobDetails::Focus JobDetails::Focussed() { return _selected_field; }
 
 void JobDetails::render() {
   auto [row, col] = termui::terminal.GetCursorPosition();
+
   // status indicator
   if (_selected_field == Focus::Status) {
     termui::terminal.write("·");
@@ -67,6 +105,19 @@ void JobDetails::render() {
   // status
   termui::terminal.MoveCursor(row, col + 2);
   termui::Text(_job.status, ::tui::stl(::tui::clrs::Red, ::tui::clr::Inherit())).width(_width - 2).height(1).render();
+
+  // priority (symbol + text)
+  termui::terminal.MoveCursor(row, col + _width - 10);
+  termui::terminal.write(priorityIcon(_job.priority));
+
+  termui::terminal.MoveCursor(row, col + _width - 8);
+  termui::Text(priorityStr(_job.priority)).style(termui::Style(termui::Color::Inherit(), termui::Colors::Red, {termui::SGR::Bold})).width(6).render();
+
+  // priority indicator
+  if (_selected_field == Focus::Priority) {
+    termui::terminal.MoveCursor(row, col + _width - 1);
+    termui::terminal.write("·");
+  }
 
   // desc indicator
   if (_selected_field == Focus::Description) {

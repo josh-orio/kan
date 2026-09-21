@@ -3,22 +3,27 @@
 
 #include <kan/core/timestamp.hpp>
 #include <kan/core/user.hpp>
-#include <nlohmann/json.hpp>
+// #include <nlohmann/json.hpp>
 #include <string>
+#include <termui/termui.hpp>
 
 namespace kan {
 
 struct Comment {
-  std::string text;
-  User        creator;
-  Timestamp   created;
-  std::string uuid;
+  termui::string text; // std::string text;
+  User           creator;
+  Timestamp      created;
+  std::string    uuid;
 
   Comment();
-  Comment(nlohmann::json json);
+  // Comment(nlohmann::json json);
+  Comment(YAML::Node yaml);
 
-  void           fromJson(nlohmann::json comment);
-  nlohmann::json toJson();
+  // void           fromJson(nlohmann::json comment);
+  // nlohmann::json toJson();
+
+  void       fromYaml(YAML::Node yaml);
+  YAML::Node toYaml();
 };
 
 struct Comments {
@@ -27,10 +32,14 @@ private:
 
 public:
   Comments();
-  Comments(nlohmann::json json);
+  // Comments(nlohmann::json json);
+  Comments(YAML::Node yaml);
 
-  void           fromJson(nlohmann::json comment);
-  nlohmann::json toJson();
+  // void           fromJson(nlohmann::json comment);
+  // nlohmann::json toJson();
+
+  void       fromYaml(YAML::Node yaml);
+  YAML::Node toYaml();
 
   size_t  size();
   Comment at(int idx);

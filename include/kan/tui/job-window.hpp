@@ -3,6 +3,8 @@
 
 #include <kan/core/job.hpp>
 #include <kan/tui/comment-list.hpp>
+#include <kan/tui/history-viewer.hpp>
+#include <kan/tui/issue-list.hpp>
 #include <kan/tui/job-details.hpp>
 #include <kan/tui/new-comment-window.hpp>
 #include <kan/tui/tab-bar.hpp>
@@ -14,9 +16,11 @@ namespace tui {
 class JobWindow : termui::Interface {
   uint _width = 80, _height = 40;
 
-  tui::TabBar      _tab_bar = TabBar({"Job", "Comments", "Issues", "History"});
-  tui::JobDetails  _job_detail;
-  tui::CommentList _comment_list;
+  tui::TabBar        _tab_bar = TabBar({"Details", "Comments", "Issues", "History"});
+  tui::JobDetails    _job_detail;
+  tui::CommentList   _comment_list;
+  tui::IssueList     _issue_list;
+  tui::HistoryViewer _history_viewer;
 
   kan::Job _job;
   bool     _modified = false;

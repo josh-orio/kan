@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <kan/core.hpp>
 
 #include <ctime>
@@ -9,16 +10,40 @@ namespace kan {
 
 Timestamp::Timestamp() { Now(); }
 
-Timestamp::Timestamp(nlohmann::json json) { fromJson(json); }
+// Timestamp::Timestamp(nlohmann::json json) { fromJson(json); }
 
-Timestamp &Timestamp::fromJson(nlohmann::json timestamp) {
-  time     = timestamp.at("time");
-  timezone = timestamp.at("timezone");
+Timestamp::Timestamp(YAML::Node yaml) { fromYaml(yaml); }
+
+// Timestamp &Timestamp::fromJson(nlohmann::json timestamp) {
+//   time     = timestamp.at("time");
+//   timezone = timestamp.at("timezone");
+
+//   return *this;
+// }
+
+// nlohmann::json Timestamp::toJson() { return {{"time", time}, {"timezone", timezone}}; }
+
+// Timestamp &Timestamp::fromYaml(YAML::Node yaml) {
+//   time     = yaml["time"].as<long>();
+//   timezone = yaml["timezone"].as<std::string>();
+
+//   return *this;
+// }
+
+Timestamp &Timestamp::fromYaml(YAML::Node yaml) {
+  time     = yaml["time"].as<time_t>();
+  timezone = yaml["timezone"].as<std::string>();
 
   return *this;
 }
 
-nlohmann::json Timestamp::toJson() { return {{"time", time}, {"timezone", timezone}}; }
+YAML::Node Timestamp::toYaml() {
+  YAML::Node yaml;
+  yaml["time"]     = time;
+  yaml["timezone"] = timezone;
+
+  return yaml;
+}
 
 Timestamp Timestamp::Now() {
   const auto clock_time = std::chrono::system_clock::now();

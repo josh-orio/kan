@@ -28,7 +28,8 @@ public:
 
   void         CursorUp(unsigned int count = 1);
   void         CursorDown(unsigned int count = 1);
-  unsigned int GetCursor();
+  unsigned int getCursor();
+  MiniMenu    &setCursor(unsigned int n);
 
   std::pair<termui::Interface::State, unsigned int> show();
 };

@@ -18,7 +18,12 @@ void MiniMenu::CursorDown(unsigned int count) {
   _start_line = (_cursor >= _start_line + _visible_lines) ? _cursor - _visible_lines + 1 : _start_line; // don't let cursor go 'below' bottom of visible lines
 }
 
-unsigned int MiniMenu::GetCursor() { return _cursor; }
+unsigned int MiniMenu::getCursor() { return _cursor; }
+
+MiniMenu &MiniMenu::setCursor(unsigned int n) {
+  _cursor = n;
+  return *this;
+}
 
 void MiniMenu::display() {
   internal_update();

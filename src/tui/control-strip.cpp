@@ -21,7 +21,8 @@ void ControlStrip::render() {
   for (int i = 0; i < _control_map.size(); i++) {
     if (i > 0) {
       if (remaining_width > 0) {
-        termui::terminal.CursorRight(1);
+        // termui::terminal.CursorRight(1);
+        termui::terminal.write(" ");
         remaining_width--;
       }
       if (remaining_width > 0) {

@@ -51,56 +51,90 @@ Board &Board::ActiveRow(uint row) {
   return *this;
 }
 
-void Board::render() {
+void Board::show() {
+  termui::TermSetups::fullscreen_no_mouse.configure();
+
+  state = State::Continue;
+
+  do {
+    display();
+    process_input();
+
+  } while (state == State::Continue);
+
+  termui::TermSetups::fullscreen_no_mouse.reset();
+}
+
+// void Board::display() {
+//   internal_update();
+
+//   _renderer.render();
+
+//   termui::terminal.flush();
+// }
+
+
+void Board::display() {
+  internal_update();
+
+    termui::terminal.ClearScreen();
+  termui::terminal.ClearScrollback();
+
+  termui::terminal.MoveCursor(1, 2);
   termui::Text(board.Title(), termui::Styles::bold).height(1).width(20).render();
-  // termui::terminal.write(std::format("{} {}", _active_col, _active_row));
-  termui::terminal.CursorDown(2).CursorLeft(20);
 
-  int w         = _width;
-  int cols      = board.Columns().size();
-  int col_width = _width <= 0 ? 0 : [w, cols]() {
-    int overhead    = 4;
-    int col_spacing = 1;
+  termui::terminal.MoveCursor(3, 3);
+  _tab_bar.width(_width - 4).render();
 
-    // cols = (h - overhead) / (line_height + line_spacing);
-    // (line_height + line_spacing) = (h - overhead) / cols;
-    // line_height = ((h - overhead) / cols) - line_spacing ;
-    return ((w - overhead) / cols) - col_spacing;
-  }();
+  termui::terminal.MoveCursor(5, 2);
+  termui::terminal.flush(); // have to do this so child components can get an accurate cursor position
 
-  int count = 0;
-  // for (auto col : _board._columns) {
-  for (int i = 0; i < board.Columns().size(); i++) {
-    kan::tui::Column column(board.Column(i));
+  auto tab = _tab_bar.GetTab();
 
-    if (i == _active_col) {
-      if (_active_row > board.Jobs(i).size()) {
-        _active_row = board.Jobs(i).size();
+  if (tab == 0) {
+    int w          = _width;
+    int cols       = board.Columns().size();
+    int col_width  = _width <= 0 ? 0 : [w, cols]() {
+      int overhead    = 4;
+      int col_spacing = 1;
+
+      return ((w - overhead) / cols) - col_spacing;
+    }();
+    int col_height = _height - 6; // 2 header, 2 tab bar, 2 footer
+
+    for (int i = 0; i < board.Columns().size(); i++) {
+
+      termui::terminal.MoveCursor(5, 2 + (i * col_width));
+      termui::terminal.flush();
+
+      kan::tui::Column column(board.Column(i));
+
+      if (i == _active_col) {
+        if (_active_row > board.Jobs(i).size()) {
+          _active_row = board.Jobs(i).size();
+        }
+
+        column.focus(_active_row);
+      }
+      else {
+        column.blur();
       }
 
-      column.focus(_active_row);
-    }
-    else {
-      column.blur();
-    }
-
-    column.width(col_width).height(_height - 4);
-    column.render();
-
-    count++;
-
-    if (count < board.Columns().size()) {
-      termui::terminal.CursorUp(_height - 4 - 2).CursorRight(2);
+      column.width(col_width).height(col_height);
+      column.render();
     }
   }
+  else if (tab == 1) {
+    // issue llist
+    
+  }
 
-  // termui::terminal.ShowCursor();
-  // termui::terminal.CursorDown(3).CursorLeft((col_width * _board._columns.size()) + 1);
   termui::terminal.MoveCursor(termui::terminal.height(), 2);
 
   ControlStrip({
-                   {"←↑↓→", "move"},
-                   {"o/↵", "open"},
+                   {"←↑↓→", "navigate"},
+                   {"tab", "section"},
+                   {"o", "open"},
                    {"n", "new job"},
                    {"?", "help"},
                    {"s", "settings"},
@@ -108,6 +142,77 @@ void Board::render() {
                })
       .width(_width - 2)
       .render();
+
+  termui::terminal.flush();
+}
+
+void Board::process_input() {
+  std::string inp = termui::terminal.read();
+
+  if (inp == "q") {
+    state = termui::Interface::State::Exit;
+    // serialize board out to disk
+  }
+  else if (inp == termui::key::U_ARROW) {
+    Up();
+  }
+  else if (inp == termui::key::D_ARROW) {
+    Down();
+  }
+  else if (inp == termui::key::L_ARROW) {
+    Left();
+  }
+  else if (inp == termui::key::R_ARROW) {
+    Right();
+  }
+  else if (inp == termui::key::Tab) {
+    _tab_bar.TabIncrement();
+  }
+  else if (inp == termui::key::ShiftTab) {
+    _tab_bar.TabDecrement();
+  }
+  else if (inp == "n") {
+    auto [success, new_job] = tui::NewJob().show();
+
+    if (success) {
+      new_job.status = board.Column(ActiveColumn()).title; //.Title(); // board._columns.at(_renderer.ActiveColumn())._title;
+
+      board.Column(ActiveColumn()).Jobs().push_back(new_job); // board._columns.at(_renderer.ActiveColumn())._jobs.push_back(new_job);
+
+      board.saveJob(new_job);
+    }
+
+    state = termui::Interface::State::Continue;
+  }
+  else if (inp == "o" || inp == termui::key::ENTER) {
+
+    // seralize job out to disk
+
+    auto [modified, job] = tui::JobWindow(board.Job(ActiveColumn(), ActiveRow())).show();
+
+    // if modified
+    if (modified) {
+      job.modifier = User().getFromSystem();
+      job.updated = Timestamp().Now();
+     board. saveJob(job);
+     board. reloadJobs();
+    }
+
+    state = termui::Interface::State::Continue;
+  }
+  else if (inp == "s") {
+    tui::SettingsDialog().show();
+
+  }
+
+  else if (inp == "?") {
+    tui::HelpDialog().show();
+  }
+}
+
+void Board::internal_update() {
+  _height = termui::terminal.height();
+  _width  = termui::terminal.width();
 }
 
 } // namespace tui

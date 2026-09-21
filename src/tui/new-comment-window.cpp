@@ -59,7 +59,7 @@ void NewCommentWindow::display() {
 
   termui::terminal.MoveCursor(window_start_row + 3, window_start_col + 2);
   // termui::Text("New Comment", termui::Styles::bold).width(_width - 4).height(1).render();
-  termui::Input(_comment, "Type your comment...").size(_width - 4, 3).render();
+  termui::Input(_comment.text, "Type your comment...").size(_width - 4, 3).render();
 
   if (_selected_field == Focus::Text) {
     termui::terminal.ShowCursor();
@@ -85,14 +85,14 @@ void NewCommentWindow::process_input() {
   }
   else if ((std::string{32} <= inp) && (inp <= std::string{126})) { // accept basically all chars
     if (_selected_field == Focus::Text) {
-      std::string &cmt = _comment;
+      std::string &cmt = _comment.text;
       cmt += inp;
     }
   }
   else if (inp == termui::key::DEL) { // remove last char
     if (_selected_field == Focus::Text) {
 
-      std::string &cmt = _comment;
+      std::string &cmt = _comment.text;
       if (cmt.size() > 0) {
         cmt = std::string(cmt.begin(), cmt.end() - 1);
       }
@@ -100,7 +100,7 @@ void NewCommentWindow::process_input() {
   }
   else if (inp == termui::key::ENTER) {
     if (_selected_field == Focus::Text) {
-      std::string &cmt = _comment;
+      std::string &cmt = _comment.text;
       cmt += "\n";
     }
     else if (_selected_field == Focus::Save) {
@@ -121,13 +121,11 @@ std::pair<bool, kan::Comment> NewCommentWindow::show() {
   termui::terminal.HideCursor();
 
   if (state == termui::Interface::State::Submit) {
-    Comment comment;
-    comment.text    = _comment;
-    comment.creator = User().getFromSystem();
-    comment.created = Timestamp().Now();
-    comment.uuid    = UUIDv7::generate().to_string();
+    _comment.creator = User().getFromSystem();
+    _comment.created = Timestamp().Now();
+    _comment.uuid    = UUIDv7::generate().to_string();
 
-    return {true, comment};
+    return {true, _comment};
   }
   else /* Exit */ {
     return {false, Comment()};

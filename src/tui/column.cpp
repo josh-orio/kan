@@ -3,7 +3,6 @@
 namespace kan {
 namespace tui {
 
-// Column::Column(termui::string title, std::vector<Job> jobs) : _title(title), _jobs(jobs) {}
 Column::Column(kan::Column column) : _column(column), _active_row(0) {}
 
 Column &Column::width(uint n) {
@@ -30,12 +29,14 @@ void Column::render() {
     return;
   }
 
-  termui::Box(_width, _height, termui::Borders::rounded, termui::Styles::faint).render();
-  termui::terminal.CursorUp(_height - 2).CursorLeft(_width - 1);
+  auto [row, col] = termui::terminal.GetCursorPosition();
 
-  // termui::Text(_column._title + (_focussed ? " focussed " + std::format("{}", _active_row) : ""), termui::Styles::bold, _width - 2, 1).render();
-  termui::Text(_column.Title(), termui::Styles::bold, _width - 2, 1).render();
-  termui::terminal.CursorLeft(1).CursorUp(1);
+  // box
+  termui::Box(_width, _height, termui::Borders::rounded, termui::Styles::faint).render();
+
+  // column title
+  termui::terminal.MoveCursor(row + 1, col + 2);
+  termui::Text(_column.title, termui::Styles::bold, _width - 4, 1).render();
 
   int line_height  = 2;
   int line_spacing = 2;
@@ -49,26 +50,17 @@ void Column::render() {
     return (h - overhead) / (line_height + line_spacing);
   }();
 
-  int down_set = _height - 2;
+  int _start_line = 0;
 
-  auto cell_style = termui::Styles::none;
-
-  for (int i = 0; i < std::min((int)_column.Jobs().size(), visible_lines); i++) {
-    termui::terminal.CursorDown(line_spacing + 1).CursorLeft(_width - 4);
-
-    kan::tui::JobCell cell = JobCell(_column.Jobs()[i]).width(_width - 2).blur();
-
-    if (_focussed && i == _active_row) {
-      cell.focus();
-    }
-
-    cell.render();
-
-    down_set -= 4;
+  if (_focussed && _column.Jobs().size() == 0) {
+    termui::terminal.MoveCursor(row + 3, col + 1);
+    termui::Text("").width(_width - 2).height(2).style(termui::Style({termui::SGR::ReverseVideo})).render();
   }
-
-  if (down_set > 0) {
-    termui::terminal.CursorDown(down_set);
+  else {
+    for (int i = _start_line; i < std::min(_column.Jobs().size(), static_cast<size_t>(_start_line + visible_lines)); i++) {
+      termui::terminal.MoveCursor(row + 3 + (4 * i), col + 1);
+      JobCell(_column.Jobs()[i]).width(_width - 2).setFocus(_focussed && i == _active_row).render();
+    }
   }
 }
 

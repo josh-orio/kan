@@ -47,11 +47,11 @@ int main(int argc, char *argv[]) {
     KAN kan(args[0]);
     kan.start();
   }
-  catch (const nlohmann::json::exception &e) {
-    std::cerr << "!!!! JSON EXCEPTION !!!!\n";
-    std::cerr << e.what() << '\n';
-    std::abort();
-  }
+  // catch (const nlohmann::json::exception &e) {
+  //   std::cerr << "!!!! JSON EXCEPTION !!!!\n";
+  //   std::cerr << e.what() << '\n';
+  //   std::abort();
+  // }
   catch (const std::exception &e) {
     std::cerr << "\nERROR:\n" << e.what() << "\n\n";
     std::abort();

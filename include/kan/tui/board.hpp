@@ -3,15 +3,22 @@
 
 #include <format>
 #include <kan/core.hpp>
+#include <kan/tui/tab-bar.hpp>
 #include <vector>
 
 namespace kan {
 namespace tui {
 
-class Board {
+class Board : termui::Interface {
 private:
   uint _width, _height;
   uint _active_col, _active_row;
+
+  tui::TabBar _tab_bar = TabBar({"Jobs", "Issues"});
+
+  void display();
+  void process_input();
+  void internal_update();
 
 public:
   Board() = default;
@@ -31,10 +38,33 @@ public:
   Board &ActiveRow(uint row);
   Board &ActiveColumn(uint col);
 
-  void render();
+  // void render();
+  void show();
 };
 
 } // namespace tui
 } // namespace kan
 
 #endif
+
+
+// class JobWindow : termui::Interface {
+//   uint _width = 80, _height = 40;
+
+//   tui::TabBar        _tab_bar = TabBar({"Details", "Comments", "Issues", "History"});
+//   tui::JobDetails    _job_detail;
+//   tui::CommentList   _comment_list;
+//   tui::IssueList     _issue_list;
+//   tui::HistoryViewer _history_viewer;
+
+//   kan::Job _job;
+//   bool     _modified = false;
+
+//   void display();
+//   void process_input();
+
+// public:
+//   JobWindow(kan::Job job);
+
+//   std::pair<bool, kan::Job> show();
+// };

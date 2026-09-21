@@ -49,7 +49,6 @@ void CommentList::render() {
   }
   else {
     for (int i = _start_line; i < std::min(_comments.size(), static_cast<size_t>(_start_line + _visible_comments)); i++) {
-
       if (i + _start_line == _cursor) {
         termui::terminal.MoveCursor(row + (4 * i), col);
         termui::Line(termui::Line::Direction::Vertical, 3).render();

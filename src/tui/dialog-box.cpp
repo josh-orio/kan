@@ -51,31 +51,16 @@ void DialogBox::display() {
 
   termui::terminal.write(" ");
 
-  // archive button
-  termui::Button archive = termui::Button("Delete", termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo}), termui::Style()).width(8);
-
-  if (_selection) {
-    archive.focus();
-  }
-  else {
-    archive.blur();
-  }
-
-  archive.render();
+  // delete button
+  termui::Button("Delete", termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo}), termui::Style()).width(8).setFocus(_selection).render();
 
   termui::terminal.write(" ");
 
-  // delete button
-  termui::Button del = termui::Button("Cancel", termui::Style(termui::Color::Inherit(), termui::Colors::Red, {termui::SGR::Bold}), termui::Style()).width(8);
-
-  if (!_selection) {
-    del.focus();
-  }
-  else {
-    del.blur();
-  }
-
-  del.render();
+  // cancel button
+  termui::Button("Cancel", termui::Style(termui::Color::Inherit(), termui::Colors::Red, {termui::SGR::Bold}), termui::Style())
+      .width(8)
+      .setFocus(!_selection)
+      .render();
 
   termui::terminal.flush();
 }
@@ -86,7 +71,6 @@ void DialogBox::process_input() {
   if (inp == termui::key::ESC) {
     state = termui::Interface::State::Exit;
   }
-
   else if (inp == termui::key::ENTER) {
     state = State::Select;
   }

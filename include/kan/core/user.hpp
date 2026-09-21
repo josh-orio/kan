@@ -1,16 +1,20 @@
 #ifndef CORE_USER_HPP
 #define CORE_USER_HPP
 
-#include <nlohmann/json.hpp>
+// #include <nlohmann/json.hpp>
 #include <string>
+#include <yaml-cpp/yaml.h>
 
 namespace kan {
 
 struct User { // struct to represent a Git user
   std::string name, email;
 
-  User          &fromJson(nlohmann::json user);
-  nlohmann::json toJson();
+  // User          &fromJson(nlohmann::json user);
+  // nlohmann::json toJson();
+
+  User      &fromYaml(YAML::Node yaml);
+  YAML::Node toYaml();
 
   User &getFromSystem();
 

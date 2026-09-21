@@ -14,19 +14,35 @@ JobCell &JobCell::focus() {
   _focussed = true;
   return *this;
 }
+
 JobCell &JobCell::blur() {
   _focussed = false;
   return *this;
 }
 
+JobCell &JobCell::setFocus(bool x) {
+  _focussed = x;
+  return *this;
+}
+
 void JobCell::render() {
-  // termui::Text(_job._title+ (_focussed ? " focussed": ""), _focussed ? _style_map.at("title_focus") : _style_map.at("title_blur"), _width - 12, 1).render();
-  termui::Text(_job.title, _focussed ? _style_map.at("title_focus") : _style_map.at("title_blur"), _width - 12, 1).render();
-  termui::Text(" #" + _job.uuid.substr(_job.uuid.size() - 8), _focussed ? _style_map.at("body_focus") : _style_map.at("body_blur"), 10, 1).render();
+  termui::Text(" " + _job.title).style(_style_map.at(_focussed ? "title_focus" : "title_blur")).size(_width - 11, 1).render();
+  // , _style_map.at(_focussed ? "title_focus" : "title_blur"), _width - 11, 1).render();
 
-  termui::terminal.CursorLeft(_width - 2).CursorDown(1);
+  termui::PaddedText("#" + _job.uuid.substr(_job.uuid.size() - 8))
+      .setPadding(termui::PaddingStyle::label)
+      .style(_style_map.at(_focussed ? "body_focus" : "body_blur"))
+      .size(11, 1)
+      .render();
 
-  termui::Text(_job.description).style(_focussed ? _style_map.at("body_focus") : _style_map.at("body_blur")).width(_width - 2).height(1).render();
+  termui::terminal.CursorLeft(_width).CursorDown(1);
+
+  // termui::Text(" "+_job.description).style(_style_map.at(_focussed ? "body_focus" : "body_blur")).width(_width ).height(1).render();
+  termui::PaddedText(_job.description)
+      .setPadding(termui::PaddingStyle::label)
+      .style(_style_map.at(_focussed ? "body_focus" : "body_blur"))
+      .size(_width, 1)
+      .render();
 }
 
 } // namespace tui
