@@ -7,6 +7,8 @@ Issue::Issue() {}
 
 // Issue::Issue(nlohmann::json json) { fromJson(json); }
 
+Issue::Issue(YAML::Node yaml) { fromYaml(yaml); }
+
 // void Issue::fromJson(nlohmann::json issue) {
 //   description = termui::string(issue.at("description"));
 //   creator     = User().fromJson(issue.at("creator"));
@@ -22,6 +24,23 @@ Issue::Issue() {}
 //       {"uuid", uuid},
 //   };
 // }
+
+void Issue::fromYaml(YAML::Node yaml) {
+  description = yaml["description"].as<std::string>();
+  creator     = User().fromYaml(yaml["creator"]);
+  created     = Timestamp().fromYaml(yaml["created"]);
+  uuid        = yaml["uuid"].as<std::string>();
+}
+
+YAML::Node Issue::toYaml() {
+  YAML::Node yaml;
+  yaml["description"] = std::string(description);
+  yaml["creator"]     = creator.toYaml();
+  yaml["created"]     = created.toYaml();
+  yaml["uuid"]        = uuid;
+
+  return yaml;
+}
 
 // ---- Issues ----
 Issues::Issues() {}
@@ -49,6 +68,24 @@ Issues::Issues() {}
 
 //   return json;
 // }
+
+void Issues::fromYaml(YAML::Node yaml) {
+  _issues.clear();
+
+  for (const auto &i : yaml) {
+    _issues.push_back(Issue(i));
+  }
+}
+
+YAML::Node Issues::toYaml() {
+  YAML::Node yaml(YAML::NodeType::Sequence);
+
+  for (auto &i : _issues) {
+    yaml.push_back(i.toYaml());
+  }
+
+  return yaml;
+}
 
 size_t Issues::size() { return _issues.size(); }
 

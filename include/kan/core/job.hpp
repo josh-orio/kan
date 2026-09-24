@@ -19,11 +19,11 @@ struct Job {
   enum class Priority { Low, Normal, High };
   Priority priority;
 
-  User      creator, modifier;
+  User      creator, modifier, assignee;
   Timestamp created, updated;
 
   Comments comments;
-  Issues   issues;
+  // Issues   issues;
   History  history;
 
   Job();

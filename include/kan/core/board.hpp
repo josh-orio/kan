@@ -15,6 +15,7 @@ struct Board {
 public:
   std::string              title;
   std::vector<kan::Column> columns;
+  Issues                   issues;
 
   static Board &instance();
 
@@ -51,6 +52,9 @@ public:
   void saveJob(kan::Job);
 
   void reloadJobs();
+
+  void saveIssue(Issue issue);
+  void loadIssues();
 
   // Board&
   // void setTitle(std::string s);

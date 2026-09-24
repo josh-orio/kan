@@ -234,4 +234,36 @@ void Board::reloadJobs() {
   // }
 }
 
+void Board::saveIssue(Issue issue) {
+
+  YAML::Emitter out;
+  out << issue.toYaml();
+
+  std::ofstream fout(_path / "issues" / std::format("{}.yaml", issue.uuid));
+  fout << out.c_str();
+}
+
+
+void Board::loadIssues() {
+
+
+
+  for (const auto &entry : std::filesystem::directory_iterator(_path / "issues")) {
+
+    YAML::Node config = YAML::LoadFile(entry.path());
+    kan::Issue loaded_issue(config);
+
+    board.issues.addIssue(loaded_issue);
+
+  }
+
+  // // sort all the jobs oldest highest - newest lowest
+
+  // for (auto &col : board.Columns()) {
+  //   std::sort(col.Jobs().begin(), col.Jobs().end(), [](const kan::Job &a, const kan::Job &b) { return a.created.time < b.created.time; });
+  // }
+
+
+}
+
 } // namespace kan

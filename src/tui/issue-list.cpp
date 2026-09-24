@@ -21,7 +21,7 @@ IssueList &IssueList::height(unsigned int h) {
   return *this;
 }
 
-void IssueList::ReloadIssues(Issues issues) { _issues = issues; }
+void IssueList::ReloadIssues(/*Issues issues*/) { _issues = board.issues; }
 
 void IssueList::CursorUp(unsigned int count) {
   internal_update();
@@ -62,16 +62,16 @@ void IssueList::render() {
       termui::Text(_issues.at(i + _start_line).created.toString()).size(20, 1).align(termui::Text::Alignment::Right).render();
     }
   }
-  termui::terminal.MoveCursor(row + _h - 1, col);
+  // termui::terminal.MoveCursor(row + _h - 1, col);
 
-  kan::tui::ControlStrip({
-                             {"esc", "close"},
-                             {"↑↓", "navigate"},
-                             {"o/↵", "select"},
-                             {"i", "new issue"},
-                         })
-      .width(_w)
-      .render();
+  // kan::tui::ControlStrip({
+  //                            {"esc", "close"},
+  //                            {"↑↓", "navigate"},
+  //                            {"o/↵", "select"},
+  //                            {"i", "new issue"},
+  //                        })
+  //     .width(_w)
+  //     .render();
 }
 
 void IssueList::internal_update() {
@@ -80,7 +80,8 @@ void IssueList::internal_update() {
     // calculates lines used by displaying another row of cells
     int space_used = (_cell_height * (_visible_issues + 1)) + (_line_spacing * _visible_issues);
 
-    if (space_used > _h - 2) { // -2 for controlstrip space
+    // if (space_used > _h - 2) { // -2 for controlstrip space
+    if (space_used > _h ) {
       break;
     }
     _visible_issues++;

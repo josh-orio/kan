@@ -19,6 +19,7 @@ KAN::KAN(std::string path) : _path(), /*_board(),*/ _renderer(board) {
   board = Board(_path); // create board instace pointing to path
   board.loadBoard();
   board.loadJobs();
+  board.loadIssues();
 }
 
 void KAN::init() {

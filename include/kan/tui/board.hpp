@@ -4,6 +4,7 @@
 #include <format>
 #include <kan/core.hpp>
 #include <kan/tui/tab-bar.hpp>
+#include <kan/tui/issue-list.hpp>
 #include <vector>
 
 namespace kan {
@@ -15,6 +16,8 @@ private:
   uint _active_col, _active_row;
 
   tui::TabBar _tab_bar = TabBar({"Jobs", "Issues"});
+
+  tui::IssueList issue_list;
 
   void display();
   void process_input();

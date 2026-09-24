@@ -5,11 +5,11 @@
 namespace kan {
 namespace tui {
 
-Board::Board(kan::Board &board) : /* _board(board), */ _active_col(0), _active_row(0) {}
+Board::Board(kan::Board &board) : /* _board(board), */ issue_list(board.issues), _active_col(0), _active_row(0) {}
 
 Board &Board::width(uint n) {
   _width = n;
-  return *this;
+return *this;
 }
 
 Board &Board::height(uint n) {
@@ -126,7 +126,8 @@ void Board::display() {
   }
   else if (tab == 1) {
     // issue llist
-    
+      issue_list.size(_width - 4, _height - 6).render();
+
   }
 
   termui::terminal.MoveCursor(termui::terminal.height(), 2);
@@ -149,21 +150,37 @@ void Board::display() {
 void Board::process_input() {
   std::string inp = termui::terminal.read();
 
+  auto tab = _tab_bar.GetTab();
+
   if (inp == "q") {
     state = termui::Interface::State::Exit;
     // serialize board out to disk
   }
   else if (inp == termui::key::U_ARROW) {
-    Up();
+    if (tab == 0) {
+      Up();
+    }
+    else if (tab == 1) {
+      issue_list.CursorUp();
+    }
   }
   else if (inp == termui::key::D_ARROW) {
-    Down();
+    if (tab == 0) {
+      Down();
+    }
+    else if (tab == 1) {
+      issue_list.CursorDown();
+    }
   }
   else if (inp == termui::key::L_ARROW) {
-    Left();
+    if (tab == 0) {
+      Left();
+    }
   }
   else if (inp == termui::key::R_ARROW) {
-    Right();
+    if (tab == 0) {
+      Right();
+    }
   }
   else if (inp == termui::key::Tab) {
     _tab_bar.TabIncrement();
@@ -186,23 +203,59 @@ void Board::process_input() {
   }
   else if (inp == "o" || inp == termui::key::ENTER) {
 
-    // seralize job out to disk
+    if (tab == 0) {
+      // seralize job out to disk
 
-    auto [modified, job] = tui::JobWindow(board.Job(ActiveColumn(), ActiveRow())).show();
+      auto [modified, job] = tui::JobWindow(board.Job(ActiveColumn(), ActiveRow())).show();
 
-    // if modified
-    if (modified) {
-      job.modifier = User().getFromSystem();
-      job.updated = Timestamp().Now();
-     board. saveJob(job);
-     board. reloadJobs();
+      // if modified
+      if (modified) {
+        job.modifier = User().getFromSystem();
+        job.updated  = Timestamp().Now();
+        board.saveJob(job);
+        board.reloadJobs();
+      }
     }
+    else if (tab == 1) {
+      auto issue_view_state = ViewIssueWindow(board.issues.at(issue_list.GetCursor())).show();
 
-    state = termui::Interface::State::Continue;
+      if (issue_view_state == termui::Interface::State::Delete) {
+        // _job.comments.deleteComment(_job.comments.at(_comment_list.GetCursor()));
+        // _comment_list.ReloadComments(_job.comments);
+      }
+    }
+  }
+  else if (inp == "i") {
+    if (tab == 1) {
+      auto [success, issue] = NewIssueWindow().show();
+
+      if (success) {
+        board.saveIssue(issue);
+        board.issues.addIssue(issue);
+        // issue_list.ReloadIssues(board.issues);
+        issue_list.ReloadIssues();
+
+        // register with board history?
+
+        // _job.history.addEvent({std::format("Issue added. Id: #{}", issue.uuid.substr(issue.uuid.size()-8)), User().getFromSystem(), Timestamp().Now()});
+        // _history_viewer.Reload(_job.history);
+
+        // _modified = true;
+      }
+
+    //   auto [success, new_job] = tui::NewJob().show();
+
+    // if (success) {
+    //   new_job.status = board.Column(ActiveColumn()).title; //.Title(); // board._columns.at(_renderer.ActiveColumn())._title;
+
+    //   board.Column(ActiveColumn()).Jobs().push_back(new_job); // board._columns.at(_renderer.ActiveColumn())._jobs.push_back(new_job);
+
+    //   board.saveJob(new_job);
+    // }
+    }
   }
   else if (inp == "s") {
     tui::SettingsDialog().show();
-
   }
 
   else if (inp == "?") {
@@ -213,6 +266,8 @@ void Board::process_input() {
 void Board::internal_update() {
   _height = termui::terminal.height();
   _width  = termui::terminal.width();
+
+  issue_list.ReloadIssues();
 }
 
 } // namespace tui

@@ -10,8 +10,8 @@ namespace kan {
 
 struct Issue {
   std::string description;
-  User        creator;
-  Timestamp   created;
+  User        creator, modifier, assignee;
+  Timestamp   created, modified;
   std::string uuid;
 
   enum class State { Open, Resolved };
@@ -19,9 +19,13 @@ struct Issue {
 
   Issue();
   // Issue(nlohmann::json json);
+  Issue(YAML::Node yaml);
 
   // void fromJson(nlohmann::json json);
   // nlohmann::json toJson();
+
+  void       fromYaml(YAML::Node yaml);
+  YAML::Node toYaml();
 };
 
 struct Issues {
@@ -34,6 +38,9 @@ public:
 
   // void           fromJson(nlohmann::json json);
   // nlohmann::json toJson();
+
+  void       fromYaml(YAML::Node yaml);
+  YAML::Node toYaml();
 
   size_t size();
   Issue  at(int i);

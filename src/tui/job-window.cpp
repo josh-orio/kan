@@ -3,7 +3,7 @@
 namespace kan {
 namespace tui {
 
-JobWindow::JobWindow(kan::Job job) : _job(job), _job_detail(job), _comment_list(job.comments), _issue_list(job.issues), _history_viewer(job.history) {}
+JobWindow::JobWindow(kan::Job job) : _job(job), _job_detail(job), _comment_list(job.comments), /*_issue_list(job.issues), */_history_viewer(job.history) {}
 
 void JobWindow::display() {
   auto terminal_half_w = termui::terminal.halfWidth();
@@ -43,9 +43,6 @@ void JobWindow::display() {
     _comment_list.size(_width - 4, _height - 6).render();
   }
   else if (tab == 2) {
-    _issue_list.size(_width - 4, _height - 6).render();
-  }
-  else if (tab == 3) {
     _history_viewer.size(_width - 4, _height - 6).render();
   }
 
@@ -74,9 +71,6 @@ void JobWindow::process_input() {
       _comment_list.CursorUp();
     }
     else if (tab == 2) {
-      _issue_list.CursorUp();
-    }
-    else if (tab == 3) {
       _history_viewer.CursorUp();
     }
   }
@@ -88,9 +82,6 @@ void JobWindow::process_input() {
       _comment_list.CursorDown();
     }
     else if (tab == 2) {
-      _issue_list.CursorDown();
-    }
-    else if (tab == 3) {
       _history_viewer.CursorDown();
     }
   }
@@ -113,26 +104,6 @@ void JobWindow::process_input() {
         _comment_list.ReloadComments(_job.comments);
 
         _job.history.addEvent({"Comment added.", User().getFromSystem(), Timestamp().Now()});
-        _history_viewer.Reload(_job.history);
-
-        _modified = true;
-      }
-    }
-  }
-  else if (inp == "i") {
-    if (tab == 2) {
-      auto [success, issue] = NewIssueWindow().show();
-
-      // save issue
-      
-
-      if (success) {
-        _job.issues.addIssue(issue);
-        _issue_list.ReloadIssues(_job.issues);
-
-
-
-        _job.history.addEvent({std::format("Issue added. Id: #{}", issue.uuid.substr(issue.uuid.size()-8)), User().getFromSystem(), Timestamp().Now()});
         _history_viewer.Reload(_job.history);
 
         _modified = true;
@@ -196,14 +167,7 @@ void JobWindow::process_input() {
       }
     }
 
-    else if (tab == 2) {
-      auto issue_view_state = ViewIssueWindow(_job.issues.at(_issue_list.GetCursor())).show();
-
-      if (issue_view_state == termui::Interface::State::Delete) {
-        // _job.comments.deleteComment(_job.comments.at(_comment_list.GetCursor()));
-        // _comment_list.ReloadComments(_job.comments);
-      }
-    }
+   
   }
 }
 

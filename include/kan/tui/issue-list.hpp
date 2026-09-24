@@ -14,7 +14,8 @@ public:
   IssueList &width(unsigned int w);
   IssueList &height(unsigned int h);
 
-  void ReloadIssues(Issues issues);
+  // void ReloadIssues(Issues issues);
+  void ReloadIssues();
 
   void CursorUp(unsigned int count = 1);
   void CursorDown(unsigned int count = 1);
