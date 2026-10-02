@@ -3,6 +3,7 @@
 
 #include <kan/core/timestamp.hpp>
 #include <kan/core/user.hpp>
+#include <kan/core/uuid.hpp>
 // #include <nlohmann/json.hpp>
 #include <string>
 
@@ -12,7 +13,9 @@ struct Issue {
   std::string description;
   User        creator, modifier, assignee;
   Timestamp   created, modified;
-  std::string uuid;
+  UUID        uuid;
+
+  std::vector<UUID> linked_jobs;
 
   enum class State { Open, Resolved };
   State state;

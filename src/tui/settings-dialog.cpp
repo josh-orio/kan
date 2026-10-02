@@ -16,7 +16,7 @@ void SettingsDialog::display() {
 
   // title
   termui::terminal.MoveCursor(window_start_row + 1, window_start_col + 2);
-  termui::Text("KAN I Help You?", termui::Styles::bold).width(_width - 4).height(1).render();
+  termui::Text("KAN I Change Some Settings?", termui::Styles::bold).width(_width - 4).height(1).render();
 
   auto col_width = (_width - 6) / 2;
 

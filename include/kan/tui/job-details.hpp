@@ -10,9 +10,9 @@
 namespace kan {
 namespace tui {
 
-class JobDetails {
+class JobDetails : termui::Interface {
 public:
-  enum class Focus { Status, Priority, Description, Archive, Delete };
+  enum class Focus { Status, Priority, Description};
 
   JobDetails(kan::Job job);
 
@@ -22,6 +22,10 @@ public:
   JobDetails &CursorDown();
   JobDetails &CursorLeft();
   JobDetails &CursorRight();
+
+  void Reload(Job job);
+
+  JobDetails &editMode(bool x);
 
   Focus Focussed();
 
@@ -33,6 +37,8 @@ private:
   kan::Job _job;
 
   Focus _selected_field = Focus::Status;
+
+  bool _edit_mode = false;
 };
 
 } // namespace tui

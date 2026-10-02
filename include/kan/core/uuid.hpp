@@ -1,5 +1,5 @@
-#ifndef UUID7_HPP
-#define UUID7_HPP
+#ifndef UUID_HPP
+#define UUID_HPP
 
 /* ---------------- Example usage ----------------
 #include "uuid_v7.hpp"
@@ -35,49 +35,59 @@ int main() {
 #include <stdexcept>
 #include <string>
 
-class UUIDv7 {
+class UUID {
 public:
   using Bytes = std::array<uint8_t, 16>;
 
-  UUIDv7() : bytes_{} {}
+  UUID() : bytes_{} {}
 
   // Construct from raw 16 bytes.
-  explicit UUIDv7(const Bytes &bytes) : bytes_(bytes) {}
+  explicit UUID(const Bytes &bytes) : bytes_(bytes) {}
 
   // Parse from canonical string form:
   // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-  static UUIDv7 from_string(const std::string &s) {
-    UUIDv7 u;
+  static UUID from_string(const std::string &s) {
+    UUID   u;
     size_t byte_idx = 0;
     int    hi       = -1;
     for (char c : s) {
-      if (c == '-')
+      if (c == '-') {
         continue;
+      }
+
       int v = hex_val(c);
-      if (v < 0)
+      if (v < 0) {
         throw std::invalid_argument("UUIDv7::from_string: invalid character");
+      }
+
       if (hi < 0) {
-        hi = v;
+        {
+          hi = v;
+        }
       }
       else {
-        if (byte_idx >= 16)
+        if (byte_idx >= 16) {
           throw std::invalid_argument("UUIDv7::from_string: too many hex digits");
+        }
+
         u.bytes_[byte_idx++] = static_cast<uint8_t>((hi << 4) | v);
         hi                   = -1;
       }
     }
-    if (byte_idx != 16 || hi != -1)
+    if (byte_idx != 16 || hi != -1) {
       throw std::invalid_argument("UUIDv7::from_string: wrong length");
+    }
+
     return u;
   }
 
   // Generate a new, time-ordered UUIDv7 using a cryptographically
   // reasonable PRNG seeded from std::random_device.
-  static UUIDv7 generate() { return generate(now_unix_ms(), rng()); }
+  static UUID generate() { return generate(now_unix_ms(), rng()); }
 
   // Deterministic generation, useful for testing.
-  static UUIDv7 generate(uint64_t unix_ts_ms, std::mt19937_64 &gen) {
-    UUIDv7                                  u;
+  static UUID generate(uint64_t unix_ts_ms, std::mt19937_64 &gen) {
+    UUID                                    u;
     std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
     uint64_t                                rand_bits_a = dist(gen); // we'll take 12 bits from this
     uint64_t                                rand_bits_b = dist(gen); // we'll take 62 bits from this
@@ -130,23 +140,25 @@ public:
     for (size_t i = 0; i < 16; ++i) {
       s.push_back(hex[(bytes_[i] >> 4) & 0x0F]);
       s.push_back(hex[bytes_[i] & 0x0F]);
-      if (i == 3 || i == 5 || i == 7 || i == 9)
+
+      if (i == 3 || i == 5 || i == 7 || i == 9) {
         s.push_back('-');
+      }
     }
     return s;
   }
 
-  bool operator==(const UUIDv7 &other) const { return bytes_ == other.bytes_; }
-  bool operator!=(const UUIDv7 &other) const { return bytes_ != other.bytes_; }
+  bool operator==(const UUID &other) const { return bytes_ == other.bytes_; }
+  bool operator!=(const UUID &other) const { return bytes_ != other.bytes_; }
   // Lexicographic byte comparison == chronological order for UUIDv7.
-  bool operator<(const UUIDv7 &other) const { return bytes_ < other.bytes_; }
+  bool operator<(const UUID &other) const { return bytes_ < other.bytes_; }
 
 private:
   Bytes bytes_;
 
   static uint64_t now_unix_ms() {
-    using namespace std::chrono;
-    return static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    // using namespace std::chrono;
+    return static_cast<uint64_t>(duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
   }
 
   // Shared, lazily-initialized, thread-local RNG seeded from random_device.
@@ -160,12 +172,15 @@ private:
   }
 
   static int hex_val(char c) {
-    if (c >= '0' && c <= '9')
+    if (c >= '0' && c <= '9') {
       return c - '0';
-    if (c >= 'a' && c <= 'f')
+    }
+    if (c >= 'a' && c <= 'f') {
       return c - 'a' + 10;
-    if (c >= 'A' && c <= 'F')
+    }
+    if (c >= 'A' && c <= 'F') {
       return c - 'A' + 10;
+    }
     return -1;
   }
 };

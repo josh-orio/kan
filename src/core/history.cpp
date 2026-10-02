@@ -2,9 +2,9 @@
 
 namespace kan {
 
-Event::Event() : uuid(UUIDv7::generate().to_string()) {}
+Event::Event() : uuid(UUID::generate()) {}
 
-Event::Event(termui::string _text, User _user, Timestamp _time) : text(_text), user(_user), time(_time), uuid(UUIDv7::generate().to_string()) {}
+Event::Event(termui::string _text, User _user, Timestamp _time) : text(_text), user(_user), time(_time), uuid(UUID::generate()) {}
 
 // Event::Event(nlohmann::json json) { fromJson(json); }
 
@@ -30,7 +30,7 @@ void Event::fromYaml(YAML::Node yaml) {
   text = yaml["text"].as<std::string>();
   user = User().fromYaml(yaml["user"]);
   time = Timestamp().fromYaml(yaml["time"]);
-  uuid = yaml["uuid"].as<std::string>();
+  uuid = UUID::from_string(yaml["uuid"].as<std::string>());
 }
 
 YAML::Node Event::toYaml() {
@@ -38,7 +38,7 @@ YAML::Node Event::toYaml() {
   yaml["text"] = std::string(text);
   yaml["user"] = user.toYaml();
   yaml["time"] = time.toYaml();
-  yaml["uuid"] = uuid;
+  yaml["uuid"] = uuid.to_string();
 
   return yaml;
 }

@@ -8,7 +8,7 @@ namespace kan {
 //                                                 {Job::Priority::High, "High"},
 //                                             })
 
-Job::Job() : title(), description(), status(), priority(Priority::Normal), created(), updated(), creator(), uuid(UUIDv7::generate().to_string()) {
+Job::Job() : title(), description(), status(), priority(Priority::Normal), created(), updated(), creator(), uuid(UUID::generate().to_string()) {
   created = Timestamp().Now();
   updated = created;
 
@@ -84,6 +84,13 @@ YAML::Node Job::toYaml() {
   job["history"]  = history.toYaml();
 
   return job;
+}
+
+void Job::addEvent(Event e) {
+  history.addEvent(e);
+
+  modifier = history.events.back().user;
+  updated  = history.events.back().time;
 }
 
 } // namespace kan

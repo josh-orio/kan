@@ -20,6 +20,41 @@ void HelpDialog::display() {
 
   auto col_width = (_width - 6) / 2;
 
+  termui::terminal.MoveCursor(window_start_row + 4, window_start_col + 3);
+  termui::terminal.write("tab");
+  termui::terminal.write("  ");
+  termui::terminal.StyleStack(termui::Styles::faint);
+  termui::terminal.write("section");
+  termui::terminal.StylePop();
+
+  termui::terminal.MoveCursor(window_start_row + 6, window_start_col + 3);
+  termui::terminal.write("enter");
+  termui::terminal.write("  ");
+  termui::terminal.StyleStack(termui::Styles::faint);
+  termui::terminal.write("select");
+  termui::terminal.StylePop();
+
+  termui::terminal.MoveCursor(window_start_row + 8, window_start_col + 3);
+  termui::terminal.write("←↑↓→");
+  termui::terminal.write("  ");
+  termui::terminal.StyleStack(termui::Styles::faint);
+  termui::terminal.write("navigate");
+  termui::terminal.StylePop();
+
+  termui::terminal.MoveCursor(window_start_row + 10, window_start_col + 3);
+  termui::terminal.write("esc");
+  termui::terminal.write("  ");
+  termui::terminal.StyleStack(termui::Styles::faint);
+  termui::terminal.write("close");
+  termui::terminal.StylePop();
+
+  termui::terminal.MoveCursor(window_start_row + 12, window_start_col + 3);
+  termui::terminal.write("q");
+  termui::terminal.write("  ");
+  termui::terminal.StyleStack(termui::Styles::faint);
+  termui::terminal.write("quit");
+  termui::terminal.StylePop();
+
   termui::terminal.flush();
 }
 

@@ -24,7 +24,9 @@ struct Job {
 
   Comments comments;
   // Issues   issues;
-  History  history;
+  History history;
+
+  std::vector<UUID> linked_issues;
 
   Job();
   // Job(nlohmann::json json);
@@ -35,6 +37,8 @@ struct Job {
 
   void       fromYaml(YAML::Node yaml);
   YAML::Node toYaml();
+
+  void addEvent(Event e);
 };
 
 } // namespace kan

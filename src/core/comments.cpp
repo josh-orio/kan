@@ -3,7 +3,7 @@
 namespace kan {
 
 // ---- Comment ----
-Comment::Comment() {}
+Comment::Comment() : uuid(UUID::generate()) {}
 
 // Comment::Comment(nlohmann::json json) { fromJson(json); }
 
@@ -29,7 +29,7 @@ void Comment::fromYaml(YAML::Node yaml) {
   text    = yaml["text"].as<std::string>();
   creator = User().fromYaml(yaml["creator"]);
   created = Timestamp().fromYaml(yaml["created"]);
-  uuid    = yaml["uuid"].as<std::string>();
+  uuid    = UUID::from_string(yaml["uuid"].as<std::string>());
 }
 
 YAML::Node Comment::toYaml() {
@@ -37,7 +37,7 @@ YAML::Node Comment::toYaml() {
   yaml["text"]    = std::string(text);
   yaml["creator"] = creator.toYaml();
   yaml["created"] = created.toYaml();
-  yaml["uuid"]    = uuid;
+  yaml["uuid"]    = uuid.to_string();
 
   return yaml;
 }

@@ -9,7 +9,7 @@ Board::Board(kan::Board &board) : /* _board(board), */ issue_list(board.issues),
 
 Board &Board::width(uint n) {
   _width = n;
-return *this;
+  return *this;
 }
 
 Board &Board::height(uint n) {
@@ -73,15 +73,23 @@ void Board::show() {
 //   termui::terminal.flush();
 // }
 
-
 void Board::display() {
   internal_update();
 
-    termui::terminal.ClearScreen();
+  termui::terminal.ClearScreen();
   termui::terminal.ClearScrollback();
 
   termui::terminal.MoveCursor(1, 2);
-  termui::Text(board.Title(), termui::Styles::bold).height(1).width(20).render();
+
+  // auto ts = board.styleMap.at("debug");
+  // auto tsm = board.styleMap.at("main");
+
+  // termui::Text(board.Title()).style(board.styleMap.at("mainpage_title")).height(1).width(_width).render();
+  termui::Text(board.Title())
+      .style(board.styleMap.at("homepage_title"))
+      .height(1)
+      .width(std::max<int>(_width - 4, termui::visible_length(board.Title())))
+      .render();
 
   termui::terminal.MoveCursor(3, 3);
   _tab_bar.width(_width - 4).render();
@@ -123,26 +131,52 @@ void Board::display() {
       column.width(col_width).height(col_height);
       column.render();
     }
+
+    termui::terminal.MoveCursor(termui::terminal.height(), 2);
+
+    ControlStrip({
+                     {"←↑↓→", "navigate"},
+                     {"tab", "section"},
+                     {"o", "open"},
+                     {"n", "new job"},
+                     {"?", "help"},
+                     {"s", "settings"},
+                     {"q", "quit"},
+                 })
+        .width(_width - 2)
+        .render();
   }
   else if (tab == 1) {
-    // issue llist
-      issue_list.size(_width - 4, _height - 6).render();
+    issue_list.size(_width - 4, _height - 6).render();
 
+    termui::terminal.MoveCursor(termui::terminal.height(), 2);
+
+    ControlStrip({
+                     {"←↑↓→", "navigate"},
+                     {"tab", "section"},
+                     {"o", "open"},
+                     {"i", "new issue"},
+                     {"?", "help"},
+                     {"s", "settings"},
+                     {"q", "quit"},
+                 })
+        .width(_width - 2)
+        .render();
   }
 
-  termui::terminal.MoveCursor(termui::terminal.height(), 2);
+  // termui::terminal.MoveCursor(termui::terminal.height(), 2);
 
-  ControlStrip({
-                   {"←↑↓→", "navigate"},
-                   {"tab", "section"},
-                   {"o", "open"},
-                   {"n", "new job"},
-                   {"?", "help"},
-                   {"s", "settings"},
-                   {"q", "quit"},
-               })
-      .width(_width - 2)
-      .render();
+  // ControlStrip({
+  //                  {"←↑↓→", "navigate"},
+  //                  {"tab", "section"},
+  //                  {"o", "open"},
+  //                  {"n", "new job"},
+  //                  {"?", "help"},
+  //                  {"s", "settings"},
+  //                  {"q", "quit"},
+  //              })
+  //     .width(_width - 2)
+  //     .render();
 
   termui::terminal.flush();
 }
@@ -210,8 +244,12 @@ void Board::process_input() {
 
       // if modified
       if (modified) {
-        job.modifier = User().getFromSystem();
-        job.updated  = Timestamp().Now();
+        // job.modifier = User().getFromSystem();
+        // job.updated  = Timestamp().Now();
+
+        // job.modifier = job.history.events.back().user;
+        // job.updated = job.history.events.back().time;
+
         board.saveJob(job);
         board.reloadJobs();
       }
@@ -243,15 +281,15 @@ void Board::process_input() {
         // _modified = true;
       }
 
-    //   auto [success, new_job] = tui::NewJob().show();
+      //   auto [success, new_job] = tui::NewJob().show();
 
-    // if (success) {
-    //   new_job.status = board.Column(ActiveColumn()).title; //.Title(); // board._columns.at(_renderer.ActiveColumn())._title;
+      // if (success) {
+      //   new_job.status = board.Column(ActiveColumn()).title; //.Title(); // board._columns.at(_renderer.ActiveColumn())._title;
 
-    //   board.Column(ActiveColumn()).Jobs().push_back(new_job); // board._columns.at(_renderer.ActiveColumn())._jobs.push_back(new_job);
+      //   board.Column(ActiveColumn()).Jobs().push_back(new_job); // board._columns.at(_renderer.ActiveColumn())._jobs.push_back(new_job);
 
-    //   board.saveJob(new_job);
-    // }
+      //   board.saveJob(new_job);
+      // }
     }
   }
   else if (inp == "s") {

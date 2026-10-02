@@ -123,7 +123,7 @@ std::pair<bool, kan::Comment> NewCommentWindow::show() {
   if (state == termui::Interface::State::Submit) {
     _comment.creator = User().getFromSystem();
     _comment.created = Timestamp().Now();
-    _comment.uuid    = UUIDv7::generate().to_string();
+    // _comment.uuid    = UUID::generate().to_string();
 
     return {true, _comment};
   }

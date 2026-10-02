@@ -1,6 +1,7 @@
 #ifndef CORE_HISTORY_HPP
 #define CORE_HISTORY_HPP
 
+#include <kan/core/uuid.hpp>
 #include <kan/core/timestamp.hpp>
 #include <kan/core/user.hpp>
 // #include <nlohmann/json.hpp>
@@ -13,7 +14,7 @@ struct Event {
   termui::string text; // std::string text;
   User           user;
   Timestamp      time;
-  std::string    uuid;
+UUID    uuid;
 
   Event();
   Event(termui::string text, User user, Timestamp time);

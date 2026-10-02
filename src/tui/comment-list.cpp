@@ -49,17 +49,17 @@ void CommentList::render() {
   }
   else {
     for (int i = _start_line; i < std::min(_comments.size(), static_cast<size_t>(_start_line + _visible_comments)); i++) {
-      if (i + _start_line == _cursor) {
+      if (i == _cursor) {
         termui::terminal.MoveCursor(row + (4 * i), col);
         termui::Line(termui::Line::Direction::Vertical, 3).render();
       }
 
       termui::terminal.MoveCursor(row + (4 * i), col + 2);
-      termui::Text(_comments.at(i + _start_line).text).size(_w - 2, 2).render();
+      termui::Text(_comments.at(i ).text).size(_w - 2, 2).render();
 
       termui::terminal.MoveCursor(row + (4 * i) + 2, col + 2);
-      termui::Text(_comments.at(i + _start_line).creator.Name()).style(termui::Styles::bold).size(_w - 2 - 20, 1).render();
-      termui::Text(_comments.at(i + _start_line).created.toString()).size(20, 1).align(termui::Text::Alignment::Right).render();
+      termui::Text(_comments.at(i ).creator.Name()).style(termui::Styles::bold).size(_w - 2 - 20, 1).render();
+      termui::Text(_comments.at(i ).created.toString()).size(20, 1).align(termui::Text::Alignment::Right).render();
     }
   }
 

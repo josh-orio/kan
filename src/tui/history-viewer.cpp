@@ -48,17 +48,20 @@ void HistoryViewer::render() {
   }
   else {
     for (int i = _start_line; i < std::min(_history.size(), static_cast<size_t>(_start_line + _visible_rows)); i++) {
-      if (i + _start_line == _cursor) {
-        termui::terminal.MoveCursor(row + (3 * i), col);
+      auto start_row = row + (3 * (i - _start_line));
+
+      // if (i + _start_line == _cursor) {
+      if (i  == _cursor) {
+        termui::terminal.MoveCursor(start_row, col);
         termui::Line(termui::Line::Direction::Vertical, 2).render();
       }
 
-      termui::terminal.MoveCursor(row + (3 * i), col + 2);
-      termui::Text(_history.at(i + _start_line).text).size(_w - 2, 1).render();
+      termui::terminal.MoveCursor(start_row, col + 2);
+      termui::Text(_history.at(i ).text).size(_w - 2, 1).render();
 
-      termui::terminal.MoveCursor(row + (3 * i) + 1, col + 2);
-      termui::Text(_history.at(i + _start_line).user.Name()).style(termui::Styles::bold).size(_w - 2 - 20, 1).render();
-      termui::Text(_history.at(i + _start_line).time.toString()).size(20, 1).align(termui::Text::Alignment::Right).render();
+      termui::terminal.MoveCursor(start_row + 1, col + 2);
+      termui::Text(_history.at(i ).user.Name()).style(termui::Styles::bold).size(_w - 2 - 20, 1).render();
+      termui::Text(_history.at(i ).time.toString()).size(20, 1).align(termui::Text::Alignment::Right).render();
     }
   }
 

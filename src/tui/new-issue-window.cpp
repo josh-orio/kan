@@ -124,8 +124,8 @@ std::pair<bool, kan::Issue> NewIssueWindow::show() {
   if (state == termui::Interface::State::Submit) {
 
     _issue.creator = User().getFromSystem();
-    _issue.created = Timestamp().Now();
-    _issue.uuid    = UUIDv7::generate().to_string();
+    _issue.created = Timestamp().Now(); // change this to addEVent
+    // _issue.uuid    = UUID::generate();
 
     return {true, _issue};
   }

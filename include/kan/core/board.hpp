@@ -3,28 +3,24 @@
 
 #include <filesystem>
 #include <kan/core/column.hpp>
-// #include <nlohmann/json.hpp>
 #include <vector>
 
 namespace kan {
 
 struct Board {
-  private:
-   std::filesystem::path  _path;
+private:
+  std::filesystem::path _path;
 
 public:
   std::string              title;
   std::vector<kan::Column> columns;
   Issues                   issues;
 
+  termui::StyleMap styleMap;
+
   static Board &instance();
 
-  // Board() = default;
   Board(std::string path);
-  // Board(nlohmann::json board);
-
-  // void           fromJson(nlohmann::json json);
-  // nlohmann::json toJson();
 
   void       fromYaml(YAML::Node yaml);
   YAML::Node toYaml();
@@ -40,7 +36,6 @@ public:
 
   void deleteJob(kan::Job job);
 
-
   void loadBoard();
   void saveBoard();
 
@@ -55,6 +50,9 @@ public:
 
   void saveIssue(Issue issue);
   void loadIssues();
+
+  void loadStyleMap();
+  void saveStyleMap();
 
   // Board&
   // void setTitle(std::string s);

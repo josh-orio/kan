@@ -49,17 +49,17 @@ void IssueList::render() {
   else {
     for (int i = _start_line; i < std::min(_issues.size(), static_cast<size_t>(_start_line + _visible_issues)); i++) {
 
-      if (i + _start_line == _cursor) {
+      if (i  == _cursor) {
         termui::terminal.MoveCursor(row + (4 * i), col);
         termui::Line(termui::Line::Direction::Vertical, 3).render();
       }
 
       termui::terminal.MoveCursor(row + (4 * i), col + 2);
-      termui::Text(_issues.at(i + _start_line).description).size(_w - 2, 2).render();
+      termui::Text(_issues.at(i ).description).size(_w - 2, 2).render();
 
       termui::terminal.MoveCursor(row + (4 * i) + 2, col + 2);
-      termui::Text(_issues.at(i + _start_line).creator.Name()).style(termui::Styles::bold).size(_w - 2 - 20, 1).render();
-      termui::Text(_issues.at(i + _start_line).created.toString()).size(20, 1).align(termui::Text::Alignment::Right).render();
+      termui::Text(_issues.at(i ).creator.Name()).style(termui::Styles::bold).size(_w - 2 - 20, 1).render();
+      termui::Text(_issues.at(i ).created.toString()).size(20, 1).align(termui::Text::Alignment::Right).render();
     }
   }
   // termui::terminal.MoveCursor(row + _h - 1, col);
@@ -81,7 +81,7 @@ void IssueList::internal_update() {
     int space_used = (_cell_height * (_visible_issues + 1)) + (_line_spacing * _visible_issues);
 
     // if (space_used > _h - 2) { // -2 for controlstrip space
-    if (space_used > _h ) {
+    if (space_used > _h) {
       break;
     }
     _visible_issues++;

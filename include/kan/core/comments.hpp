@@ -1,6 +1,7 @@
 #ifndef CORE_COMMENTS_HPP
 #define CORE_COMMENTS_HPP
 
+#include <kan/core/uuid.hpp>
 #include <kan/core/timestamp.hpp>
 #include <kan/core/user.hpp>
 // #include <nlohmann/json.hpp>
@@ -13,7 +14,7 @@ struct Comment {
   termui::string text; // std::string text;
   User           creator;
   Timestamp      created;
-  std::string    uuid;
+  UUID           uuid;
 
   Comment();
   // Comment(nlohmann::json json);

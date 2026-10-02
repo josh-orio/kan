@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <kan/core.hpp>
 
@@ -239,22 +240,17 @@ void Board::saveIssue(Issue issue) {
   YAML::Emitter out;
   out << issue.toYaml();
 
-  std::ofstream fout(_path / "issues" / std::format("{}.yaml", issue.uuid));
+  std::ofstream fout(_path / "issues" / std::format("{}.yaml", issue.uuid.to_string()));
   fout << out.c_str();
 }
 
-
 void Board::loadIssues() {
-
-
-
   for (const auto &entry : std::filesystem::directory_iterator(_path / "issues")) {
 
     YAML::Node config = YAML::LoadFile(entry.path());
     kan::Issue loaded_issue(config);
 
     board.issues.addIssue(loaded_issue);
-
   }
 
   // // sort all the jobs oldest highest - newest lowest
@@ -262,8 +258,192 @@ void Board::loadIssues() {
   // for (auto &col : board.Columns()) {
   //   std::sort(col.Jobs().begin(), col.Jobs().end(), [](const kan::Job &a, const kan::Job &b) { return a.created.time < b.created.time; });
   // }
+}
 
+std::string styleToString(termui::Style style) {
 
+  std::string modifier_codes;
+
+  if (style.InheritsSGR()) {
+    // Inherit: no action taken
+  }
+  else if (style.ResetsSGR()) {
+    modifier_codes += "0;";
+  }
+  else {
+    modifier_codes += "0;";
+
+    for (const auto &attr : style.Attributes()) {
+      modifier_codes += std::format("{};", static_cast<int>(attr));
+    }
+  }
+
+  if (style.Foreground().IsReset()) {
+    modifier_codes += "39;";
+  }
+  else if (!style.Foreground().IsInherit()) {
+    if (style.Foreground().mode == termui::Color::Mode::ANSI256) {
+      modifier_codes += std::format("38;5;{};", style.Foreground().value);
+    }
+    else if (style.Foreground().mode == termui::Color::Mode::TRUECOLOR) {
+      auto rgb = style.Foreground().rgb;
+      modifier_codes += std::format("38;2;{};{};{};", rgb.r, rgb.g, rgb.b);
+    }
+  }
+
+  if (style.Background().IsReset()) {
+    modifier_codes += "49;";
+  }
+  else if (!style.Background().IsInherit()) {
+    if (style.Background().mode == termui::Color::Mode::ANSI256) {
+      modifier_codes += std::format("48;5;{};", style.Background().value);
+    }
+    else if (style.Background().mode == termui::Color::Mode::TRUECOLOR) {
+      auto rgb = style.Background().rgb;
+      modifier_codes += std::format("48;2;{};{};{};", rgb.r, rgb.g, rgb.b);
+    }
+  }
+
+  return modifier_codes;
+}
+
+// termui::Style styleFromString(std::string style) {
+namespace {
+constexpr bool IsForegroundCode(int c) { return c == 38 || c == 39; }
+constexpr bool IsBackgroundCode(int c) { return c == 48 || c == 49; }
+} // namespace
+
+termui::Style styleFromString(std::string_view s) {
+  // Tokenize on ';', skipping empty fields.
+  std::vector<int> codes;
+  for (size_t start = 0; start <= s.size();) {
+    size_t end = s.find(';', start);
+    if (end == std::string_view::npos)
+      end = s.size();
+    if (end > start) {
+      int  value = 0;
+      auto res   = std::from_chars(s.data() + start, s.data() + end, value);
+      if (res.ec == std::errc{})
+        codes.push_back(value);
+    }
+    start = end + 1;
+  }
+
+  if (codes.empty()) {
+    return termui::Style();
+  }
+
+  size_t i = 0;
+
+  // --- SGR reset / attributes ---
+  std::vector<termui::SGR> attrs;
+  if (codes[i] == 0) {
+    ++i;
+    while (i < codes.size() && !IsForegroundCode(codes[i]) && !IsBackgroundCode(codes[i])) {
+      attrs.push_back(static_cast<termui::SGR>(codes[i]));
+      ++i;
+    }
+  }
+
+  // --- Foreground ---
+  termui::Color foreground;
+  if (i < codes.size()) {
+    if (codes[i] == 39) {
+      // skip
+      ++i;
+    }
+    else if (codes[i] == 38 && i + 1 < codes.size()) {
+      if (codes[i + 1] == 5 && i + 2 < codes.size()) {
+        foreground = termui::Color(codes[i + 2]);
+        i += 3;
+      }
+      else if (codes[i + 1] == 2 && i + 4 < codes.size()) {
+        foreground = termui::Color(static_cast<uint8_t>(codes[i + 2]), static_cast<uint8_t>(codes[i + 3]), static_cast<uint8_t>(codes[i + 4]));
+        i += 5;
+      }
+    }
+  }
+
+  // --- Background ---
+  termui::Color background;
+  if (i < codes.size()) {
+    if (codes[i] == 49) {
+      // skip
+      ++i;
+    }
+    else if (codes[i] == 48 && i + 1 < codes.size()) {
+      if (codes[i + 1] == 5 && i + 2 < codes.size()) {
+        background = termui::Color(codes[i + 2]);
+        i += 3;
+      }
+      else if (codes[i + 1] == 2 && i + 4 < codes.size()) {
+        background = termui::Color(static_cast<uint8_t>(codes[i + 2]), static_cast<uint8_t>(codes[i + 3]), static_cast<uint8_t>(codes[i + 4]));
+        i += 5;
+      }
+    }
+  }
+
+  return termui::Style(foreground, background, attrs);
+}
+
+void Board::loadStyleMap() {
+  // YAML::Node style = YAML::LoadFile(_path / "style.yaml");
+  // YAML::Node style;
+
+  // try {
+  //   style = YAML::LoadFile(_path / "style.yaml");
+  // }
+  // // catch (const YAML::BadFile &) {
+  // catch (...) {
+  // }
+
+  // // std::cout <<1234<<"\n";
+  // // std::exit(1234);
+
+  // if (!style || !style.IsDefined()) {
+  //   logMessage("Failed to load the stylemap - style.yaml may be missing or malformed.");
+  //   return;
+  // }
+  // std::cout <<1234<<"\n";
+  // std::exit(1234);
+
+  YAML::Node style;
+  // bool       loaded = false;
+
+  try {
+    style = YAML::LoadFile(_path / "style.yaml");
+    // loaded = true;
+  }
+  catch (const std::exception &e) {
+    logMessage(std::string("Failed to load style.yaml: ") + e.what());
+    return;
+  
+  }
+
+  // if (!loaded) {
+  //   logMessage("Failed to load the stylemap - style.yaml may be missing or malformed.");
+  //   return;
+  // }
+
+  for (auto const &s : style) {
+    styleMap.add(s.first.as<std::string>(), styleFromString(s.second.as<std::string>()));
+  }
+}
+
+void Board::saveStyleMap() {
+  auto styles = styleMap.keys();
+
+  YAML::Node yaml;
+
+  for (auto const &s : styles) {
+    yaml[s] = styleToString(styleMap.at(s));
+  }
+
+  YAML::Emitter out;
+  out << yaml;
+
+  std::ofstream fout(_path / "style.yaml");
+  fout << out.c_str();
 }
 
 } // namespace kan

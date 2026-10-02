@@ -20,6 +20,9 @@ KAN::KAN(std::string path) : _path(), /*_board(),*/ _renderer(board) {
   board.loadBoard();
   board.loadJobs();
   board.loadIssues();
+  board.loadStyleMap();
+
+  board.styleMap.add("debug", termui::Style(termui::Color::Inherit(), termui::Colors::Red));
 }
 
 void KAN::init() {
@@ -32,79 +35,17 @@ void KAN::init() {
   std::filesystem::create_directory(_path / "jobs");
   std::filesystem::create_directory(_path / "issues");
 
-  // create files to prepopulate the system
-
   // board
+  kan::Board board = Board(_path);
+  board.title      = "New Project";
 
-  // clang-format -off
-  // nlohmann::json init_struct{{"title", "New Project"},
-  //                            {"description", ""},
-  //                            {"columns",
-  //                             {{
-  //                                  {"title", "Backlog"},
-  //                                  {"uuid", UUIDv7::generate().to_string()},
-  //                              },
+  board.columns.push_back(Column(YAML::Load(R"({"title": "Backlog",})")));
 
-  //                              {
-  //                                  {"title", "Development"},
-  //                                  {"uuid", UUIDv7::generate().to_string()},
-  //                              },
+  board.columns.push_back(Column(YAML::Load(R"({"title": "Development",})")));
 
-  //                              {
-  //                                  {"title", "Review"},
-  //                                  {"uuid", UUIDv7::generate().to_string()},
-  //                              },
+  board.columns.push_back(Column(YAML::Load(R"({"title": "Review",})")));
 
-  //                              {
-  //                                  {"title", "Done"},
-  //                                  {"uuid", UUIDv7::generate().to_string()},
-  //                              }}}};
-  // clang-format on
-
-  kan::Board board=Board("");
-  board.title = "New Project";
-
-  // Column col1 = Column().title
-  board.columns.push_back(Column(YAML::Load(R"({
-    "title": "Backlog",
-})")));
-
-  board.columns.push_back(Column(YAML::Load(R"({
-    "title": "Development",
-})")));
-
-  board.columns.push_back(Column(YAML::Load(R"({
-    "title": "Review",
-})")));
-
-  board.columns.push_back(Column(YAML::Load(R"({
-    "title": "Done",
-})")));
-  // clang-format off
-  // board.fromJson(nlohmann::json{
-  //   {"title", "New Project"},
-  //   {"description", ""},
-  //   {"columns",
-  //     {{
-  //       {"title", "Backlog"},
-  //       // {"uuid", UUIDv7::generate().to_string()},
-  //     },
-
-  //     {
-  //       {"title", "Development"},
-  //       // {"uuid", UUIDv7::generate().to_string()},
-  //     },
-
-  //     {
-  //       {"title", "Review"},
-  //       // {"uuid", UUIDv7::generate().to_string()},
-  //     },
-
-  //     {
-  //       {"title", "Done"},
-  //       // {"uuid", UUIDv7::generate().to_string()},
-  //     }}}});
-  // // clang-format on
+  board.columns.push_back(Column(YAML::Load(R"({"title": "Done",})")));
 
   // std::ofstream out_file(_path / "kan.json");//, std::ios::binary);
   std::ofstream out_file(_path / "kan.yaml");
@@ -125,18 +66,17 @@ void KAN::init() {
   first_job.title       = "First Job";
   first_job.description = "Welcome to KAN!";
   first_job.status      = "Backlog";
-  
-  first_job.history.addEvent({"Job created.",User().getFromSystem(), Timestamp().Now()});
 
+  first_job.history.addEvent({"Job created.", User().getFromSystem(), Timestamp().Now()});
 
-  // first_job.fromJson(first_job_json);
-
-  // std::ofstream out_file_job(_path / "jobs" / std::format("{}.bson", first_job.uuid), std::ios::binary);
-  // nlohmann::json::to_bson(first_job.toJson(), out_file_job);
   std::ofstream out_file_job(_path / "jobs" / std::format("{}.yaml", first_job.uuid));
-  // out_file_job << first_job.toJson().dump(2);
   out_file_job << first_job.toYaml();
-    };
+
+  board.styleMap.add("homepage_title", termui::Styles::bold);
+  board.styleMap.add("selected_darkmode", termui::Style(termui::Color::Inherit(), 237));
+  board.styleMap.add("selected_lightmode", termui::Style(termui::Color::Inherit(), 247));
+  board.saveStyleMap();
+};
 
 void KAN::start() {
   _renderer.show();
@@ -156,9 +96,5 @@ void KAN::start() {
 
   // termui::TermSetups::fullscreen.reset();
 }
-
-
-
-
 
 } // namespace kan

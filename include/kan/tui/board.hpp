@@ -3,8 +3,8 @@
 
 #include <format>
 #include <kan/core.hpp>
-#include <kan/tui/tab-bar.hpp>
 #include <kan/tui/issue-list.hpp>
+#include <kan/tui/tab-bar.hpp>
 #include <vector>
 
 namespace kan {
@@ -24,7 +24,7 @@ private:
   void internal_update();
 
 public:
-  Board() = default;
+  // Board() = default;
   Board(kan::Board &board);
 
   Board &width(uint w);
@@ -49,7 +49,6 @@ public:
 } // namespace kan
 
 #endif
-
 
 // class JobWindow : termui::Interface {
 //   uint _width = 80, _height = 40;
