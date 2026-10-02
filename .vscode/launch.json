@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "debug",
+            "type": "lldb",
+            "request": "launch",
+            "program": "build/kan",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "make build",
+            "env": {
+                "TERM": "xterm-256color",
+                "COLORTERM": "truecolor"
+            }
+        },
+        // {
+        //     "name": "LLDB Attach",
+        //     "type": "lldb",
+        //     "request": "attach",
+        //     "program": "/full/path/to/your/executable",
+        //     "pid": "${command:pickMyProcess}"
+        // }
+    ],
+    // "inputs": [
+    //     {
+    //         "id": "pickTestFile",
+    //         "type": "command",
+    //         "command": "extension.commandvariable.file.pickFile",
+    //         "args": {
+    //             "include": "build/kan",
+    //             // "display": "fileName"
+    //         }
+    //     }
+    // ]
+}

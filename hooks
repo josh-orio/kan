@@ -1,0 +1,4 @@
+on commit:
+
+process commit message, if it references a job or issue then update the status of that entity
+update timestamp on related jobs/issues

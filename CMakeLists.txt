@@ -22,11 +22,14 @@ include(FetchContent)
 #   json
 #   URL https://github.com/nlohmann/json.git
 # )
-FetchContent_Declare(
-  json
-  URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
-)
-FetchContent_MakeAvailable(json)
+# FetchContent_Declare(
+#   json
+#   URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+# )
+# FetchContent_MakeAvailable(json)
+
+set(CMAKE_CXX_VISIBILITY_PRESET default)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN OFF)
 
 FetchContent_Declare(
   termui
@@ -37,6 +40,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(termui)
 
 
+FetchContent_Declare(
+  yaml-cpp
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+  GIT_TAG master # Can be a tag (yaml-cpp-x.x.x), a commit hash, or a branch name (master)
+)
+FetchContent_MakeAvailable(yaml-cpp)
 
 # # define the test executable
 # add_executable(test_all test.cpp)
@@ -45,10 +54,7 @@ FetchContent_MakeAvailable(termui)
 # library target — this is what tests link against
 add_library(kan_lib STATIC ${library_SOURCES})
 target_include_directories(kan_lib PUBLIC include)
-target_link_libraries(kan_lib PUBLIC nlohmann_json::nlohmann_json termui)
-
-
-
+target_link_libraries(kan_lib PUBLIC termui yaml-cpp::yaml-cpp)
 
 # the actual app executable — keep using PROJECT_NAME for this
 add_executable(${PROJECT_NAME} src/main.cpp)
