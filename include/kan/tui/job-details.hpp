@@ -3,6 +3,7 @@
 
 #include <kan/core/job.hpp>
 #include <kan/tui/comment-list.hpp>
+#include <kan/core/commits.hpp>
 #include <kan/tui/new-comment-window.hpp>
 #include <kan/tui/tab-bar.hpp>
 #include <termui/termui.hpp>
@@ -12,7 +13,7 @@ namespace tui {
 
 class JobDetails : termui::Interface {
 public:
-  enum class Focus { Status, Priority, Description};
+  enum class Focus { Status, Priority, Assignee, EventList};
 
   JobDetails(kan::Job job);
 
@@ -22,6 +23,9 @@ public:
   JobDetails &CursorDown();
   JobDetails &CursorLeft();
   JobDetails &CursorRight();
+
+  JobDetails &GotoTop();
+  JobDetails &GotoBottom();
 
   void Reload(Job job);
 
@@ -36,9 +40,18 @@ private:
 
   kan::Job _job;
 
-  Focus _selected_field = Focus::Status;
+  std::vector<std::variant<Comment, Commit>> _events;
+
+  Focus _focus = Focus::Status;
+
+
+  unsigned int  _visible_events;
+  unsigned int  _start_line=0;
+  unsigned int  _cursor=0;
 
   bool _edit_mode = false;
+
+  void internal_update();
 };
 
 } // namespace tui

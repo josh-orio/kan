@@ -3,6 +3,34 @@
 namespace kan {
 namespace tui {
 
+std::vector<std::variant<kan::Comment, Commit>> idk(Job job) {
+  std::vector<std::variant<kan::Comment, Commit>> events;
+
+  // events.push_back(Comment())
+  kan::Comment c;
+  c.text    = job.description;
+  c.creator = job.creator;
+  c.created = job.created;
+
+  // Comment {job.description,job.creator,job.created};
+  events.push_back(c);
+
+  for (const auto &c : job.comments) {
+    events.push_back(c);
+  }
+
+  // sort records (newest first)
+  using Event = std::variant<kan::Comment, Commit>;
+
+  auto timeOf = [](const Event &e) {
+    return std::visit([](const auto &x) { return x.created.time; }, e); // anything that will be visted needs to have a .created member
+  };
+
+  std::sort(events.begin(), events.end(), [&](const Event &a, const Event &b) { return timeOf(a) < timeOf(b); });
+
+  return events;
+}
+
 std::string priorityStr(Job::Priority p) {
   switch (p) {
   case Job::Priority::Low:
@@ -31,7 +59,7 @@ std::string priorityIcon(Job::Priority p) {
   }
 }
 
-JobDetails::JobDetails(kan::Job job) : _job(job) {}
+JobDetails::JobDetails(kan::Job job) : _job(job), _events(idk(job)) {}
 
 JobDetails &JobDetails::size(uint w, uint h) {
   _width  = w;
@@ -40,8 +68,18 @@ JobDetails &JobDetails::size(uint w, uint h) {
 }
 
 JobDetails &JobDetails::CursorUp() {
-  if (_selected_field == Focus::Description) {
-    _selected_field = Focus::Status;
+  if (_focus == Focus::Assignee) {
+    _focus = Focus::Status;
+  }
+  if (_focus == Focus::EventList) {
+    if (_cursor == 0) {
+      _focus = Focus::Assignee;
+    }
+    else {
+
+      _cursor > 0 ? _cursor-- : _cursor;
+      _cursor < _start_line ? _start_line = _cursor : _start_line;
+    }
   }
   // else if (_selected_field == Focus::Archive) {
   //   _selected_field = Focus::Description;
@@ -54,11 +92,20 @@ JobDetails &JobDetails::CursorUp() {
 }
 
 JobDetails &JobDetails::CursorDown() {
-  if (_selected_field == Focus::Status) {
-    _selected_field = Focus::Description;
+  if (_focus == Focus::Status) {
+    _focus = Focus::Assignee;
   }
-  else if (_selected_field == Focus::Priority) {
-    _selected_field = Focus::Description;
+  else if (_focus == Focus::Priority) {
+    _focus = Focus::Assignee;
+  }
+  else if (_focus == Focus::Assignee) {
+    _focus = Focus::EventList;
+  }
+  else if (_focus == Focus::EventList) {
+    internal_update();
+
+    _cursor + 1 < _events.size() ? _cursor++ : _cursor;
+    _cursor >= _start_line + _visible_events ? _start_line = _cursor - _visible_events + 1 : _start_line;
   }
   // else if (_selected_field == Focus::Description) {
   //   _selected_field = Focus::Archive;
@@ -71,8 +118,8 @@ JobDetails &JobDetails::CursorDown() {
 }
 
 JobDetails &JobDetails::CursorLeft() {
-  if (_selected_field == Focus::Priority) {
-    _selected_field = Focus::Status;
+  if (_focus == Focus::Priority) {
+    _focus = Focus::Status;
   }
   // else if (_selected_field == Focus::Delete) {
   //   _selected_field = Focus::Archive;
@@ -82,8 +129,8 @@ JobDetails &JobDetails::CursorLeft() {
 }
 
 JobDetails &JobDetails::CursorRight() {
-  if (_selected_field == Focus::Status) {
-    _selected_field = Focus::Priority;
+  if (_focus == Focus::Status) {
+    _focus = Focus::Priority;
   }
   // else if (_selected_field == Focus::Archive) {
   //   _selected_field = Focus::Delete;
@@ -92,20 +139,45 @@ JobDetails &JobDetails::CursorRight() {
   return *this;
 }
 
-void JobDetails::Reload(Job job) { _job = job; }
+JobDetails &JobDetails::GotoTop() {
+  if (_focus == Focus::EventList) {
+    _cursor = 0;
+  }
+
+  return *this;
+}
+
+JobDetails &JobDetails::GotoBottom() {
+  _focus  = Focus::EventList;
+  _cursor = _events.size()-1;
+
+  return *this;
+}
+
+void JobDetails::Reload(Job job) {
+  _job    = job;
+  _events = idk(job);
+}
 
 JobDetails &JobDetails::editMode(bool x) {
   _edit_mode = x;
   return *this;
 }
 
-JobDetails::Focus JobDetails::Focussed() { return _selected_field; }
+JobDetails::Focus JobDetails::Focussed() { return _focus; }
+
+template <class... Ts> struct overloaded : Ts... {
+  using Ts::operator()...;
+};
+template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>; // needed pre-C++20
 
 void JobDetails::render() {
+  internal_update();
+
   auto [row, col] = termui::terminal.GetCursorPosition();
 
   // status indicator
-  if (_selected_field == Focus::Status) {
+  if (_focus == Focus::Status) {
     termui::terminal.write("·");
   }
 
@@ -121,10 +193,20 @@ void JobDetails::render() {
   termui::Text(priorityStr(_job.priority)).style(termui::Style(termui::Color::Inherit(), termui::Colors::Red, {termui::SGR::Bold})).width(6).render();
 
   // priority indicator
-  if (_selected_field == Focus::Priority) {
+  if (_focus == Focus::Priority) {
     termui::terminal.MoveCursor(row, col + _width - 1);
     termui::terminal.write("·");
   }
+
+  // assignee indicator
+  if (_focus == Focus::Assignee) {
+    termui::terminal.MoveCursor(row + 2, col);
+    termui::terminal.write("·");
+  }
+
+  // assignee
+  termui::terminal.MoveCursor(row + 2, col + 2);
+  termui::Text(_job.assignee.Name(), ::tui::stls::bold).width(_width - 2).height(1).render();
 
   // created
   termui::terminal.MoveCursor(row + _height - 4, col);
@@ -156,15 +238,101 @@ void JobDetails::render() {
       .width(_width - 1 - 9 - 1 - 8)
       .render();
 
-  // desc indicator
-  if (_selected_field == Focus::Description) {
-    termui::terminal.MoveCursor(row + 2, col);
-    termui::Line(termui::Line::Direction::Vertical, _height - 7).render();
+  auto init_cursor_c = col + 2, init_cursor_r = row + 4;
+
+  // for (const auto &e : _events) {
+  for (int i = _start_line; i < std::min(_events.size(), static_cast<size_t>(_start_line + _visible_events)); i++) {
+    auto e = _events.at(i);
+
+    auto item_height = 0;
+
+    // clang-format off
+    std::visit(overloaded{
+      [&](const kan::Comment &c) {
+        auto comment = tui::Comment(c).width(_width -4);
+
+        auto [width,height]= comment.size();
+
+        item_height=height;
+
+        termui::terminal.MoveCursor(init_cursor_r, init_cursor_c);
+        comment.render();
+      },
+      [](const Commit &c) { /* handle commit */ }
+    },e);
+    // clang-format on
+
+    if (_focus == Focus::EventList && i == _cursor) {
+      termui::terminal.MoveCursor(init_cursor_r, col);
+      termui::Line(termui::Line::Direction::Vertical, item_height).render();
+    }
+
+    init_cursor_r += item_height + 1;
   }
 
-  // job description
-  termui::terminal.MoveCursor(row + 2, col + 2);
-  termui::Input(_job.description).width(_width - 4).height(_height - 7).valueStyle(board.styleMap.at(_edit_mode ? "selected_darkmode" : "")).render();
+  // // desc indicator
+  // if (_selected_field == Focus::Description) {
+  //   termui::terminal.MoveCursor(row + 2, col);
+  //   // termui::Line(termui::Line::Direction::Vertical, _height - 7).render();
+  //   termui::Line(termui::Line::Direction::Vertical, height).render();
+  // }
+
+  // // job description
+  // termui::terminal.MoveCursor(row + 2, col + 2);
+  // desc.render();
+  // // termui::Input(_job.description).render();
+  // // .height(_height - 7).valueStyle(board.styleMap.at(_edit_mode ? "selected_darkmode" : "")).render();
+}
+
+void JobDetails::internal_update() {
+  std::vector<int> item_heights;
+
+  for (const auto &e : _events) {
+
+    // clang-format off
+    std::visit(overloaded{
+      [&](const kan::Comment &c) {
+        auto comment = tui::Comment(c).width(_width -4);
+
+        auto [width,height]= comment.size();
+
+        item_heights.push_back(height);
+      },
+      [&](const Commit &c) { /* handle commit */ 
+        item_heights.push_back(1);
+      }
+    },e);
+  }
+  // clang-format on
+
+  auto line = _start_line;
+
+  _visible_events = 0;
+  auto space_used = 0;
+  while (true) {
+    if (line >= _events.size()) {
+      break;
+    }
+
+    space_used += item_heights.at(line) + 1;
+
+    if (space_used > _height - 8) {
+      break;
+    }
+
+    _visible_events++;
+    line++;
+  }
+
+  auto tmp = 0;
+
+  // keep cursor in visible bounds
+  if (_start_line > _cursor) {
+    _start_line = _cursor;
+  }
+  if (_cursor > _start_line + _visible_events - 1) {
+    _start_line = _cursor - _visible_events + 1;
+  }
 }
 
 } // namespace tui

@@ -128,7 +128,7 @@ std::pair<bool, kan::Comment> NewCommentWindow::show() {
     return {true, _comment};
   }
   else /* Exit */ {
-    return {false, Comment()};
+    return {false, kan::Comment()};
   }
 }
 

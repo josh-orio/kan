@@ -89,6 +89,10 @@ YAML::Node Comments::toYaml() {
   return yaml;
 }
 
+std::vector<Comment>::iterator Comments::begin() { return _comments.begin(); }
+
+std::vector<Comment>::iterator Comments::end() { return _comments.end(); }
+
 size_t Comments::size() { return _comments.size(); }
 
 Comment Comments::at(int i) { return _comments.at(i); }

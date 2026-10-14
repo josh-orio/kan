@@ -42,6 +42,9 @@ public:
   void       fromYaml(YAML::Node yaml);
   YAML::Node toYaml();
 
+  std::vector<Comment>::iterator begin();
+  std::vector<Comment>::iterator end();
+
   size_t  size();
   Comment at(int idx);
 

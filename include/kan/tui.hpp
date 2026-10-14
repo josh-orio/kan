@@ -14,6 +14,7 @@
 #include <kan/tui/issue-list.hpp>
 #include <kan/tui/job-cell.hpp>
 #include <kan/tui/job-details.hpp>
+#include <kan/tui/job-window-help.hpp>
 #include <kan/tui/job-window.hpp>
 #include <kan/tui/mini-menu.hpp>
 #include <kan/tui/new-comment-window.hpp>
@@ -23,5 +24,6 @@
 #include <kan/tui/tab-bar.hpp>
 #include <kan/tui/view-comment-window.hpp>
 #include <kan/tui/view-issue-window.hpp>
+#include <kan/tui/comment.hpp>
 
 #endif

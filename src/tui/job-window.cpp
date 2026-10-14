@@ -30,12 +30,12 @@ void JobWindow::display() {
   termui::Text(_job.title, termui::Styles::bold).width(_width - 4).height(1).render();
 
   // tab bar
-  termui::terminal.MoveCursor( 3,  2);
+  termui::terminal.MoveCursor(3, 2);
   // termui::Text(_job._title, termui::Styles::bold).width(_width - 4).height(1).render();
   _tab_bar.width(_width - 4).render();
 
   // clear content area
-  termui::terminal.MoveCursor( 5, 2);
+  termui::terminal.MoveCursor(5, 2);
   // termui::Text("").style(termui::Styles::none).width(_width - 4).height(_height - 6).render();
   // termui::Text("").style(termui::Style(termui::Color::Inherit(), termui::Colors::Red)).width(_width - 4).height(_height - 6).render();
 
@@ -65,36 +65,36 @@ void JobWindow::process_input() {
 
   auto tab = _tab_bar.GetTab();
 
-  if (_input_mode) {
-    if (tab == 0) {
-      if (_job_detail.Focussed() == JobDetails::Focus::Description) {
-        if ((std::string{32} <= inp) && (inp <= std::string{126})) { // accept basically all chars
+  // if (_input_mode) {
+  //   if (tab == 0) {
+  //     // if (_job_detail.Focussed() == JobDetails::Focus::Description) {
+  //     //   if ((std::string{32} <= inp) && (inp <= std::string{126})) { // accept basically all chars
 
-          _job.description += inp;
-        }
-        else if (inp == termui::key::DEL) {
-          _job.description = std::string(_job.description.begin(), _job.description.end() - 1);
-        }
-        else if (inp == termui::key::ENTER) {
-          _job.description += "\n";
-        }
-        else if (inp == termui::key::ESC) {
+  //     //     _job.description += inp;
+  //     //   }
+  //     //   else if (inp == termui::key::DEL) {
+  //     //     _job.description = std::string(_job.description.begin(), _job.description.end() - 1);
+  //     //   }
+  //     //   else if (inp == termui::key::ENTER) {
+  //     //     _job.description += "\n";
+  //     //   }
+  //     //   else if (inp == termui::key::ESC) {
 
-          _job.addEvent({"Job description was changed.", User().getFromSystem(), Timestamp().Now()});
+  //     //     _job.addEvent({"Job description was changed.", User().getFromSystem(), Timestamp().Now()});
 
-          // _job_detail     = JobDetails(_job);
-          _history_viewer = HistoryViewer(_job.history);
+  //     //     // _job_detail     = JobDetails(_job);
+  //     //     _history_viewer = HistoryViewer(_job.history);
 
-          _modified   = true;
-          _input_mode = false;
-        }
+  //     //     _modified   = true;
+  //     //     _input_mode = false;
+  //     //   }
 
-        _job_detail.Reload(_job);
-      }
-    }
+  //     //   _job_detail.Reload(_job);
+  //     // }
+  //   }
 
-    return;
-  }
+  //   return;
+  // }
 
   if (inp == termui::key::ESC || inp == "q") {
     state = termui::Interface::State::Exit;
@@ -137,27 +137,78 @@ void JobWindow::process_input() {
       _job_detail.CursorRight();
     }
   }
-  else if (inp == "c") {
-    if (tab == 1) {
-      auto [success, comment] = NewCommentWindow().show();
 
-      if (success) {
-        _job.comments.addComment(comment);
-        _comment_list.ReloadComments(_job.comments);
 
-        _job.addEvent({"Comment added.", User().getFromSystem(), Timestamp().Now()});
+  // else if (inp == "c") {
+  //   if (tab == 1) {
+  //     auto [success, comment] = NewCommentWindow().show();
 
-        _job_detail = JobDetails(_job);
-        _history_viewer.Reload(_job.history);
-        _modified = true;
-      }
-    }
-  }
-  // else if (inp == "o" || inp == termui::key::ENTER) {
-  else if (inp == termui::key::ENTER) {
-    if (tab == 0) {
-      if (_job_detail.Focussed() == JobDetails::Focus::Status) {
-        std::vector<std::string> statuses = board.Statuses();
+  //     if (success) {
+  //       _job.comments.addComment(comment);
+  //       _comment_list.ReloadComments(_job.comments);
+
+  //       _job.addEvent({"Comment added.", User().getFromSystem(), Timestamp().Now()});
+
+  //       _job_detail = JobDetails(_job);
+  //       _history_viewer.Reload(_job.history);
+  //       _modified = true;
+  //     }
+  //   }
+  // }
+
+  // else if (inp == termui::key::ENTER) {
+  //   if (tab == 0) {
+  //     if (_job_detail.Focussed() == JobDetails::Focus::Status) {
+  //       std::vector<std::string> statuses = board.Statuses();
+
+  //       auto [state, cursor] = tui::MiniMenu("Status", statuses).show();
+
+  //       if (state == termui::Interface::State::Submit) {
+  //         auto old_status = _job.status;
+
+  //         _job.status = statuses.at(cursor);
+
+  //         _job.addEvent({std::format("Job status was updated: {} -> {}.", old_status, _job.status), User().getFromSystem(), Timestamp().Now()});
+
+  //         _job_detail     = JobDetails(_job);
+  //         _history_viewer = HistoryViewer(_job.history);
+  //         _modified       = true;
+  //       }
+  //     }
+
+  //     if (_job_detail.Focussed() == JobDetails::Focus::Priority) {
+  //       std::vector<std::string> priorities = {"Low", "Normal", "High"};
+
+  //       auto [state, cursor] = tui::MiniMenu("Priority", priorities).setCursor(1).show();
+
+  //       if (state == termui::Interface::State::Submit) {
+  //         auto old_priority_str = YAML::Node(_job.priority).as<std::string>();
+
+  //         _job.priority = Job::Priority(cursor);
+
+  //         auto new_priority_str = YAML::Node(_job.priority).as<std::string>();
+
+  //         _job.addEvent({std::format("Job priority was updated: {} -> {}.", old_priority_str, new_priority_str), User().getFromSystem(), Timestamp().Now()});
+
+  //         _job_detail     = JobDetails(_job);
+  //         _history_viewer = HistoryViewer(_job.history);
+  //         _modified       = true;
+  //       }
+  //     }
+  //   }
+  //   else if (tab == 1) {
+  //     auto comment_view_state = ViewCommentWindow(_job.comments.at(_comment_list.GetCursor())).show();
+
+  //     if (comment_view_state == termui::Interface::State::Delete) {
+  //       _job.comments.deleteComment(_job.comments.at(_comment_list.GetCursor()));
+  //       _comment_list.ReloadComments(_job.comments);
+  //     }
+  //   }
+  // }
+
+  else if (tab == 0) {
+    if (inp == "s" || (inp == termui::key::ENTER && _job_detail.Focussed() == JobDetails::Focus::Status)) { // set status
+              std::vector<std::string> statuses = board.Statuses();
 
         auto [state, cursor] = tui::MiniMenu("Status", statuses).show();
 
@@ -173,9 +224,8 @@ void JobWindow::process_input() {
           _modified       = true;
         }
       }
-
-      if (_job_detail.Focussed() == JobDetails::Focus::Priority) {
-        std::vector<std::string> priorities = {"Low", "Normal", "High"};
+    if (inp == "p"|| (inp == termui::key::ENTER && _job_detail.Focussed() == JobDetails::Focus::Priority)) {// set priority
+              std::vector<std::string> priorities = {"Low", "Normal", "High"};
 
         auto [state, cursor] = tui::MiniMenu("Priority", priorities).setCursor(1).show();
 
@@ -194,10 +244,63 @@ void JobWindow::process_input() {
         }
       }
 
-      else if (_job_detail.Focussed() == JobDetails::Focus::Description) {
-        _input_mode=true;
 
+    if (inp == "a") {// set assignee
       }
+
+    if (inp == "c") {
+      auto [success, comment] = NewCommentWindow().show();
+
+      if (success) {
+        _job.comments.addComment(comment);
+        _comment_list.ReloadComments(_job.comments);
+
+        _job.addEvent({"Comment added.", User().getFromSystem(), Timestamp().Now()});
+
+        _job_detail.Reload(_job);
+        _history_viewer.Reload(_job.history);
+        _modified = true;
+      }
+    }
+
+    else if (inp == "t") {
+      _job_detail.GotoTop();
+    }
+    else if (inp == "b") {
+      _job_detail.GotoBottom();
+    }
+  }
+
+  else if (inp == "?") {
+    JobWindowHelp().show();
+  }
+}
+
+std::pair<bool, kan::Job> JobWindow::show() {
+  termui::terminal.ClearScreen();
+  termui::terminal.ClearScrollback();
+
+  state = State::Continue;
+
+  do {
+    display();
+    process_input();
+
+  } while (state == State::Continue);
+
+  return {_modified, _job};
+}
+
+} // namespace tui
+} // namespace kan
+
+
+
+
+      // else if (_job_detail.Focussed() == JobDetails::Focus::Description) {
+      //   _input_mode=true;
+
+      // }
 
           // auto [modified, description] = EditWindow(_job.description).width(_width - 4).height(_height - 14).show();
         // _job_detail      = JobDetails(_job);
@@ -228,32 +331,4 @@ void JobWindow::process_input() {
       //   }
       // }
 
-    }
-    else if (tab == 1) {
-      auto comment_view_state = ViewCommentWindow(_job.comments.at(_comment_list.GetCursor())).show();
-
-      if (comment_view_state == termui::Interface::State::Delete) {
-        _job.comments.deleteComment(_job.comments.at(_comment_list.GetCursor()));
-        _comment_list.ReloadComments(_job.comments);
-      }
-    }
-  }
-}
-
-std::pair<bool, kan::Job> JobWindow::show() {
-  termui::terminal.ClearScreen();
-  termui::terminal.ClearScrollback();
-
-  state = State::Continue;
-
-  do {
-    display();
-    process_input();
-
-  } while (state == State::Continue);
-
-  return {_modified, _job};
-}
-
-} // namespace tui
-} // namespace kan
+    // }

@@ -2,4 +2,5 @@
     "[cpp]": {
         "editor.defaultFoldingRangeProvider": "vscode.cpp"
     },
+    "makefile.configureOnOpen": false,
 }

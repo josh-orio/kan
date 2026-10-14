@@ -37,7 +37,6 @@ void JobCell::render() {
 
   termui::terminal.CursorLeft(_width).CursorDown(1);
 
-  // termui::Text(" "+_job.description).style(_style_map.at(_focussed ? "body_focus" : "body_blur")).width(_width ).height(1).render();
   termui::PaddedText(_job.description)
       .setPadding(termui::PaddingStyle::label)
       .style(_style_map.at(_focussed ? "body_focus" : "body_blur"))
