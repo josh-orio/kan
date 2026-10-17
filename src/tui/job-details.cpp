@@ -183,14 +183,16 @@ void JobDetails::render() {
 
   // status
   termui::terminal.MoveCursor(row, col + 2);
-  termui::Text(_job.status, ::tui::stl(::tui::clrs::Red, ::tui::clr::Inherit())).width(_width - 2).height(1).render();
+  // termui::Text(_job.status, ::tui::stl(::tui::clrs::Red, ::tui::clr::Inherit())).width(_width - 2).height(1).render();
+  termui::Text(_job.status).width(_width - 2).height(1).render();
 
   // priority (symbol + text)
   termui::terminal.MoveCursor(row, col + _width - 10);
   termui::terminal.write(priorityIcon(_job.priority));
 
   termui::terminal.MoveCursor(row, col + _width - 8);
-  termui::Text(priorityStr(_job.priority)).style(termui::Style(termui::Color::Inherit(), termui::Colors::Red, {termui::SGR::Bold})).width(6).render();
+  // termui::Text(priorityStr(_job.priority)).style(termui::Style(termui::Color::Inherit(), termui::Colors::Red, {termui::SGR::Bold})).width(6).render();
+  termui::Text(priorityStr(_job.priority)).width(6).render();
 
   // priority indicator
   if (_focus == Focus::Priority) {
@@ -256,6 +258,30 @@ void JobDetails::render() {
         item_height=height;
 
         termui::terminal.MoveCursor(init_cursor_r, init_cursor_c);
+
+        bool is_dark = termui::terminal.HasDarkBackground();
+
+if (_focus == Focus::EventList && i == _cursor){
+          auto col = termui::terminal.BackgroundColor();
+
+          int tamper = 15;
+
+        if (termui::terminal.HasDarkBackground()) {
+          col.rgb.r +=tamper;
+          col.rgb.g +=tamper;
+          col.rgb.b +=tamper;
+
+          comment.style(termui::Style(termui::Color(), col));
+        }
+        else {
+          col.rgb.r -=tamper;
+          col.rgb.g -=tamper;
+          col.rgb.b -=tamper;
+
+          comment.style(termui::Style(termui::Color(), col));
+        }
+        }
+
         comment.render();
       },
       [](const Commit &c) { /* handle commit */ }
