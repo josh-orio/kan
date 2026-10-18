@@ -26,6 +26,7 @@ public:
   YAML::Node toYaml();
 
   std::vector<std::string> Statuses();
+  std::vector<User>        Users();
 
   std::string          Title();
   std::vector<Column> &Columns();

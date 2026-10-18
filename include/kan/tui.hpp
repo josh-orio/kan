@@ -25,5 +25,6 @@
 #include <kan/tui/view-comment-window.hpp>
 #include <kan/tui/view-issue-window.hpp>
 #include <kan/tui/comment.hpp>
+#include <kan/tui/user-menu.hpp>
 
 #endif

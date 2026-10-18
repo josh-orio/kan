@@ -446,4 +446,31 @@ void Board::saveStyleMap() {
   fout << out.c_str();
 }
 
+std::vector<User> Board::Users() {
+    std::vector<User> users;
+
+    // Iterate through all jobs to collect users
+    for (auto &column : columns) {
+      const auto &jobs = column.Jobs();
+      for (const auto &job : jobs) {
+        // Collect creator, modifier, and assignee names
+        if (!job.creator.name.empty()) {
+          users.push_back(job.creator);
+        }
+        if (!job.modifier.name.empty()) {
+          users.push_back(job.modifier);
+        }
+        if (!job.assignee.name.empty()) {
+          users.push_back(job.assignee);
+        }
+      }
+    }
+
+    // Remove duplicates
+    // std::sort(users.begin(), users.end());
+    users.erase(std::unique(users.begin(), users.end()), users.end());
+    
+    return users;
+}
+
 } // namespace kan

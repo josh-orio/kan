@@ -149,7 +149,7 @@ JobDetails &JobDetails::GotoTop() {
 
 JobDetails &JobDetails::GotoBottom() {
   _focus  = Focus::EventList;
-  _cursor = _events.size()-1;
+  _cursor = _events.size() - 1;
 
   return *this;
 }
@@ -251,42 +251,41 @@ void JobDetails::render() {
     // clang-format off
     std::visit(overloaded{
       [&](const kan::Comment &c) {
-        auto comment = tui::Comment(c).width(_width -4);
+        auto comment = tui::Comment(c).width(_width - 4);
 
-        auto [width,height]= comment.size();
+        auto [width, height] = comment.size();
 
-        item_height=height;
+        item_height = height;
 
         termui::terminal.MoveCursor(init_cursor_r, init_cursor_c);
 
         bool is_dark = termui::terminal.HasDarkBackground();
 
-if (_focus == Focus::EventList && i == _cursor){
+        if (_focus == Focus::EventList && i == _cursor) {
           auto col = termui::terminal.BackgroundColor();
 
           int tamper = 15;
 
-        if (termui::terminal.HasDarkBackground()) {
-          col.rgb.r +=tamper;
-          col.rgb.g +=tamper;
-          col.rgb.b +=tamper;
+          if (termui::terminal.HasDarkBackground()) {
+            col.rgb.r += tamper;
+            col.rgb.g += tamper;
+            col.rgb.b += tamper;
 
-          comment.style(termui::Style(termui::Color(), col));
-        }
-        else {
-          col.rgb.r -=tamper;
-          col.rgb.g -=tamper;
-          col.rgb.b -=tamper;
+            comment.style(termui::Style(termui::Color(), col));
+          }
+          else {
+            col.rgb.r -= tamper;
+            col.rgb.g -= tamper;
+            col.rgb.b -= tamper;
 
-          comment.style(termui::Style(termui::Color(), col));
-        }
+            comment.style(termui::Style(termui::Color(), col));
+          }
         }
 
         comment.render();
       },
-      [](const Commit &c) { /* handle commit */ }
-    },e);
-    // clang-format on
+      [](const Commit &c) { /* handle commit */ }},
+    e);
 
     if (_focus == Focus::EventList && i == _cursor) {
       termui::terminal.MoveCursor(init_cursor_r, col);
@@ -295,6 +294,7 @@ if (_focus == Focus::EventList && i == _cursor){
 
     init_cursor_r += item_height + 1;
   }
+  // clang-format on
 
   // // desc indicator
   // if (_selected_field == Focus::Description) {

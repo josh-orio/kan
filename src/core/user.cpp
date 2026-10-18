@@ -69,4 +69,8 @@ std::string User::toString() { return std::format("{} ({})", name, email); }
 
 std::string User::Name() { return std::format("{}", name); }
 
+bool User::operator==(const User& other) const {
+    return name == other.name && email == other.email;
+}
+
 } // namespace kan

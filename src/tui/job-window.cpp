@@ -47,7 +47,7 @@ void JobWindow::display() {
     _job_detail.size(_width - 2, _height - 4).editMode(_input_mode).render();
 
     if (_input_mode) {
-    termui::terminal.ShowCursor();
+      termui::terminal.ShowCursor();
     }
   }
   else if (tab == 1) {
@@ -138,7 +138,6 @@ void JobWindow::process_input() {
     }
   }
 
-
   // else if (inp == "c") {
   //   if (tab == 1) {
   //     auto [success, comment] = NewCommentWindow().show();
@@ -208,45 +207,60 @@ void JobWindow::process_input() {
 
   else if (tab == 0) {
     if (inp == "s" || (inp == termui::key::ENTER && _job_detail.Focussed() == JobDetails::Focus::Status)) { // set status
-              std::vector<std::string> statuses = board.Statuses();
+      std::vector<std::string> statuses = board.Statuses();
 
-        auto [state, cursor] = tui::MiniMenu("Status", statuses).show();
+      auto [state, cursor] = tui::MiniMenu("Status", statuses).show();
 
-        if (state == termui::Interface::State::Submit) {
-          auto old_status = _job.status;
+      if (state == termui::Interface::State::Submit) {
+        auto old_status = _job.status;
 
-          _job.status = statuses.at(cursor);
+        _job.status = statuses.at(cursor);
 
-          _job.addEvent({std::format("Job status was updated: {} -> {}.", old_status, _job.status), User().getFromSystem(), Timestamp().Now()});
+        _job.addEvent({std::format("Job status was updated: {} -> {}.", old_status, _job.status), User().getFromSystem(), Timestamp().Now()});
 
-          _job_detail     = JobDetails(_job);
-          _history_viewer = HistoryViewer(_job.history);
-          _modified       = true;
-        }
+        _job_detail     = JobDetails(_job);
+        _history_viewer = HistoryViewer(_job.history);
+        _modified       = true;
       }
-    if (inp == "p"|| (inp == termui::key::ENTER && _job_detail.Focussed() == JobDetails::Focus::Priority)) {// set priority
-              std::vector<std::string> priorities = {"Low", "Normal", "High"};
+    }
+    if (inp == "p" || (inp == termui::key::ENTER && _job_detail.Focussed() == JobDetails::Focus::Priority)) { // set priority
+      std::vector<std::string> priorities = {"Low", "Normal", "High"};
 
-        auto [state, cursor] = tui::MiniMenu("Priority", priorities).setCursor(1).show();
+      auto [state, cursor] = tui::MiniMenu("Priority", priorities).setCursor(1).show();
 
-        if (state == termui::Interface::State::Submit) {
-          auto old_priority_str = YAML::Node(_job.priority).as<std::string>();
+      if (state == termui::Interface::State::Submit) {
+        auto old_priority_str = YAML::Node(_job.priority).as<std::string>();
 
-          _job.priority = Job::Priority(cursor);
+        _job.priority = Job::Priority(cursor);
 
-          auto new_priority_str = YAML::Node(_job.priority).as<std::string>();
+        auto new_priority_str = YAML::Node(_job.priority).as<std::string>();
 
-          _job.addEvent({std::format("Job priority was updated: {} -> {}.", old_priority_str, new_priority_str), User().getFromSystem(), Timestamp().Now()});
+        _job.addEvent({std::format("Job priority was updated: {} -> {}.", old_priority_str, new_priority_str), User().getFromSystem(), Timestamp().Now()});
 
-          _job_detail     = JobDetails(_job);
-          _history_viewer = HistoryViewer(_job.history);
-          _modified       = true;
-        }
+        _job_detail     = JobDetails(_job);
+        _history_viewer = HistoryViewer(_job.history);
+        _modified       = true;
       }
+    }
 
+    if (inp == "a" || (inp == termui::key::ENTER && _job_detail.Focussed() == JobDetails::Focus::Assignee)) { // set assignee
+      kan::tui::UserMenu userMenu;
+      auto [state, selected_user] = userMenu.show();
 
-    if (inp == "a") {// set assignee
+      if (state == termui::Interface::State::Submit) {
+        // std::cout << "Selected user: " << users[selected_user_index] << "\n";
+        _job.assignee = selected_user;
+
+        _job.addEvent({selected_user.Name() + " was set as assigned user.", User().getFromSystem(), Timestamp().Now()});
+
+        _job_detail.Reload(_job);
+        _history_viewer.Reload(_job.history);
+        _modified = true;
       }
+      else {
+        std::cout << "User selection cancelled.\n";
+      }
+    }
 
     if (inp == "c") {
       auto [success, comment] = NewCommentWindow().show();
@@ -294,41 +308,37 @@ std::pair<bool, kan::Job> JobWindow::show() {
 } // namespace tui
 } // namespace kan
 
+// else if (_job_detail.Focussed() == JobDetails::Focus::Description) {
+//   _input_mode=true;
 
+// }
 
+// auto [modified, description] = EditWindow(_job.description).width(_width - 4).height(_height - 14).show();
+// _job_detail      = JobDetails(_job);
+// _modified        = true;
 
-      // else if (_job_detail.Focussed() == JobDetails::Focus::Description) {
-      //   _input_mode=true;
+//  if (state == termui::Interface::State::Submit) {
+//   auto old_priority_str = YAML::Node(_job.priority).as<std::string>();
 
-      // }
+//   _job.priority = Job::Priority(cursor);
 
-          // auto [modified, description] = EditWindow(_job.description).width(_width - 4).height(_height - 14).show();
-        // _job_detail      = JobDetails(_job);
-        // _modified        = true;
+//   auto new_priority_str = YAML::Node(_job.priority).as<std::string>();
 
+//   _job.addEvent({std::format("Job priority was updated: {} -> {}.", old_priority_str, new_priority_str), User().getFromSystem(), Timestamp().Now()});
 
-        //  if (state == termui::Interface::State::Submit) {
-        //   auto old_priority_str = YAML::Node(_job.priority).as<std::string>();
+//   _job_detail     = JobDetails(_job);
+//   _history_viewer = HistoryViewer(_job.history);
+//   _modified       = true;
+// }
+// else if (_job_detail.Focussed() == JobDetails::Focus::Archive) {
+// }
+// else if (_job_detail.Focussed() == JobDetails::Focus::Delete) {
+//   auto confirm = DialogBox("Confirm delete", "Are you sure you want to delete this job?", "Delete", "Cancel").show();
 
-        //   _job.priority = Job::Priority(cursor);
+//   if (confirm) {
+//     board.deleteJob(_job);
+//     state = termui::Interface::State::Exit;
+//   }
+// }
 
-        //   auto new_priority_str = YAML::Node(_job.priority).as<std::string>();
-
-        //   _job.addEvent({std::format("Job priority was updated: {} -> {}.", old_priority_str, new_priority_str), User().getFromSystem(), Timestamp().Now()});
-
-        //   _job_detail     = JobDetails(_job);
-        //   _history_viewer = HistoryViewer(_job.history);
-        //   _modified       = true;
-        // }
-      // else if (_job_detail.Focussed() == JobDetails::Focus::Archive) {
-      // }
-      // else if (_job_detail.Focussed() == JobDetails::Focus::Delete) {
-      //   auto confirm = DialogBox("Confirm delete", "Are you sure you want to delete this job?", "Delete", "Cancel").show();
-
-      //   if (confirm) {
-      //     board.deleteJob(_job);
-      //     state = termui::Interface::State::Exit;
-      //   }
-      // }
-
-    // }
+// }
