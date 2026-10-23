@@ -6,7 +6,6 @@ namespace tui {
 std::vector<std::variant<kan::Comment, Commit>> idk(Job job) {
   std::vector<std::variant<kan::Comment, Commit>> events;
 
-  // events.push_back(Comment())
   kan::Comment c;
   c.text    = job.description;
   c.creator = job.creator;

@@ -9,12 +9,10 @@
 
 namespace kan {
 
-class Status {}; // ??
-
 class KAN : termui::Interface {
 private:
   std::filesystem::path _path;
-  kan::tui::Board       _renderer;
+  // kan::tui::Board       _renderer;
 
   void init();
 

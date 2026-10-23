@@ -9,10 +9,14 @@ namespace tui {
 
 class Column {
 private:
-  kan::Column _column;
-  uint        _width, _height;
-  bool        _focussed;
-  uint        _active_row;
+  kan::Column  _column;
+  unsigned int _width, _height;
+  bool         _focussed;
+  unsigned int _visible_rows;
+  unsigned int _start_line;
+  unsigned int _cursor;
+
+  void internal_update();
 
 public:
   Column(kan::Column column);
@@ -20,8 +24,15 @@ public:
   Column &width(uint n);
   Column &height(uint n);
 
-  Column &focus(uint row);
+  Column &focus();
   Column &blur();
+
+  Column &cursorUp();
+  Column &cursorDown();
+  Column &setCursor(unsigned int row);
+
+  Column &gotoTop();
+  Column &gotoBottom();
 
   void render();
 };

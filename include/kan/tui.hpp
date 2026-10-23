@@ -6,6 +6,7 @@
 #include <kan/tui/board.hpp>
 #include <kan/tui/column.hpp>
 #include <kan/tui/comment-list.hpp>
+#include <kan/tui/comment.hpp>
 #include <kan/tui/control-strip.hpp>
 #include <kan/tui/dialog-box.hpp>
 #include <kan/tui/editor.hpp>
@@ -22,9 +23,14 @@
 #include <kan/tui/new-job.hpp>
 #include <kan/tui/settings-dialog.hpp>
 #include <kan/tui/tab-bar.hpp>
+#include <kan/tui/user-menu.hpp>
 #include <kan/tui/view-comment-window.hpp>
 #include <kan/tui/view-issue-window.hpp>
-#include <kan/tui/comment.hpp>
-#include <kan/tui/user-menu.hpp>
+
+namespace kan {
+// namespace tui {
+extern tui::Board &renderer;
+// }
+} // namespace kan
 
 #endif

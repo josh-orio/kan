@@ -5,12 +5,10 @@
 
 namespace kan {
 
-KAN::KAN(std::string path) : _path(), /*_board(),*/ _renderer(board) {
+KAN::KAN(std::string path) : _path(){
   std::filesystem::path dir(path);
 
   _path = dir / ".kan";
-
-  // std::cout << _path << std::endl;
 
   if (!std::filesystem::exists(_path)) {
     init();
@@ -23,6 +21,10 @@ KAN::KAN(std::string path) : _path(), /*_board(),*/ _renderer(board) {
   board.loadStyleMap();
 
   board.styleMap.add("debug", termui::Style(termui::Color::Inherit(), termui::Colors::Red));
+
+  renderer = tui::Board();
+  // renderer.load();
+
 }
 
 void KAN::init() {
@@ -79,7 +81,7 @@ void KAN::init() {
 };
 
 void KAN::start() {
-  _renderer.show();
+  renderer.show();
   // termui::TermSetups::fullscreen_no_mouse.configure();
 
   // state = State::Continue;

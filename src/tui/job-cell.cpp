@@ -26,12 +26,24 @@ JobCell &JobCell::setFocus(bool x) {
 }
 
 void JobCell::render() {
-  termui::Text(" " + _job.title).style(_style_map.at(_focussed ? "title_focus" : "title_blur")).size(_width - 11, 1).render();
+
+    auto color = termui::terminal.BackgroundColor();
+
+    int tamper = 15 * (termui::terminal.HasDarkBackground() ? 1 : -1);
+
+    color.rgb.r += tamper;
+    color.rgb.g += tamper;
+    color.rgb.b += tamper;
+
+  auto row_style= termui::Style(termui::Color(), color);
+  auto row_style_bold= termui::Style(termui::Color(), color, {termui::SGR::Bold});
+
+  termui::Text(" " + _job.title).style(_focussed ? row_style_bold: termui::Style()).size(_width - 11, 1).render();
   // , _style_map.at(_focussed ? "title_focus" : "title_blur"), _width - 11, 1).render();
 
   termui::PaddedText("#" + _job.uuid.substr(_job.uuid.size() - 8))
       .setPadding(termui::PaddingStyle::label)
-      .style(_style_map.at(_focussed ? "body_focus" : "body_blur"))
+      .style(_focussed ? row_style: termui::Style())
       .size(11, 1)
       .render();
 
@@ -39,7 +51,7 @@ void JobCell::render() {
 
   termui::PaddedText(_job.description)
       .setPadding(termui::PaddingStyle::label)
-      .style(_style_map.at(_focussed ? "body_focus" : "body_blur"))
+      .style(_focussed ? row_style: termui::Style())
       .size(_width, 1)
       .render();
 }

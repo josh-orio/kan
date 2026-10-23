@@ -40,7 +40,7 @@ private:
 
   kan::Job _job;
 
-  std::vector<std::variant<Comment, Commit>> _events;
+  std::vector<std::variant<kan::Comment, kan::Commit>> _events;
 
   Focus _focus = Focus::Status;
 

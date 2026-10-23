@@ -5,7 +5,22 @@
 namespace kan {
 namespace tui {
 
-Board::Board(kan::Board &board) : /* _board(board), */ issue_list(board.issues), _active_col(0), _active_row(0) {}
+Board &Board::instance() {
+  static Board board = Board();
+  return board;
+}
+
+Board::Board() : _active_col(0), _active_row(0) {
+    for (const auto &c : board.columns) {
+    _columns.push_back(tui::Column(c));
+  }
+}
+
+void Board::load() {
+  // for (const auto &c : board.columns) {
+  //   _columns.push_back(tui::Column(c));
+  // }
+}
 
 Board &Board::width(uint n) {
   _width = n;
@@ -21,15 +36,22 @@ uint Board::ActiveColumn() { return _active_col; }
 
 uint Board::ActiveRow() { return _active_row; }
 
-void Board::Up(uint n) { _active_row = std::max<int>(0, _active_row - n); }
+void Board::Up(uint n) {
+  _active_row = std::max<int>(0, _active_row - n);
+  _columns.at(_active_col).cursorUp();
+}
 
-void Board::Down(uint n) { _active_row = std::min<int>(board.Jobs(_active_col).size() == 0 ? 0 : board.Jobs(_active_col).size() - 1, _active_row + n); }
+void Board::Down(uint n) {
+  _active_row = std::min<int>(board.Jobs(_active_col).size() == 0 ? 0 : board.Jobs(_active_col).size() - 1, _active_row + n);
+  _columns.at(_active_col).cursorDown();
+}
 
 void Board::Left(uint n) {
   _active_col = std::max<int>(0, _active_col - n);
 
   if (_active_row > board.Jobs(_active_col).size()) {
     _active_row = board.Jobs(_active_col).size();
+
   }
 }
 
@@ -65,14 +87,6 @@ void Board::show() {
   termui::TermSetups::fullscreen_no_mouse.reset();
 }
 
-// void Board::display() {
-//   internal_update();
-
-//   _renderer.render();
-
-//   termui::terminal.flush();
-// }
-
 void Board::display() {
   internal_update();
 
@@ -99,30 +113,53 @@ void Board::display() {
 
   auto tab = _tab_bar.GetTab();
 
-  if (tab == 0) {
-    int w          = _width;
-    int cols       = board.Columns().size();
-    int col_width  = _width <= 0 ? 0 : [w, cols]() {
-      int overhead    = 4;
-      int col_spacing = 1;
 
-      return ((w - overhead) / cols) - col_spacing;
-    }();
+
+  if (tab == 0) {
+    // int w          = _width;
+    int cols       = board.Columns().size();
+    // int col_width  = _width <= 0 ? 0 : [w, cols]() {
+    //   int overhead    = 4;
+    //   int col_spacing = 1;
+
+    //   return ((w - overhead) / cols) - col_spacing;
+    // }();
+    int col_width  = ((_width - 1) / cols) - 1;
     int col_height = _height - 6; // 2 header, 2 tab bar, 2 footer
+
+    auto color = termui::terminal.BackgroundColor();
+
+    int tamper = 60 * (termui::terminal.HasDarkBackground() ? 1 : -1);
+
+    color.rgb.r += tamper;
+    color.rgb.g += tamper;
+    color.rgb.b += tamper;
+
+    termui::Line line = termui::Line(termui::Line::Direction::Vertical, col_height).style(termui::Style(color, termui::Color()));
+
+    int row = 5, col = 2;
 
     for (int i = 0; i < board.Columns().size(); i++) {
 
-      termui::terminal.MoveCursor(5, 2 + (i * col_width));
-      termui::terminal.flush();
+      if (i == 0) {
+        termui::terminal.MoveCursor(row, col);
+        line.render();
 
-      kan::tui::Column column(board.Column(i));
+        col++;
+      }
+
+      termui::terminal.MoveCursor(row, col);
+      // termui::terminal.flush();
+
+      // kan::tui::Column column(board.Column(i));
+      auto& column = _columns.at(i);
 
       if (i == _active_col) {
-        if (_active_row > board.Jobs(i).size()) {
-          _active_row = board.Jobs(i).size();
-        }
+        column.focus();
 
-        column.focus(_active_row);
+        if (i == _active_col) {
+          column.setCursor(_active_row);
+        }
       }
       else {
         column.blur();
@@ -130,6 +167,13 @@ void Board::display() {
 
       column.width(col_width).height(col_height);
       column.render();
+
+      col += col_width;
+
+      termui::terminal.MoveCursor(row, col);
+      line.render();
+
+      col++;
     }
 
     termui::terminal.MoveCursor(termui::terminal.height(), 2);
@@ -147,21 +191,21 @@ void Board::display() {
         .render();
   }
   else if (tab == 1) {
-    issue_list.size(_width - 4, _height - 6).render();
+    // issue_list.size(_width - 4, _height - 6).render();
 
-    termui::terminal.MoveCursor(termui::terminal.height(), 2);
+    // termui::terminal.MoveCursor(termui::terminal.height(), 2);
 
-    ControlStrip({
-                     {"←↑↓→", "navigate"},
-                     {"tab", "section"},
-                     {"o", "open"},
-                     {"i", "new issue"},
-                     {"?", "help"},
-                     {"s", "settings"},
-                     {"q", "quit"},
-                 })
-        .width(_width - 2)
-        .render();
+    // ControlStrip({
+    //                  {"←↑↓→", "navigate"},
+    //                  {"tab", "section"},
+    //                  {"o", "open"},
+    //                  {"i", "new issue"},
+    //                  {"?", "help"},
+    //                  {"s", "settings"},
+    //                  {"q", "quit"},
+    //              })
+    //     .width(_width - 2)
+    //     .render();
   }
 
   // termui::terminal.MoveCursor(termui::terminal.height(), 2);
@@ -195,7 +239,7 @@ void Board::process_input() {
       Up();
     }
     else if (tab == 1) {
-      issue_list.CursorUp();
+      // issue_list.CursorUp();
     }
   }
   else if (inp == termui::key::D_ARROW) {
@@ -203,7 +247,7 @@ void Board::process_input() {
       Down();
     }
     else if (tab == 1) {
-      issue_list.CursorDown();
+      // issue_list.CursorDown();
     }
   }
   else if (inp == termui::key::L_ARROW) {
@@ -255,12 +299,12 @@ void Board::process_input() {
       }
     }
     else if (tab == 1) {
-      auto issue_view_state = ViewIssueWindow(board.issues.at(issue_list.GetCursor())).show();
+      // auto issue_view_state = ViewIssueWindow(board.issues.at(issue_list.GetCursor())).show();
 
-      if (issue_view_state == termui::Interface::State::Delete) {
+      // if (issue_view_state == termui::Interface::State::Delete) {
         // _job.comments.deleteComment(_job.comments.at(_comment_list.GetCursor()));
         // _comment_list.ReloadComments(_job.comments);
-      }
+      // }
     }
   }
   else if (inp == "i") {
@@ -271,7 +315,7 @@ void Board::process_input() {
         board.saveIssue(issue);
         board.issues.addIssue(issue);
         // issue_list.ReloadIssues(board.issues);
-        issue_list.ReloadIssues();
+        // issue_list.ReloadIssues();
 
         // register with board history?
 
@@ -305,7 +349,7 @@ void Board::internal_update() {
   _height = termui::terminal.height();
   _width  = termui::terminal.width();
 
-  issue_list.ReloadIssues();
+  // issue_list.ReloadIssues();
 }
 
 } // namespace tui

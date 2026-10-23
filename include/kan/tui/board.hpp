@@ -5,6 +5,7 @@
 #include <kan/core.hpp>
 #include <kan/tui/issue-list.hpp>
 #include <kan/tui/tab-bar.hpp>
+#include <kan/tui/column.hpp>
 #include <vector>
 
 namespace kan {
@@ -17,15 +18,20 @@ private:
 
   tui::TabBar _tab_bar = TabBar({"Jobs", "Issues"});
 
-  tui::IssueList issue_list;
+  std::vector<tui::Column> _columns;
+  // tui::IssueList issue_list;
 
   void display();
   void process_input();
   void internal_update();
 
 public:
-  // Board() = default;
-  Board(kan::Board &board);
+  Board();
+  // Board(kan::Board &board);
+
+  void load();
+
+  static Board &instance();
 
   Board &width(uint w);
   Board &height(uint h);

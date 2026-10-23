@@ -142,6 +142,7 @@ void NewJob::process_input() {
 
 std::pair<bool, kan::Job> NewJob::show() {
   state = State::Continue;
+  _selected_field = Focus::Title;
 
   do {
     display();
