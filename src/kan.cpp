@@ -21,6 +21,7 @@ KAN::KAN(std::string path) : _path(){
   board.loadStyleMap();
 
   board.styleMap.add("debug", termui::Style(termui::Color::Inherit(), termui::Colors::Red));
+  board.styleMap.add("default", termui::Style(termui::terminal.ForegroundColor(), termui::terminal.BackgroundColor()));
 
   renderer = tui::Board();
   // renderer.load();

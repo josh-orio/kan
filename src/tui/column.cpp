@@ -85,14 +85,13 @@ void Column::render() {
   auto row_style= termui::Style(termui::Color(), color);
 
   if (_focussed && _column.Jobs().size() == 0) {
-    // termui::terminal.MoveCursor(row + 3, col + 1);
     // termui::Text("").width(_width - 2).height(2).style(termui::Style({termui::SGR::ReverseVideo})).render();
     termui::Text("").width(_width - 2).height(2).style(row_style).render();
   }
   else {
     for (int i = _start_line; i < std::min(_column.Jobs().size(), static_cast<size_t>(_start_line + _visible_rows)); i++) {
-      // termui::terminal.MoveCursor(row + 3 + (4 * i), col + 1);
       JobCell(_column.Jobs()[i]).width(_width).setFocus(_focussed && i == _cursor).render();
+      // give style here
       termui::terminal.CursorDown(3).CursorLeft(_width);
     }
   }

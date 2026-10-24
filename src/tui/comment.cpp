@@ -37,7 +37,7 @@ void Comment::render() {
 
   termui::terminal.CursorDown(1).CursorLeft(w);
 
-  termui::Text(_comment.creator.Name()).style(termui::Style(_style.Foreground(), _style.Background(), {termui::SGR::Bold})).size(w - 20, 1).render();
+  termui::Text(_comment.creator.Name()).style(termui::Style(_style.foregroundColor, _style.backgroundColor, {termui::SGR::Bold})).size(w - 20, 1).render();
   termui::Text(_comment.created.toString()).style(_style).size(20, 1).align(termui::Text::Alignment::Right).render();
 }
 

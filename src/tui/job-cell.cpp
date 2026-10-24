@@ -26,19 +26,19 @@ JobCell &JobCell::setFocus(bool x) {
 }
 
 void JobCell::render() {
+  auto base_style = board.styleMap.at("default");
 
-    auto color = termui::terminal.BackgroundColor();
+  int tamper = 15 * (base_style.backgroundColor.isDark() ? 1 : -1);
 
-    int tamper = 15 * (termui::terminal.HasDarkBackground() ? 1 : -1);
+  auto row_style = base_style;
+  row_style.backgroundColor.rgb.r += tamper;
+  row_style.backgroundColor.rgb.g += tamper;
+  row_style.backgroundColor.rgb.b += tamper;
 
-    color.rgb.r += tamper;
-    color.rgb.g += tamper;
-    color.rgb.b += tamper;
+  auto row_style_bold       = row_style;
+  row_style_bold.attributes = {termui::SGR::Bold};
 
-  auto row_style= termui::Style(termui::Color(), color);
-  auto row_style_bold= termui::Style(termui::Color(), color, {termui::SGR::Bold});
-
-  termui::Text(" " + _job.title).style(_focussed ? row_style_bold: termui::Style()).size(_width - 11, 1).render();
+  termui::Text(" " + _job.title).style(_focussed ? row_style_bold : termui::Style()).size(_width - 11, 1).render();
   // , _style_map.at(_focussed ? "title_focus" : "title_blur"), _width - 11, 1).render();
 
   termui::PaddedText("#" + _job.uuid.substr(_job.uuid.size() - 8))

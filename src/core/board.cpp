@@ -273,33 +273,33 @@ std::string styleToString(termui::Style style) {
   else {
     modifier_codes += "0;";
 
-    for (const auto &attr : style.Attributes()) {
+    for (const auto &attr : style.attributes) {
       modifier_codes += std::format("{};", static_cast<int>(attr));
     }
   }
 
-  if (style.Foreground().IsReset()) {
+  if (style.foregroundColor.IsReset()) {
     modifier_codes += "39;";
   }
-  else if (!style.Foreground().IsInherit()) {
-    if (style.Foreground().mode == termui::Color::Mode::ANSI256) {
-      modifier_codes += std::format("38;5;{};", style.Foreground().value);
+  else if (!style.foregroundColor.IsInherit()) {
+    if (style.foregroundColor.mode == termui::Color::Mode::Ansi256) {
+      modifier_codes += std::format("38;5;{};", style.foregroundColor.value);
     }
-    else if (style.Foreground().mode == termui::Color::Mode::TRUECOLOR) {
-      auto rgb = style.Foreground().rgb;
+    else if (style.foregroundColor.mode == termui::Color::Mode::TrueColor) {
+      auto rgb = style.foregroundColor.rgb;
       modifier_codes += std::format("38;2;{};{};{};", rgb.r, rgb.g, rgb.b);
     }
   }
 
-  if (style.Background().IsReset()) {
+  if (style.backgroundColor.IsReset()) {
     modifier_codes += "49;";
   }
-  else if (!style.Background().IsInherit()) {
-    if (style.Background().mode == termui::Color::Mode::ANSI256) {
-      modifier_codes += std::format("48;5;{};", style.Background().value);
+  else if (!style.backgroundColor.IsInherit()) {
+    if (style.backgroundColor.mode == termui::Color::Mode::Ansi256) {
+      modifier_codes += std::format("48;5;{};", style.backgroundColor.value);
     }
-    else if (style.Background().mode == termui::Color::Mode::TRUECOLOR) {
-      auto rgb = style.Background().rgb;
+    else if (style.backgroundColor.mode == termui::Color::Mode::TrueColor) {
+      auto rgb = style.backgroundColor.rgb;
       modifier_codes += std::format("48;2;{};{};{};", rgb.r, rgb.g, rgb.b);
     }
   }
