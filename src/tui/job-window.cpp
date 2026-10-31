@@ -41,7 +41,7 @@ void JobWindow::display() {
 
   // termui::terminal.MoveCursor(window_start_row + 5, window_start_col + 2);
 
-  termui::terminal.flush(); // have to do this so child components can get an accurate cursor position
+  // termui::terminal.flush(); // have to do this so child components can get an accurate cursor position
 
   if (tab == 0) {
     _job_detail.size(_width - 2, _height - 4).editMode(_input_mode).render();
@@ -50,10 +50,16 @@ void JobWindow::display() {
       termui::terminal.ShowCursor();
     }
   }
+  // else if (tab == 1) {
+  //   // _comment_list.size(_width - 4, _height - 4).render();
+  // }
   else if (tab == 1) {
-    _comment_list.size(_width - 4, _height - 4).render();
+    // commits list
   }
   else if (tab == 2) {
+    // linked issues
+  }
+  else if (tab == 3) {
     _history_viewer.size(_width - 4, _height - 4).render();
   }
 

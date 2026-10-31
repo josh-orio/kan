@@ -86,7 +86,7 @@ void Column::render() {
 
   if (_focussed && _column.Jobs().size() == 0) {
     // termui::Text("").width(_width - 2).height(2).style(termui::Style({termui::SGR::ReverseVideo})).render();
-    termui::Text("").width(_width - 2).height(2).style(row_style).render();
+    termui::Text("").width(_width).height(2).style(row_style).render();
   }
   else {
     for (int i = _start_line; i < std::min(_column.Jobs().size(), static_cast<size_t>(_start_line + _visible_rows)); i++) {

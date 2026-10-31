@@ -12,8 +12,6 @@ void NewCommentWindow::display() {
   auto window_start_row = terminal_half_h - (_height / 2);
   auto window_start_col = terminal_half_w - (_width / 2);
 
-  // auto tab = _tab_bar.GetTab();
-
   // box
   termui::terminal.MoveCursor(window_start_row, window_start_col);
   termui::Box(_width, _height, termui::Borders::rounded, termui::Styles::faint).render();
@@ -21,6 +19,12 @@ void NewCommentWindow::display() {
   // title
   termui::terminal.MoveCursor(window_start_row + 1, window_start_col + 2);
   termui::Text("New Comment", termui::Styles::bold).width(_width - 4).height(1).render();
+
+  // input region
+  termui::terminal.MoveCursor(window_start_row + 3, window_start_col + 2);
+  termui::Input(_comment.text, "Type your comment...").size(_width - 4, 3).focussed(_selected_field == Focus::Text).render();
+
+  auto [row,col] = termui::terminal.GetFutureCursorPosition();
 
   // control bar
   termui::terminal.MoveCursor(window_start_row + 7, window_start_col + 2);
@@ -43,26 +47,11 @@ void NewCommentWindow::display() {
   }
 
   // save button
-
-  termui::Button save = termui::Button("Save", termui::Style(termui::Color::Inherit(), termui::Colors::Red, {termui::SGR::Bold}), termui::Style()).width(6);
-
-  if (_selected_field == Focus::Save) {
-    save.focus();
-  }
-  else {
-    save.blur();
-  }
-
-  save.render();
-
-  // input region
-
-  termui::terminal.MoveCursor(window_start_row + 3, window_start_col + 2);
-  // termui::Text("New Comment", termui::Styles::bold).width(_width - 4).height(1).render();
-  termui::Input(_comment.text, "Type your comment...").size(_width - 4, 3).render();
+  termui::Button("Save").setFocus(_selected_field == Focus::Save).width(6).render();
 
   if (_selected_field == Focus::Text) {
     termui::terminal.ShowCursor();
+    termui::terminal.MoveCursor(row, col);
   }
   else {
     termui::terminal.HideCursor();

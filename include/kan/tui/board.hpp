@@ -16,7 +16,7 @@ private:
   uint _width, _height;
   uint _active_col, _active_row;
 
-  tui::TabBar _tab_bar = TabBar({"Jobs", "Issues"});
+  // tui::TabBar _tab_bar = TabBar({"Jobs", "Issues"});
 
   std::vector<tui::Column> _columns;
   // tui::IssueList issue_list;

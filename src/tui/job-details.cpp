@@ -173,7 +173,7 @@ template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>; // needed pre-C++
 void JobDetails::render() {
   internal_update();
 
-  auto [row, col] = termui::terminal.GetCursorPosition();
+  auto [row, col] = termui::terminal.GetFutureCursorPosition();
 
   // status indicator
   if (_focus == Focus::Status) {

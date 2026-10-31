@@ -39,7 +39,6 @@ void JobCell::render() {
   row_style_bold.attributes = {termui::SGR::Bold};
 
   termui::Text(" " + _job.title).style(_focussed ? row_style_bold : termui::Style()).size(_width - 11, 1).render();
-  // , _style_map.at(_focussed ? "title_focus" : "title_blur"), _width - 11, 1).render();
 
   termui::PaddedText("#" + _job.uuid.substr(_job.uuid.size() - 8))
       .setPadding(termui::PaddingStyle::label)

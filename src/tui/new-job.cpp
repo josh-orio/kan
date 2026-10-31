@@ -12,6 +12,8 @@ void NewJob::display() {
   auto window_start_row = terminal_half_h - (_height / 2);
   auto window_start_col = terminal_half_w - (_width / 2);
 
+  int rc_row, rc_col; // used for restoring cursor position
+
   // box
   termui::terminal.MoveCursor(window_start_row, window_start_col);
   termui::Box(_width, _height, termui::Borders::rounded, termui::Styles::faint).render();
@@ -22,23 +24,33 @@ void NewJob::display() {
 
   // title content
   termui::terminal.MoveCursor(window_start_row + 3, window_start_col + 2);
-  termui::Input(new_job.title, "What needs to be done?").width(_width - 4).height(1).render();
+  termui::Input(new_job.title, "What needs to be done?").width(_width - 4).height(1)
+  .focussed(_selected_field == Focus::Title).render();
 
-  if (_selected_field == Focus::Title) {
-    termui::terminal.SaveCursorPosition();
+   if (_selected_field == Focus::Title) {
+  std::tie(rc_row, rc_col)  = termui::terminal.GetFutureCursorPosition();
   }
+
+  // if (_selected_field == Focus::Title) {
+  //   termui::terminal.SaveCursorPosition();
+  // }
 
   // description header
   termui::terminal.MoveCursor(window_start_row + 5, window_start_col + 2);
   termui::Text("Description", termui::Styles::bold).width(_width - 4).height(3).render();
-  // termui::terminal.CursorDown(2).CursorLeft(_width - 4);
 
   // description content
   termui::terminal.MoveCursor(window_start_row + 7, window_start_col + 2);
-  termui::Input(new_job.description, "Give some more info...").width(_width - 4).height(3).render();
-  if (_selected_field == Focus::Description) {
-    termui::terminal.SaveCursorPosition();
+  termui::Input(new_job.description, "Give some more info...").width(_width - 4).height(3)
+   .focussed(_selected_field == Focus::Description).render();
+
+   if (_selected_field == Focus::Description) {
+      std::tie(rc_row, rc_col) = termui::terminal.GetFutureCursorPosition();
   }
+
+  // if (_selected_field == Focus::Description) {
+  //   termui::terminal.SaveCursorPosition();
+  // }
 
   // window ctrl strip
   termui::terminal.MoveCursor(window_start_row + 11, window_start_col + 2);
@@ -75,7 +87,8 @@ void NewJob::display() {
   b.render();
 
   if (_selected_field != Focus::Finish) {
-    termui::terminal.RestoreCursorPosition();
+    // termui::terminal.RestoreCursorPosition();
+    termui::terminal.MoveCursor(rc_row, rc_col);
     termui::terminal.ShowCursor();
   }
   else {
