@@ -1,9 +1,9 @@
 #ifndef TUI_JOB_DETAILS_HPP
 #define TUI_JOB_DETAILS_HPP
 
+#include <kan/core/commits.hpp>
 #include <kan/core/job.hpp>
 #include <kan/tui/comment-list.hpp>
-#include <kan/core/commits.hpp>
 #include <kan/tui/new-comment-window.hpp>
 #include <kan/tui/tab-bar.hpp>
 #include <termui/termui.hpp>
@@ -13,7 +13,7 @@ namespace tui {
 
 class JobDetails : termui::Interface {
 public:
-  enum class Focus { Status, Priority, Assignee, EventList};
+  enum class Focus { Status, Priority, Assignee, EventList };
 
   JobDetails(kan::Job job);
 
@@ -44,10 +44,9 @@ private:
 
   Focus _focus = Focus::Status;
 
-
-  unsigned int  _visible_events;
-  unsigned int  _start_line=0;
-  unsigned int  _cursor=0;
+  unsigned int _visible_events;
+  unsigned int _start_line = 0;
+  unsigned int _cursor     = 0;
 
   bool _edit_mode = false;
 

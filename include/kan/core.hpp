@@ -11,6 +11,7 @@
 #include <kan/core/timestamp.hpp>
 #include <kan/core/user.hpp>
 #include <kan/core/uuid.hpp>
+#include <kan/core/commits.hpp>
 
 namespace kan {
 extern Board &board;

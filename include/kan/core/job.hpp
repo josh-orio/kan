@@ -2,6 +2,7 @@
 #define CORE_JOB_HPP
 
 #include <kan/core/comments.hpp>
+#include <kan/core/commits.hpp>
 #include <kan/core/history.hpp>
 #include <kan/core/issues.hpp>
 #include <kan/core/user.hpp>
@@ -23,10 +24,9 @@ struct Job {
   Timestamp created, updated;
 
   Comments comments;
-  // Issues   issues;
+  Commits commits;
   History history;
 
-  std::vector<UUID> linked_issues;
 
   Job();
   // Job(nlohmann::json json);

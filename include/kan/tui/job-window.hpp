@@ -17,9 +17,9 @@ class JobWindow : termui::Interface {
   uint _width = 80, _height = 40;
 
   // tui::TabBar        _tab_bar = TabBar({"Details", "Comments", "History"});
-  tui::TabBar        _tab_bar = TabBar({"Details", "Commits","Issues", "History"});
+  tui::TabBar        _tab_bar = TabBar({"Details", "Commits", "History"});
   tui::JobDetails    _job_detail;
-  tui::CommentList   _comment_list;
+  // tui::CommentList   _comment_list;
   tui::HistoryViewer _history_viewer;
 
   kan::Job _job;

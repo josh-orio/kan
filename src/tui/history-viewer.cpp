@@ -41,27 +41,33 @@ unsigned int HistoryViewer::GetCursor() { return _cursor; }
 void HistoryViewer::render() {
   internal_update();
 
-  auto [row, col] = termui::terminal.GetCursorPosition();
+  auto [row, col] = termui::terminal.GetFutureCursorPosition();
 
   if (_history.size() == 0) {
     termui::Text("No history to show.").style(termui::Styles::faint).align(termui::Text::Alignment::Center).width(_w).height(1).render();
   }
   else {
+    auto row_style = board.styleMap.at("highlight");
+
     for (int i = _start_line; i < std::min(_history.size(), static_cast<size_t>(_start_line + _visible_rows)); i++) {
       auto start_row = row + (3 * (i - _start_line));
 
       // if (i + _start_line == _cursor) {
-      if (i  == _cursor) {
+      if (i == _cursor) {
         termui::terminal.MoveCursor(start_row, col);
         termui::Line(termui::Line::Direction::Vertical, 2).render();
       }
 
       termui::terminal.MoveCursor(start_row, col + 2);
-      termui::Text(_history.at(i ).text).size(_w - 2, 1).render();
+      termui::Text(_history.at(i).text).size(_w - 2, 1).style(i == _cursor ? row_style : termui::Style()).render();
 
       termui::terminal.MoveCursor(start_row + 1, col + 2);
-      termui::Text(_history.at(i ).user.Name()).style(termui::Styles::bold).size(_w - 2 - 20, 1).render();
-      termui::Text(_history.at(i ).time.toString()).size(20, 1).align(termui::Text::Alignment::Right).render();
+
+      auto bold_style = i == _cursor ? row_style : termui::Style();
+      bold_style.attributes = {termui::SGR::Bold};
+
+      termui::Text(_history.at(i ).user.Name()).style(termui::Styles::bold).size(_w - 2 - 20, 1).style(bold_style).render();
+      termui::Text(_history.at(i ).time.toString()).size(20, 1).align(termui::Text::Alignment::Right).style(i == _cursor ? row_style : termui::Style()).render();
     }
   }
 

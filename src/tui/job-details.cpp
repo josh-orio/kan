@@ -241,44 +241,22 @@ void JobDetails::render() {
 
   auto init_cursor_c = col + 2, init_cursor_r = row + 4;
 
-  // for (const auto &e : _events) {
   for (int i = _start_line; i < std::min(_events.size(), static_cast<size_t>(_start_line + _visible_events)); i++) {
     auto e = _events.at(i);
 
-    auto item_height = 0;
+    unsigned int item_width, item_height;
 
     // clang-format off
     std::visit(overloaded{
       [&](const kan::Comment &c) {
         auto comment = tui::Comment(c).width(_width - 4);
-
-        auto [width, height] = comment.size();
-
-        item_height = height;
+        
+        std::tie(item_width, item_height) = comment.size();
 
         termui::terminal.MoveCursor(init_cursor_r, init_cursor_c);
 
-        bool is_dark = termui::terminal.HasDarkBackground();
-
         if (_focus == Focus::EventList && i == _cursor) {
-          auto col = termui::terminal.BackgroundColor();
-
-          int tamper = 15;
-
-          if (termui::terminal.HasDarkBackground()) {
-            col.rgb.r += tamper;
-            col.rgb.g += tamper;
-            col.rgb.b += tamper;
-
-            comment.style(termui::Style(termui::Color(), col));
-          }
-          else {
-            col.rgb.r -= tamper;
-            col.rgb.g -= tamper;
-            col.rgb.b -= tamper;
-
-            comment.style(termui::Style(termui::Color(), col));
-          }
+          comment.style(board.styleMap.at("highlight"));
         }
 
         comment.render();

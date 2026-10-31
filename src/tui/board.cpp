@@ -127,15 +127,7 @@ void Board::display() {
     int col_width  = ((_width - 1) / cols) - 1;
     int col_height = _height - 4; // 2 header, 2 footer
 
-    auto color = termui::terminal.BackgroundColor();
-
-    int tamper = 60 * (termui::terminal.HasDarkBackground() ? 1 : -1);
-
-    color.rgb.r += tamper;
-    color.rgb.g += tamper;
-    color.rgb.b += tamper;
-
-    termui::Line line = termui::Line(termui::Line::Direction::Vertical, col_height).style(termui::Style(color, termui::Color()));
+    termui::Line line = termui::Line(termui::Line::Direction::Vertical, col_height).style(board.styleMap.at("column_separator"));
 
     int row = 3, col = 2;
 

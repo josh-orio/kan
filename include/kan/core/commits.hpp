@@ -34,12 +34,15 @@ public:
   void       fromYaml(YAML::Node yaml);
   YAML::Node toYaml();
 
-  size_t  size();
+  std::vector<Commit>::iterator begin();
+  std::vector<Commit>::iterator end();
+
+  size_t size();
   Commit at(int idx);
 
-  // void addComment(Comment c);
-  // void deleteComment(int idx);
-  // void deleteComment(Comment c);
+  void addCommit(Commit c);
+  void deleteCommit(int idx);
+  void deleteCommit(Commit c);
 };
 
 } // namespace kan

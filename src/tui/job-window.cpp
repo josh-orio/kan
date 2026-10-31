@@ -3,7 +3,7 @@
 namespace kan {
 namespace tui {
 
-JobWindow::JobWindow(kan::Job job) : _job(job), _job_detail(job), _comment_list(job.comments), /*_issue_list(job.issues), */ _history_viewer(job.history) {}
+JobWindow::JobWindow(kan::Job job) : _job(job), _job_detail(job), /*_comment_list(job.comments),*/ /*_issue_list(job.issues), */ _history_viewer(job.history) {}
 
 void JobWindow::display() {
   // auto terminal_half_w = termui::terminal.halfWidth();
@@ -50,16 +50,10 @@ void JobWindow::display() {
       termui::terminal.ShowCursor();
     }
   }
-  // else if (tab == 1) {
-  //   // _comment_list.size(_width - 4, _height - 4).render();
-  // }
   else if (tab == 1) {
     // commits list
   }
   else if (tab == 2) {
-    // linked issues
-  }
-  else if (tab == 3) {
     _history_viewer.size(_width - 4, _height - 4).render();
   }
 
@@ -116,7 +110,7 @@ void JobWindow::process_input() {
       _job_detail.CursorUp();
     }
     else if (tab == 1) {
-      _comment_list.CursorUp();
+      // _comment_list.CursorUp();
     }
     else if (tab == 2) {
       _history_viewer.CursorUp();
@@ -127,7 +121,7 @@ void JobWindow::process_input() {
       _job_detail.CursorDown();
     }
     else if (tab == 1) {
-      _comment_list.CursorDown();
+      // _comment_list.CursorDown();
     }
     else if (tab == 2) {
       _history_viewer.CursorDown();
@@ -273,7 +267,7 @@ void JobWindow::process_input() {
 
       if (success) {
         _job.comments.addComment(comment);
-        _comment_list.ReloadComments(_job.comments);
+        // _comment_list.ReloadComments(_job.comments);
 
         _job.addEvent({"Comment added.", User().getFromSystem(), Timestamp().Now()});
 

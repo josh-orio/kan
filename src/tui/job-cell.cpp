@@ -26,14 +26,7 @@ JobCell &JobCell::setFocus(bool x) {
 }
 
 void JobCell::render() {
-  auto base_style = board.styleMap.at("default");
-
-  int tamper = 15 * (base_style.backgroundColor.isDark() ? 1 : -1);
-
-  auto row_style = base_style;
-  row_style.backgroundColor.rgb.r += tamper;
-  row_style.backgroundColor.rgb.g += tamper;
-  row_style.backgroundColor.rgb.b += tamper;
+  auto row_style = board.styleMap.at("highlight");
 
   auto row_style_bold       = row_style;
   row_style_bold.attributes = {termui::SGR::Bold};

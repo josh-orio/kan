@@ -5,7 +5,17 @@
 
 namespace kan {
 
-KAN::KAN(std::string path) : _path(){
+namespace scripts {
+constexpr char setup_py[] = {
+#embed "../scripts/setup.py"
+};
+
+constexpr char post_commit_py[] = {
+#embed "../scripts/post-commit.py"
+};
+}; // namespace scripts
+
+KAN::KAN(std::string path) : _path() {
   std::filesystem::path dir(path);
 
   _path = dir / ".kan";
@@ -23,9 +33,24 @@ KAN::KAN(std::string path) : _path(){
   board.styleMap.add("debug", termui::Style(termui::Color::Inherit(), termui::Colors::Red));
   board.styleMap.add("default", termui::Style(termui::terminal.ForegroundColor(), termui::terminal.BackgroundColor()));
 
+  // shifts the terminal background away from black/white so it stands out
+  auto offsetColor = [](int amount) {
+    auto color = termui::terminal.BackgroundColor();
+
+    int tamper = amount * (termui::terminal.HasDarkBackground() ? 1 : -1);
+
+    color.rgb.r += tamper;
+    color.rgb.g += tamper;
+    color.rgb.b += tamper;
+
+    return color;
+  };
+
+  board.styleMap.add("highlight", termui::Style(termui::Color::Inherit(), offsetColor(15)));
+  board.styleMap.add("column_separator", termui::Style(offsetColor(60), termui::Color::Inherit()));
+
   renderer = tui::Board();
   // renderer.load();
-
 }
 
 void KAN::init() {
@@ -76,8 +101,6 @@ void KAN::init() {
   out_file_job << first_job.toYaml();
 
   board.styleMap.add("homepage_title", termui::Styles::bold);
-  board.styleMap.add("selected_darkmode", termui::Style(termui::Color::Inherit(), 237));
-  board.styleMap.add("selected_lightmode", termui::Style(termui::Color::Inherit(), 247));
   board.saveStyleMap();
 };
 

@@ -74,17 +74,8 @@ void Column::render() {
   int line_height  = 2;
   int line_spacing = 2;
 
-    auto color = termui::terminal.BackgroundColor();
-
-    int tamper = 15 * (termui::terminal.HasDarkBackground() ? 1 : -1);
-
-    color.rgb.r += tamper;
-    color.rgb.g += tamper;
-    color.rgb.b += tamper;
-
-  auto row_style= termui::Style(termui::Color(), color);
-
   if (_focussed && _column.Jobs().size() == 0) {
+    auto row_style = board.styleMap.at("highlight");
     // termui::Text("").width(_width - 2).height(2).style(termui::Style({termui::SGR::ReverseVideo})).render();
     termui::Text("").width(_width).height(2).style(row_style).render();
   }
