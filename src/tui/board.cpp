@@ -124,7 +124,7 @@ void Board::display() {
 
     //   return ((w - overhead) / cols) - col_spacing;
     // }();
-    int col_width  = ((_width - 1) / cols) - 1;
+    int col_width  = ((_width - 2) / cols) - 1;
     int col_height = _height - 4; // 2 header, 2 footer
 
     termui::Line line = termui::Line(termui::Line::Direction::Vertical, col_height).style(board.styleMap.at("column_separator"));
@@ -263,6 +263,7 @@ void Board::process_input() {
 
     if (success) {
       new_job.status = board.Column(ActiveColumn()).title; //.Title(); // board._columns.at(_renderer.ActiveColumn())._title;
+      new_job.id     = board.nextJobId();
 
       board.Column(ActiveColumn()).Jobs().push_back(new_job); // board._columns.at(_renderer.ActiveColumn())._jobs.push_back(new_job);
 

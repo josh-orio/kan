@@ -7,6 +7,7 @@
 #include <kan/tui/column.hpp>
 #include <kan/tui/comment-list.hpp>
 #include <kan/tui/comment.hpp>
+#include <kan/tui/commit.hpp>
 #include <kan/tui/control-strip.hpp>
 #include <kan/tui/dialog-box.hpp>
 #include <kan/tui/editor.hpp>

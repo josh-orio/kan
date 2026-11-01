@@ -3,8 +3,8 @@
 namespace kan {
 namespace tui {
 
-std::vector<std::variant<kan::Comment, Commit>> idk(Job job) {
-  std::vector<std::variant<kan::Comment, Commit>> events;
+std::vector<std::variant<kan::Comment, kan::Commit>> idk(Job job) {
+  std::vector<std::variant<kan::Comment, kan::Commit>> events;
 
   kan::Comment c;
   c.text    = job.description;
@@ -18,8 +18,12 @@ std::vector<std::variant<kan::Comment, Commit>> idk(Job job) {
     events.push_back(c);
   }
 
+  for (const auto &c: job.commits) {
+    events.push_back(c);
+  }
+
   // sort records (newest first)
-  using Event = std::variant<kan::Comment, Commit>;
+  using Event = std::variant<kan::Comment, kan::Commit>;
 
   auto timeOf = [](const Event &e) {
     return std::visit([](const auto &x) { return x.created.time; }, e); // anything that will be visted needs to have a .created member
@@ -261,8 +265,20 @@ void JobDetails::render() {
 
         comment.render();
       },
-      [](const Commit &c) { /* handle commit */ }},
-    e);
+      [&](const Commit &c) {
+        auto commit = tui::Commit(c).width(_width-4);
+
+        std::tie(item_width, item_height) = commit.size();
+
+        termui::terminal.MoveCursor(init_cursor_r, init_cursor_c);
+
+        if (_focus == Focus::EventList && i == _cursor) {
+          commit.style(board.styleMap.at("highlight"));
+        }
+
+        commit.render();
+      }
+    }, e);
 
     if (_focus == Focus::EventList && i == _cursor) {
       termui::terminal.MoveCursor(init_cursor_r, col);
@@ -301,8 +317,12 @@ void JobDetails::internal_update() {
 
         item_heights.push_back(height);
       },
-      [&](const Commit &c) { /* handle commit */ 
-        item_heights.push_back(1);
+      [&](const Commit &c) {
+        auto commit = tui::Commit(c).width(_width-4);
+
+        auto [width,height]= commit.size();
+
+        item_heights.push_back(height);
       }
     },e);
   }

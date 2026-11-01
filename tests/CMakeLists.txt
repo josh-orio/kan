@@ -9,9 +9,9 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # define the test executable
-add_executable(test_all test.cpp)
-target_link_libraries(test_all PRIVATE kan_lib GTest::gtest_main)
+add_executable(kan_tests test.cpp)
+target_link_libraries(kan_tests PRIVATE kan_lib GTest::gtest_main)
 
 # discover tests
 include(GoogleTest)
-gtest_discover_tests(test_all)
+gtest_discover_tests(kan_tests)

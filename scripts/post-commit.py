@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 import subprocess
+import sys
 
 
 def main():
-    output = subprocess.run(
-        ["git", "log", "-1", "--format=%an%x00%at%x00%B"],
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
         capture_output=True,
         text=True,
         check=True,
-    ).stdout
+    ).stdout.strip()
 
-    author, timestamp, message = output.split("\0", 2)
+    try:
+        result = subprocess.run(["kan", "link-commit", commit])
+    except FileNotFoundError:
+        sys.exit("kan not found on PATH, commit not linked to any jobs")
 
-    print(author)
-    print(int(timestamp) * 1000)
-    print(message.strip())
+    sys.exit(result.returncode)
 
 
 if __name__ == "__main__":

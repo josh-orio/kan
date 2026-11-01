@@ -11,10 +11,10 @@
 namespace kan {
 
 struct Commit {
+  std::string hash;
   std::string message;
   User        creator;
   Timestamp   created;
-  UUID        uuid;
 
   Commit();
   Commit(YAML::Node yaml);

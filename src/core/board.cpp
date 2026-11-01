@@ -2,6 +2,7 @@
 #include <format>
 #include <fstream>
 #include <kan/core.hpp>
+#include <set>
 
 namespace kan {
 
@@ -34,7 +35,8 @@ Board::Board(std::string path) : _path(path) {}
 // }
 
 void Board::fromYaml(YAML::Node yaml) {
-  title = yaml["title"].as<std::string>();
+  title   = yaml["title"].as<std::string>();
+  next_id = yaml["next_id"].as<int>(1);
 
   for (const auto &col : yaml["columns"]) {
     columns.push_back(kan::Column(col));
@@ -43,7 +45,8 @@ void Board::fromYaml(YAML::Node yaml) {
 
 YAML::Node Board::toYaml() {
   YAML::Node yaml;
-  yaml["title"] = title;
+  yaml["title"]   = title;
+  yaml["next_id"] = next_id;
 
   std::vector<YAML::Node> col_jsons;
   for (auto &c : columns) {
@@ -84,6 +87,25 @@ Column &Board::Column(unsigned int idx) { return columns.at(idx); }
 std::vector<Job> &Board::Jobs(unsigned int col_idx) { return columns.at(col_idx).Jobs(); }
 
 Job &Board::Job(unsigned int col_idx, unsigned int row_idx) { return columns.at(col_idx).Job(row_idx); }
+
+Job *Board::findJob(int id) {
+  for (auto &col : columns) {
+    for (auto &job : col.Jobs()) {
+      if (job.id == id) {
+        return &job;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+int Board::nextJobId() {
+  int id = next_id++;
+  saveBoard();
+
+  return id;
+}
 
 void Board::deleteJob(kan::Job job) {
 
@@ -129,10 +151,45 @@ void Board::saveBoard() {
   // std::ofstream out_file(_path / "kan.bson", std::ios::binary);
   // out_file.write(reinterpret_cast<const char *>(bson.data()), bson.size());
   // out_file.close();
+
+  YAML::Emitter out;
+  out << toYaml();
+
+  std::ofstream fout(_path / "kan.yaml");
+  fout << out.c_str();
+}
+
+// jobs from before ids existed get numbered here, and so do duplicates, which happen when
+// two branches create the same id and get merged
+void Board::assignJobIds(std::vector<kan::Job> &jobs) {
+  int start_id = next_id;
+
+  // uuids are v7 so this is oldest first, meaning the oldest job keeps a duplicated id
+  std::sort(jobs.begin(), jobs.end(), [](const kan::Job &a, const kan::Job &b) { return a.uuid < b.uuid; });
+
+  for (const auto &job : jobs) {
+    next_id = std::max(next_id, job.id + 1);
+  }
+
+  std::set<int> used;
+
+  for (auto &job : jobs) {
+    if (job.id <= 0 || !used.insert(job.id).second) {
+      job.id = next_id++;
+      used.insert(job.id);
+
+      saveJob(job);
+    }
+  }
+
+  if (next_id != start_id) {
+    saveBoard();
+  }
 }
 
 void Board::loadJobs() {
   // kan::Job loaded_job;
+  std::vector<kan::Job> loaded_jobs;
 
   for (const auto &entry : std::filesystem::directory_iterator(_path / "jobs")) {
 
@@ -145,8 +202,16 @@ void Board::loadJobs() {
 
     YAML::Node config = YAML::LoadFile(entry.path());
     // board.fromYaml(config);
-    kan::Job loaded_job(config);
+    loaded_jobs.push_back(kan::Job(config));
 
+    // } catch (std::exception ex) {
+    //   std::cout << ex.what() << std::endl;
+    // }
+  }
+
+  assignJobIds(loaded_jobs);
+
+  for (const auto &loaded_job : loaded_jobs) {
     for (auto &col : board.Columns()) {
       if (col.title == loaded_job.status) {
         // col._jobs.push_back(loaded_job);
@@ -154,10 +219,6 @@ void Board::loadJobs() {
         col.Jobs().push_back(loaded_job);
       }
     }
-
-    // } catch (std::exception ex) {
-    //   std::cout << ex.what() << std::endl;
-    // }
   }
 
   // sort all the jobs oldest highest - newest lowest

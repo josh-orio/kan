@@ -63,6 +63,7 @@ void Job::fromYaml(YAML::Node yaml) {
   modifier    = User().fromYaml(yaml["modifier"]);
   assignee     = User().fromYaml(yaml["assignee"]);
   uuid        = yaml["uuid"].as<std::string>();
+  id          = yaml["id"].as<int>(0);
 
   comments = Comments(yaml["comments"]);
   commits  = Commits(yaml["commits"]);
@@ -81,6 +82,7 @@ YAML::Node Job::toYaml() {
   job["modifier"]    = modifier.toYaml();
   job["assignee"]    = assignee.toYaml();
   job["uuid"]        = uuid;
+  job["id"]          = id;
 
   job["comments"] = comments.toYaml();
   job["commits"]  = commits.toYaml();

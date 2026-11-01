@@ -11,10 +11,13 @@ struct Board {
 private:
   std::filesystem::path _path;
 
+  void assignJobIds(std::vector<kan::Job> &jobs);
+
 public:
   std::string              title;
   std::vector<kan::Column> columns;
   Issues                   issues;
+  int                      next_id = 1;
 
   termui::StyleMap styleMap;
 
@@ -34,6 +37,9 @@ public:
   Column           &Column(unsigned int idx);
   std::vector<Job> &Jobs(unsigned int col_idx);
   Job              &Job(unsigned int col_idx, unsigned int row_idx);
+
+  kan::Job *findJob(int id);
+  int       nextJobId();
 
   void deleteJob(kan::Job job);
 

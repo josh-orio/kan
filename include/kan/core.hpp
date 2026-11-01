@@ -5,6 +5,7 @@
 #include <kan/core/column.hpp>
 #include <kan/core/comments.hpp>
 #include <kan/core/history.hpp>
+#include <kan/core/hooks.hpp>
 // #include <kan/core/issues.hpp>
 #include <kan/core/job.hpp>
 #include <kan/core/logging.hpp>

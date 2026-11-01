@@ -3,23 +3,23 @@
 namespace kan {
 
 // ---- Commit ----
-Commit::Commit() : uuid(UUID::generate()) {}
+Commit::Commit() {}
 
 Commit::Commit(YAML::Node yaml) { fromYaml(yaml); }
 
 void Commit::fromYaml(YAML::Node yaml) {
+  hash    = yaml["hash"].as<std::string>("");
   message = yaml["message"].as<std::string>();
   creator = User().fromYaml(yaml["creator"]);
   created = Timestamp().fromYaml(yaml["created"]);
-  uuid    = UUID::from_string(yaml["uuid"].as<std::string>());
 }
 
 YAML::Node Commit::toYaml() {
   YAML::Node yaml;
+  yaml["hash"]    = hash;
   yaml["message"] = message;
   yaml["creator"] = creator.toYaml();
   yaml["created"] = created.toYaml();
-  yaml["uuid"]    = uuid.to_string();
 
   return yaml;
 }
@@ -60,7 +60,7 @@ void Commits::addCommit(Commit c) { _commits.push_back(c); }
 void Commits::deleteCommit(int idx) { _commits.erase(_commits.begin() + idx); }
 
 void Commits::deleteCommit(Commit c) {
-  _commits.erase(std::remove_if(_commits.begin(), _commits.end(), [&](const kan::Commit &commit) { return commit.uuid == c.uuid; }), _commits.end());
+  _commits.erase(std::remove_if(_commits.begin(), _commits.end(), [&](const kan::Commit &commit) { return commit.hash == c.hash; }), _commits.end());
 }
 
 } // namespace kan

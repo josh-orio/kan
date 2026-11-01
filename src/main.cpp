@@ -21,7 +21,6 @@ int main(int argc, char *argv[]) {
 
   for (int i = 1; i < argc; i++) {
     args.push_back(std::string(argv[i]));
-    std::cout << args.at(i - 1) << std::endl;
   }
 
   // std::cout << "kan ";
@@ -31,9 +30,26 @@ int main(int argc, char *argv[]) {
   // std::cout<<std::endl;
   // std::exit(0);
 
-  if (args.size() > 1) {
-    throw std::invalid_argument("Too many arguments! - usage: kan <path>");
+  // called by the post-commit hook, stays away from KAN as there may be no terminal to set up
+  if (args.size() == 2 && args[0] == "link-commit") {
+    try {
+      board = Board(".kan");
+      board.loadBoard();
+      board.loadJobs();
+
+      hooks::postCommit(board, args[1]);
+    }
+    catch (const std::exception &e) {
+      std::cerr << "kan link-commit: " << e.what() << "\n";
+      return 1;
+    }
+
+    return 0;
   }
+
+  // if (args.size() > 1) {
+  //   throw std::invalid_argument("Too many arguments! - usage: kan <path>");
+  // }
   else if (args.size() == 0) {
     args.push_back("");
   }
