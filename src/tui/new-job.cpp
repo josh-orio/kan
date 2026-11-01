@@ -75,16 +75,22 @@ void NewJob::display() {
 
   // 'finish' button
   termui::terminal.MoveCursor(window_start_row + 11, window_start_col + _width - 10);
-  termui::Button b = termui::Button("Finish").focus_style(termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo})).blur_style(termui::Style()).width(8);
+  // termui::Button b = termui::Button("Finish").focus_style(termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo})).blur_style(termui::Style()).width(8);
 
-  if (_selected_field == Focus::Finish) {
-    b.focus();
-  }
-  else {
-    b.blur();
-  }
+  // if (_selected_field == Focus::Finish) {
+  //   b.focus();
+  // }
+  // else {
+  //   b.blur();
+  // }
 
-  b.render();
+  // b.render();
+  termui::Button("Finish")
+      .focus_style(termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo}))
+      .blur_style(termui::Style())
+      .setFocus(_selected_field == Focus::Finish)
+      .width(8)
+      .render();
 
   if (_selected_field != Focus::Finish) {
     // termui::terminal.RestoreCursorPosition();

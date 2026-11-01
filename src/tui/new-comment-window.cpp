@@ -47,7 +47,12 @@ void NewCommentWindow::display() {
   }
 
   // save button
-  termui::Button("Save").setFocus(_selected_field == Focus::Save).width(6).render();
+  termui::Button("Save")
+      .focus_style(termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo}))
+      .blur_style(termui::Style())
+      .setFocus(_selected_field == Focus::Save)
+      .width(6)
+      .render();
 
   if (_selected_field == Focus::Text) {
     termui::terminal.ShowCursor();

@@ -65,6 +65,7 @@ void Job::fromYaml(YAML::Node yaml) {
   uuid        = yaml["uuid"].as<std::string>();
 
   comments = Comments(yaml["comments"]);
+  commits  = Commits(yaml["commits"]);
   priority = yaml["priority"].as<Priority>();
   history  = History(yaml["history"]);
 }
@@ -82,6 +83,7 @@ YAML::Node Job::toYaml() {
   job["uuid"]        = uuid;
 
   job["comments"] = comments.toYaml();
+  job["commits"]  = commits.toYaml();
   job["priority"] = priority;
   job["history"]  = history.toYaml();
 
