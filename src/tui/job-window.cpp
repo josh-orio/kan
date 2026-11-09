@@ -20,14 +20,12 @@ void JobWindow::display() {
 
   auto tab = _tab_bar.GetTab();
 
-  // box
-  // termui::terminal.MoveCursor(window_start_row, window_start_col);
-  // termui::Box(_width, _height, termui::Borders::rounded, termui::Styles::faint).render();
-
   // title
-  // termui::terminal.MoveCursor(window_start_row + 1, window_start_col + 2);
   termui::terminal.MoveCursor(1, 2);
-  termui::Text(_job.title, termui::Styles::bold).width(_width - 4).height(1).render();
+  termui::Text(_job.title, termui::Styles::bold).render();
+
+  // job id
+  termui::Text(" #" + std::to_string(_job.id)).style(termui::Styles::faint).render();
 
   // tab bar
   termui::terminal.MoveCursor(3, 2);

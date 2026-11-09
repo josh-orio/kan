@@ -30,6 +30,18 @@ int main(int argc, char *argv[]) {
   // std::cout<<std::endl;
   // std::exit(0);
 
+  if (args.size() >= 1 && (args[0] == "help" || args[0] == "--help" || args[0] == "-h")) {
+    std::cout << "kan - a kanban board that lives in your git repo\n"
+                 "\n"
+                 "usage:\n"
+                 "  kan [path]                  open the board in <path>/.kan (default: current directory),\n"
+                 "                              creating a new board there if none exists\n"
+                 "  kan link-commit <hash>      link a commit to every job its message references with #N\n"
+                 "                              (run by the post-commit hook, e.g. \"fix #3\")\n"
+                 "  kan help                    show this guide\n";
+    return 0;
+  }
+
   // called by the post-commit hook, stays away from KAN as there may be no terminal to set up
   if (args.size() == 2 && args[0] == "link-commit") {
     try {
