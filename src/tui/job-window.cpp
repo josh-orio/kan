@@ -6,12 +6,6 @@ namespace tui {
 JobWindow::JobWindow(kan::Job job) : _job(job), _job_detail(job), /*_comment_list(job.comments),*/ /*_issue_list(job.issues), */ _history_viewer(job.history) {}
 
 void JobWindow::display() {
-  // auto terminal_half_w = termui::terminal.halfWidth();
-  // auto terminal_half_h = termui::terminal.halfHeight();
-
-  // auto window_start_row = terminal_half_h - (_height / 2);
-  // auto window_start_col = terminal_half_w - (_width / 2);
-
   _width  = termui::terminal.width();
   _height = termui::terminal.height();
 
@@ -255,9 +249,9 @@ void JobWindow::process_input() {
         _history_viewer.Reload(_job.history);
         _modified = true;
       }
-      else {
-        std::cout << "User selection cancelled.\n";
-      }
+      // else {
+      //   std::cout << "User selection cancelled.\n";
+      // }
     }
 
     if (inp == "c") {

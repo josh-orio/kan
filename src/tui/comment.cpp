@@ -24,7 +24,8 @@ std::pair<unsigned int, unsigned int> Comment::size() {
   bool has_w = _width.has_value(), has_h = _height.has_value();
   int  w = *_width, h = *_height;
 
-  auto [width, height] = termui::Text(_comment.text).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).size();
+  // auto [width, height] = termui::Text(_comment.text).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).size();
+ auto [width, height] = termui::PaddedText(_comment.text).setPadding({2,0,1,0}).style(_style).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).size();
 
   return {width, height + 1};
 }
@@ -33,12 +34,25 @@ void Comment::render() {
   bool has_w = _width.has_value(), has_h = _height.has_value();
   int  w = *_width, h = *_height;
 
-  termui::Text(_comment.text).style(_style).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).render();
+  auto bold_style = termui::Style(_style.foregroundColor, _style.backgroundColor, {termui::SGR::Bold});
+
+   termui::TextRow(w)
+      .paddingStyle(_style)
+      .add(termui::Text(_comment.creator.Name(), bold_style))
+      .add(termui::Text("commented", _style))
+      .add(termui::Text(_comment.created.toString(), _style).align(termui::Text::Alignment::Right), 20)
+      .render();
 
   termui::terminal.CursorDown(1).CursorLeft(w);
 
-  termui::Text(_comment.creator.Name()).style(termui::Style(_style.foregroundColor, _style.backgroundColor, {termui::SGR::Bold})).size(w - 20, 1).render();
-  termui::Text(_comment.created.toString()).style(_style).size(20, 1).align(termui::Text::Alignment::Right).render();
+  termui::PaddedText(_comment.text).setPadding({2,0,1,0}).style(_style).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).render();
+
+  // termui::Text(_comment.text).style(_style).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).render();
+
+  // termui::terminal.CursorDown(1).CursorLeft(w);
+
+  // termui::Text(_comment.creator.Name()).style(termui::Style(_style.foregroundColor, _style.backgroundColor, {termui::SGR::Bold})).size(w - 20, 1).render();
+  // termui::Text(_comment.created.toString()).style(_style).size(20, 1).align(termui::Text::Alignment::Right).render();
 }
 
 } // namespace tui
