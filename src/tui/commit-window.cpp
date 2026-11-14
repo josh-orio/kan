@@ -45,7 +45,7 @@ void CommitWindow::display() {
 
   // title
   termui::terminal.MoveCursor(1, 2);
-  termui::TextRow(content_w).add(termui::Text(title, termui::Styles::bold)).add(termui::Text(_commit.hash.substr(0, 7), termui::Styles::faint), 7).render();
+  termui::Text(title, termui::Styles::bold).width(content_w).height(1).render();
 
   // author + date
   termui::terminal.MoveCursor(3, 2);
