@@ -2,6 +2,7 @@
 #define TUI_COMMIT_WINDOW_HPP
 
 #include <kan/core.hpp>
+#include <kan/tui/diff-viewer.hpp>
 #include <termui/termui.hpp>
 
 namespace kan {
@@ -18,6 +19,9 @@ private:
   kan::Commit                  _commit;
   std::vector<git::FileChange> _files;
   std::string                  _error; // set when git couldn't read the commit
+
+  bool       _diff_mode = false; // diff of the selected file replaces the file list
+  DiffViewer _diff;
 
   unsigned int _width = 80, _height = 40;
   unsigned int _visible_rows = 0;

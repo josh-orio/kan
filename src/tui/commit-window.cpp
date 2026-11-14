@@ -78,72 +78,107 @@ void CommitWindow::display() {
       deletions += f.deletions;
     }
 
-    // files header
+    // files header (or the open file's header in diff mode)
     termui::terminal.MoveCursor(r, 2);
     // TextRow packs segments left, so the hash gets its own slot pinned to the right edge
     auto hash_w = static_cast<unsigned int>(_commit.hash.size());
+    auto left_w = content_w > hash_w + 1 ? content_w - hash_w - 1 : 0;
 
-    termui::TextRow(content_w > hash_w + 1 ? content_w - hash_w - 1 : 0)
-        .add(termui::Text("Files changed", termui::Styles::bold))
-        .add(termui::Text(std::format("{} {}", _files.size(), _files.size() == 1 ? "file" : "files"), termui::Styles::faint))
-        .add(termui::Text(std::format("+{}", additions), termui::Style(termui::Colors::Green, termui::Color::Inherit())))
-        .add(termui::Text(std::format("-{}", deletions), termui::Style(termui::Colors::Red, termui::Color::Inherit())))
-        .render();
+    if (_diff_mode) {
+      auto &f    = _files.at(_cursor);
+      auto  path = f.old_path.empty() ? f.path : std::format("{} → {}", f.old_path, f.path);
+
+      termui::TextRow(left_w)
+          .add(termui::Text(std::string(1, f.status), termui::Style(statusColor(f.status), termui::Color::Inherit(), {termui::SGR::Bold})), 1)
+          .add(termui::Text(path, termui::Styles::bold))
+          .add(termui::Text(std::format("+{}", f.additions), termui::Style(termui::Colors::Green, termui::Color::Inherit())))
+          .add(termui::Text(std::format("-{}", f.deletions), termui::Style(termui::Colors::Red, termui::Color::Inherit())))
+          .render();
+    }
+    else {
+      termui::TextRow(left_w)
+          .add(termui::Text("Files changed", termui::Styles::bold))
+          .add(termui::Text(std::format("{} {}", _files.size(), _files.size() == 1 ? "file" : "files"), termui::Styles::faint))
+          .add(termui::Text(std::format("+{}", additions), termui::Style(termui::Colors::Green, termui::Color::Inherit())))
+          .add(termui::Text(std::format("-{}", deletions), termui::Style(termui::Colors::Red, termui::Color::Inherit())))
+          .render();
+    }
 
     termui::terminal.MoveCursor(r, 2 + content_w - hash_w);
     termui::Text(_commit.hash, termui::Styles::faint).width(hash_w).height(1).render();
     r += 2;
 
-    // file list
-    _visible_rows = _height > r + 2 ? _height - r - 2 : 0;
-
-    if (_cursor < _start_line) {
-      _start_line = _cursor;
-    }
-    if (_visible_rows > 0 && _cursor >= _start_line + _visible_rows) {
-      _start_line = _cursor - _visible_rows + 1;
-    }
-
-    if (_files.empty()) {
+    if (_diff_mode) {
       termui::terminal.MoveCursor(r, 2);
-      termui::Text("No file changes to show.", termui::Styles::faint).width(content_w).render();
+      _diff.size(content_w, _height > r + 2 ? _height - r - 2 : 0).render();
     }
 
-    for (unsigned int i = _start_line; i < std::min<size_t>(_files.size(), _start_line + _visible_rows); i++) {
-      auto &f     = _files.at(i);
-      bool  focus = i == _cursor;
-      auto  style = focus ? board.styleMap.at("highlight") : termui::Style();
-      auto  row   = r + (i - _start_line);
+    // file list
+    if (!_diff_mode) {
+      _visible_rows = _height > r + 2 ? _height - r - 2 : 0;
 
-      // cursor bar sits in the gutter, content starts 2 cells in (same as the other lists)
-      if (focus) {
-        termui::terminal.MoveCursor(row, 2);
-        termui::Line(termui::Line::Direction::Vertical, 1).render();
+      if (_cursor < _start_line) {
+        _start_line = _cursor;
+      }
+      if (_visible_rows > 0 && _cursor >= _start_line + _visible_rows) {
+        _start_line = _cursor - _visible_rows + 1;
       }
 
-      auto path  = f.old_path.empty() ? f.path : std::format("{} → {}", f.old_path, f.path);
-      auto stats = f.binary ? std::string("binary") : std::format("+{} -{}", f.additions, f.deletions);
+      if (_files.empty()) {
+        termui::terminal.MoveCursor(r, 2);
+        termui::Text("No file changes to show.", termui::Styles::faint).width(content_w).render();
+      }
 
-      termui::terminal.MoveCursor(row, 4);
-      termui::TextRow(content_w - 2)
-          .paddingStyle(style)
-          .add(termui::Text(std::string(1, f.status), termui::Style(statusColor(f.status), style.backgroundColor, {termui::SGR::Bold})), 1)
-          .add(termui::Text(path, style))
-          .add(termui::Text(stats, termui::Style(style.foregroundColor, style.backgroundColor, {termui::SGR::Faint})).align(termui::Text::Alignment::Right), 14)
-          .render();
+      for (unsigned int i = _start_line; i < std::min<size_t>(_files.size(), _start_line + _visible_rows); i++) {
+        auto &f     = _files.at(i);
+        bool  focus = i == _cursor;
+        auto  style = focus ? board.styleMap.at("highlight") : termui::Style();
+        auto  row   = r + (i - _start_line);
+
+        // cursor bar sits in the gutter, content starts 2 cells in (same as the other lists)
+        if (focus) {
+          termui::terminal.MoveCursor(row, 2);
+          termui::Line(termui::Line::Direction::Vertical, 1).render();
+        }
+
+        auto path  = f.old_path.empty() ? f.path : std::format("{} → {}", f.old_path, f.path);
+        auto stats = f.binary ? std::string("binary") : std::format("+{} -{}", f.additions, f.deletions);
+
+        termui::terminal.MoveCursor(row, 4);
+        termui::TextRow(content_w - 2)
+            .paddingStyle(style)
+            .add(termui::Text(std::string(1, f.status), termui::Style(statusColor(f.status), style.backgroundColor, {termui::SGR::Bold})), 1)
+            .add(termui::Text(path, style))
+            .add(termui::Text(stats, termui::Style(style.foregroundColor, style.backgroundColor, {termui::SGR::Faint})).align(termui::Text::Alignment::Right),
+                 14)
+            .render();
+      }
     }
   }
 
   // control strip
   termui::terminal.MoveCursor(_height - 1, 2);
-  kan::tui::ControlStrip({
-                             {"esc", "close"},
-                             {"↑↓", "navigate"},
-                             {"t", "top"},
-                             {"b", "bottom"},
-                         })
-      .width(content_w)
-      .render();
+  if (_diff_mode) {
+    kan::tui::ControlStrip({
+                               {"esc", "back to files"},
+                               {"↑↓", "scroll"},
+                               {"t", "top"},
+                               {"b", "bottom"},
+                           })
+        .width(content_w)
+        .render();
+  }
+  else {
+    kan::tui::ControlStrip({
+                               {"esc", "close"},
+                               {"↑↓", "navigate"},
+                               {"t", "top"},
+                               {"b", "bottom"},
+                               {"↵", "view diff"},
+                           })
+        .width(content_w)
+        .render();
+  }
 
   termui::terminal.flush();
 }
@@ -151,7 +186,37 @@ void CommitWindow::display() {
 void CommitWindow::process_input() {
   auto inp = termui::terminal.read();
 
-  if (inp == termui::key::ESC || inp == "q") {
+  if (_diff_mode) {
+    if (inp == termui::key::ESC || inp == "q") {
+      _diff_mode = false;
+    }
+    else if (inp == termui::key::U_ARROW) {
+      _diff.ScrollUp();
+    }
+    else if (inp == termui::key::D_ARROW) {
+      _diff.ScrollDown();
+    }
+    else if (inp == "t") {
+      _diff.GotoTop();
+    }
+    else if (inp == "b") {
+      _diff.GotoBottom();
+    }
+
+    return;
+  }
+
+  if (inp == termui::key::ENTER && !_files.empty()) {
+    try {
+      _diff = DiffViewer(git::fileDiff(_commit.hash, _files.at(_cursor)));
+    }
+    catch (const std::exception &e) {
+      _diff = DiffViewer({"Couldn't read this diff from git."});
+    }
+
+    _diff_mode = true;
+  }
+  else if (inp == termui::key::ESC || inp == "q") {
     state = State::Exit;
   }
   else if (inp == termui::key::U_ARROW) {

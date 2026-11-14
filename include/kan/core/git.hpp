@@ -21,6 +21,8 @@ Commit readCommit(const std::string &hash);
 
 std::vector<FileChange> changedFiles(const std::string &hash); // empty for merge commits
 
+std::vector<std::string> fileDiff(const std::string &hash, const FileChange &file); // unified diff lines, headers stripped
+
 } // namespace git
 } // namespace kan
 

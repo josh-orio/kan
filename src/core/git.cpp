@@ -52,6 +52,17 @@ static std::vector<std::string> fields(const std::string &output) {
   return out;
 }
 
+// wraps a path in single quotes for the shell
+static std::string quote(const std::string &s) {
+  std::string out = "'";
+
+  for (char c : s) {
+    out += c == '\'' ? std::string("'\\''") : std::string(1, c);
+  }
+
+  return out + "'";
+}
+
 Commit readCommit(const std::string &hash) {
   checkHash(hash);
 
@@ -140,6 +151,54 @@ std::vector<FileChange> changedFiles(const std::string &hash) {
   }
 
   return files;
+}
+
+std::vector<std::string> fileDiff(const std::string &hash, const FileChange &file) {
+  checkHash(hash);
+
+  auto paths = quote(file.path);
+  if (!file.old_path.empty()) {
+    paths = quote(file.old_path) + " " + paths;
+  }
+
+  auto output = run(std::format("git diff-tree -p -M --root --no-commit-id --no-color --no-ext-diff {} -- {} 2>/dev/null", hash, paths));
+
+  std::vector<std::string> lines;
+  bool                     in_hunk = false; // skip the "diff --git", "index", "---", "+++" header lines
+  size_t                   pos     = 0;
+
+  while (pos < output.size()) {
+    size_t next = output.find('\n', pos);
+    if (next == std::string::npos) {
+      next = output.size();
+    }
+
+    auto line = output.substr(pos, next - pos);
+    pos       = next + 1;
+
+    if (line.starts_with("@@")) {
+      in_hunk = true;
+    }
+    else if (line.starts_with("diff --git")) {
+      in_hunk = false;
+    }
+
+    if (!in_hunk) {
+      if (line.starts_with("Binary files")) {
+        lines.push_back(line);
+      }
+      continue;
+    }
+
+    // tabs would throw off column widths in the terminal
+    for (size_t t = line.find('\t'); t != std::string::npos; t = line.find('\t', t)) {
+      line.replace(t, 1, "  ");
+    }
+
+    lines.push_back(line);
+  }
+
+  return lines;
 }
 
 } // namespace git
