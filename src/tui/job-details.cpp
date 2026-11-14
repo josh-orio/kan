@@ -211,7 +211,12 @@ void JobDetails::render() {
 
   // assignee
   termui::terminal.MoveCursor(row + 2, col + 2);
-  termui::Text(_job.assignee.Name(), ::tui::stls::bold).width(_width - 2).height(1).render();
+  if (_job.assignee.name.empty()) {
+    termui::Text("No assignee", termui::Styles::faint).width(_width - 2).height(1).render();
+  }
+  else {
+    termui::Text(_job.assignee.Name(), ::tui::stls::bold).width(_width - 2).height(1).render();
+  }
 
   // created
   termui::terminal.MoveCursor(row + _height - 4, col);
