@@ -300,14 +300,14 @@ void JobDetails::render() {
       termui::Line(termui::Line::Direction::Vertical, item_height).render();
     }
 
-    // separator - "▁" on the first gap row sits on the row boundary, centring it in the gap.
-    // inset to ~90% of the content width so it reads as a divider rather than a border (trial)
+    // separator - scan line 1 ("⎺") on the second gap row hugs the top of the row, so it sits on the
+    // boundary between the two gap rows, centring it. left aligned, ~60% of the content width (trial)
     if (i + 1 < std::min(_events.size(), static_cast<size_t>(_start_line + _visible_events))) {
       auto content_w = _width - 4;
-      auto line_w    = content_w * 9 / 10;
+      auto line_w    = content_w * 5 / 10;
 
-      termui::terminal.MoveCursor(init_cursor_r + item_height, init_cursor_c + (content_w - line_w) / 2);
-      termui::Line(termui::Line::Direction::Horizontal, line_w, "͟"/*"_"*/ /*"▁"*/).style(board.styleMap.at("item_separator")).render();
+      termui::terminal.MoveCursor(init_cursor_r + item_height + 1, init_cursor_c);
+      termui::Line(termui::Line::Direction::Horizontal, line_w, "⎺").style(board.styleMap.at("item_separator")).render();
     }
 
     init_cursor_r += item_height + item_gap;
