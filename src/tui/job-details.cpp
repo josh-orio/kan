@@ -298,6 +298,12 @@ void JobDetails::render() {
       termui::Line(termui::Line::Direction::Vertical, item_height).render();
     }
 
+    // separator - drawn in the gap between items (trial)
+    if (i + 1 < std::min(_events.size(), static_cast<size_t>(_start_line + _visible_events))) {
+      termui::terminal.MoveCursor(init_cursor_r + item_height, init_cursor_c);
+      termui::Line(termui::Line::Direction::Horizontal, _width - 4).style(termui::Styles::faint).render();
+    }
+
     init_cursor_r += item_height + 1;
   }
   // clang-format on
