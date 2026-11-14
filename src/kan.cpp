@@ -49,6 +49,7 @@ KAN::KAN(std::string path) : _path() {
 
   board.styleMap.add("highlight", termui::Style(termui::Color::Inherit(), offsetColor(15)));
   board.styleMap.add("column_separator", termui::Style(offsetColor(60), termui::Color::Inherit()));
+  board.styleMap.add("item_separator", termui::Style(offsetColor(60), termui::Color::Inherit()));
 
   renderer = tui::Board();
   // renderer.load();
