@@ -68,7 +68,7 @@ void CommitList::render() {
   else {
     for (unsigned int i = _start_line; i < std::min<size_t>(_commits.size(), _start_line + _visible_rows); i++) {
       auto &commit = _commits.at(i);
-      auto  r      = row + (i - _start_line);
+      auto  r      = row + (2 * (i - _start_line)); // one blank row between commits
       bool  focus  = i == _cursor;
 
       auto style       = focus ? board.styleMap.at("highlight") : termui::Style();
@@ -88,13 +88,24 @@ void CommitList::render() {
         termui::Line(termui::Line::Direction::Vertical, 1).render();
       }
 
+      // hash + date are pinned together on the right, the message takes whatever is left
+      auto date    = commit.created.toString();
+      auto right_w = 7 + 1 + date.size();
+      auto left_w  = (_w - 2) > right_w + 1 ? (_w - 2) - right_w - 1 : 0;
+
       termui::terminal.MoveCursor(r, col + 2);
-      termui::TextRow(_w - 2)
+      termui::TextRow(left_w)
           .paddingStyle(style)
           .add(termui::Text(title, bold_style))
           .add(termui::Text(rest, faint_style))
+          .render();
+
+      termui::Text(" ", style).width(1).height(1).render();
+
+      termui::TextRow(right_w)
+          .paddingStyle(style)
           .add(termui::Text(commit.hash.substr(0, 7), faint_style), 7)
-          .add(termui::Text(commit.created.toString(), style).align(termui::Text::Alignment::Right), 20)
+          .add(termui::Text(date, style))
           .render();
     }
   }
@@ -112,7 +123,7 @@ void CommitList::render() {
 }
 
 void CommitList::internal_update() {
-  _visible_rows = _h > 2 ? _h - 2 : 0; // -2 for controlstrip space
+  _visible_rows = _h > 2 ? (_h - 2 + 1) / 2 : 0; // -2 for controlstrip space, each row is 1 line + 1 gap
 
   if (_cursor < _start_line) {
     _start_line = _cursor;

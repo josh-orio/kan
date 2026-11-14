@@ -56,11 +56,6 @@ void CommitWindow::display() {
 
   unsigned int r = 5;
 
-  // full hash
-  termui::terminal.MoveCursor(r, 2);
-  termui::Text(_commit.hash, termui::Styles::faint).width(content_w).height(1).render();
-  r += 2;
-
   // body - capped so a long message doesn't push the file list off screen
   if (!body.empty()) {
     auto max_h  = std::max<unsigned int>(1, _height / 3);
@@ -85,12 +80,18 @@ void CommitWindow::display() {
 
     // files header
     termui::terminal.MoveCursor(r, 2);
-    termui::TextRow(content_w)
+    // TextRow packs segments left, so the hash gets its own slot pinned to the right edge
+    auto hash_w = static_cast<unsigned int>(_commit.hash.size());
+
+    termui::TextRow(content_w > hash_w + 1 ? content_w - hash_w - 1 : 0)
         .add(termui::Text("Files changed", termui::Styles::bold))
         .add(termui::Text(std::format("{} {}", _files.size(), _files.size() == 1 ? "file" : "files"), termui::Styles::faint))
         .add(termui::Text(std::format("+{}", additions), termui::Style(termui::Colors::Green, termui::Color::Inherit())))
         .add(termui::Text(std::format("-{}", deletions), termui::Style(termui::Colors::Red, termui::Color::Inherit())))
         .render();
+
+    termui::terminal.MoveCursor(r, 2 + content_w - hash_w);
+    termui::Text(_commit.hash, termui::Styles::faint).width(hash_w).height(1).render();
     r += 2;
 
     // file list
@@ -114,16 +115,17 @@ void CommitWindow::display() {
       auto  style = focus ? board.styleMap.at("highlight") : termui::Style();
       auto  row   = r + (i - _start_line);
 
+      // cursor bar sits in the gutter, content starts 2 cells in (same as the other lists)
       if (focus) {
-        termui::terminal.MoveCursor(row, 0);
+        termui::terminal.MoveCursor(row, 2);
         termui::Line(termui::Line::Direction::Vertical, 1).render();
       }
 
       auto path  = f.old_path.empty() ? f.path : std::format("{} → {}", f.old_path, f.path);
       auto stats = f.binary ? std::string("binary") : std::format("+{} -{}", f.additions, f.deletions);
 
-      termui::terminal.MoveCursor(row, 2);
-      termui::TextRow(content_w)
+      termui::terminal.MoveCursor(row, 4);
+      termui::TextRow(content_w - 2)
           .paddingStyle(style)
           .add(termui::Text(std::string(1, f.status), termui::Style(statusColor(f.status), style.backgroundColor, {termui::SGR::Bold})), 1)
           .add(termui::Text(path, style))
