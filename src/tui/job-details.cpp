@@ -3,16 +3,8 @@
 namespace kan {
 namespace tui {
 
-std::vector<std::variant<kan::Comment, kan::Commit>> idk(Job job) {
-  std::vector<std::variant<kan::Comment, kan::Commit>> events;
-
-  kan::Comment c;
-  c.text    = job.description;
-  c.creator = job.creator;
-  c.created = job.created;
-
-  // Comment {job.description,job.creator,job.created};
-  events.push_back(c);
+std::vector<std::variant<JobDescription, kan::Comment, kan::Commit>> idk(Job job) {
+  std::vector<std::variant<JobDescription, kan::Comment, kan::Commit>> events;
 
   for (const auto &c : job.comments) {
     events.push_back(c);
@@ -23,13 +15,16 @@ std::vector<std::variant<kan::Comment, kan::Commit>> idk(Job job) {
   }
 
   // sort records (newest first)
-  using Event = std::variant<kan::Comment, kan::Commit>;
+  using Event = std::variant<JobDescription, kan::Comment, kan::Commit>;
 
   auto timeOf = [](const Event &e) {
     return std::visit([](const auto &x) { return x.created.time; }, e); // anything that will be visted needs to have a .created member
   };
 
   std::sort(events.begin(), events.end(), [&](const Event &a, const Event &b) { return timeOf(a) < timeOf(b); });
+
+  // description always sits at the top
+  events.insert(events.begin(), JobDescription{job.description, job.creator, job.created});
 
   return events;
 }
@@ -257,6 +252,19 @@ void JobDetails::render() {
 
     // clang-format off
     std::visit(overloaded{
+      [&](const JobDescription &d) {
+        auto description = tui::Description(d).width(_width - 4);
+
+        std::tie(item_width, item_height) = description.size();
+
+        termui::terminal.MoveCursor(init_cursor_r, init_cursor_c);
+
+        if (_focus == Focus::EventList && i == _cursor) {
+          description.style(board.styleMap.at("highlight"));
+        }
+
+        description.render();
+      },
       [&](const kan::Comment &c) {
         auto comment = tui::Comment(c).width(_width - 4);
         
@@ -315,6 +323,11 @@ void JobDetails::internal_update() {
 
     // clang-format off
     std::visit(overloaded{
+      [&](const JobDescription &d) {
+        auto [width,height]= tui::Description(d).width(_width -4).size();
+
+        item_heights.push_back(height);
+      },
       [&](const kan::Comment &c) {
         auto comment = tui::Comment(c).width(_width -4);
 

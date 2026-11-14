@@ -4,6 +4,7 @@
 #include <kan/core/commits.hpp>
 #include <kan/core/job.hpp>
 #include <kan/tui/comment-list.hpp>
+#include <kan/tui/description.hpp>
 #include <kan/tui/new-comment-window.hpp>
 #include <kan/tui/tab-bar.hpp>
 #include <termui/termui.hpp>
@@ -40,7 +41,7 @@ private:
 
   kan::Job _job;
 
-  std::vector<std::variant<kan::Comment, kan::Commit>> _events;
+  std::vector<std::variant<JobDescription, kan::Comment, kan::Commit>> _events;
 
   Focus _focus = Focus::Status;
 
