@@ -79,7 +79,7 @@ void Board::show() {
   // onboarding - offer to add the current git identity to contributors.yaml
   auto me = User().getFromSystem();
   if (!me.name.empty() && !me.email.empty() && !board.isContributor(me)) {
-    auto join = DialogBox("Welcome", std::format("{} isn't a contributor to this board yet. Add yourself so you can be assigned jobs?", me.toString()), "Yes", "No").show();
+    auto join = RegisterUser("Welcome", std::format("{} isn't a contributor to this board yet. Add yourself so you can be assigned jobs?", me.toString())).show();
     if (join) {
       board.addContributor(me);
     }
