@@ -3,7 +3,7 @@
 namespace kan {
 namespace tui {
 
-JobWindow::JobWindow(kan::Job job) : _job(job), _job_detail(job), /*_comment_list(job.comments),*/ /*_issue_list(job.issues), */ _history_viewer(job.history) {}
+JobWindow::JobWindow(kan::Job job) : _job(job), _job_detail(job), _commit_list(job.commits), /*_comment_list(job.comments),*/ /*_issue_list(job.issues), */ _history_viewer(job.history) {}
 
 void JobWindow::display() {
   _width  = termui::terminal.width();
@@ -43,7 +43,8 @@ void JobWindow::display() {
     }
   }
   else if (tab == 1) {
-    // commits list
+    termui::terminal.MoveCursor(5, 2);
+    _commit_list.size(_width - 4, _height - 4).render();
   }
   else if (tab == 2) {
     _history_viewer.size(_width - 4, _height - 4).render();
@@ -102,7 +103,7 @@ void JobWindow::process_input() {
       _job_detail.CursorUp();
     }
     else if (tab == 1) {
-      // _comment_list.CursorUp();
+      _commit_list.CursorUp();
     }
     else if (tab == 2) {
       _history_viewer.CursorUp();
@@ -113,7 +114,7 @@ void JobWindow::process_input() {
       _job_detail.CursorDown();
     }
     else if (tab == 1) {
-      // _comment_list.CursorDown();
+      _commit_list.CursorDown();
     }
     else if (tab == 2) {
       _history_viewer.CursorDown();
@@ -275,6 +276,18 @@ void JobWindow::process_input() {
     }
     else if (inp == "b") {
       _job_detail.GotoBottom();
+    }
+  }
+
+  else if (tab == 1 && inp != "?") {
+    if ((inp == termui::key::ENTER || inp == "o") && !_commit_list.Empty()) {
+      CommitWindow(_commit_list.Selected()).show();
+    }
+    else if (inp == "t") {
+      _commit_list.GotoTop();
+    }
+    else if (inp == "b") {
+      _commit_list.GotoBottom();
     }
   }
 

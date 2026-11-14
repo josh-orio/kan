@@ -38,56 +38,8 @@ std::vector<int> parseJobRefs(const std::string &message) {
   return ids;
 }
 
-static Commit readCommit(const std::string &hash) {
-  if (hash.empty() || hash.find_first_not_of("0123456789abcdef") != std::string::npos) { // this goes through a shell
-    throw std::invalid_argument("not a commit hash: " + hash);
-  }
-
-  FILE *pipe = popen(std::format("git log -1 --format=%H%x00%an%x00%ae%x00%at%x00%B {}", hash).c_str(), "r");
-
-  if (pipe == nullptr) {
-    throw std::runtime_error("failed to run git");
-  }
-
-  std::string output;
-  char        buffer[4096];
-
-  while (size_t n = fread(buffer, 1, sizeof(buffer), pipe)) {
-    output.append(buffer, n);
-  }
-
-  if (pclose(pipe) != 0) {
-    throw std::runtime_error("git could not read commit: " + hash);
-  }
-
-  std::vector<std::string> fields;
-  size_t                   pos = 0;
-
-  for (int i = 0; i < 4; i++) {
-    size_t next = output.find('\0', pos);
-
-    if (next == std::string::npos) {
-      throw std::runtime_error("unexpected output from git");
-    }
-
-    fields.push_back(output.substr(pos, next - pos));
-    pos = next + 1;
-  }
-
-  Commit commit;
-  commit.hash          = fields[0];
-  commit.creator.name  = fields[1];
-  commit.creator.email = fields[2];
-  commit.created.time  = std::stoll(fields[3]);
-  commit.message       = output.substr(pos);
-
-  commit.message.erase(commit.message.find_last_not_of('\n') + 1);
-
-  return commit;
-}
-
 void postCommit(Board &board, const std::string &hash) {
-  Commit commit = readCommit(hash);
+  Commit commit = git::readCommit(hash);
 
   for (int id : parseJobRefs(commit.message)) {
     Job *job = board.findJob(id);
