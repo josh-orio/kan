@@ -11,7 +11,7 @@ Board &Board::instance() {
 }
 
 Board::Board() : _active_col(0), _active_row(0) {
-    for (const auto &c : board.columns) {
+    for (auto &c : board.columns) {
     _columns.push_back(tui::Column(c));
   }
 }

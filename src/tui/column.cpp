@@ -3,7 +3,7 @@
 namespace kan {
 namespace tui {
 
-Column::Column(kan::Column column) : _column(column), _cursor(0), _start_line(0) {}
+Column::Column(kan::Column &column) : _column(&column), _cursor(0), _start_line(0) {}
 
 Column &Column::width(uint n) {
   _width = n;
@@ -16,7 +16,7 @@ Column &Column::height(uint n) {
 
 Column &Column::focus() {
   _focussed = true;
-  // _cursor = std::min<int>(row, _column.Jobs().size());
+  // _cursor = std::min<int>(row, _column->Jobs().size());
   return *this;
 }
 Column &Column::blur() {
@@ -33,13 +33,13 @@ Column &Column::cursorUp() {
 Column &Column::cursorDown() {
   // internal_update();
 
-  _cursor + 1 < _column.jobs.size() ? _cursor++ : _cursor;
+  _cursor + 1 < _column->jobs.size() ? _cursor++ : _cursor;
   _cursor >= _start_line + _visible_rows ? _start_line = _cursor - _visible_rows + 1 : _start_line;
   return *this;
 }
 
 Column &Column::setCursor(unsigned int row) {
-  _cursor = std::min<unsigned int>(row, _column.jobs.size());
+  _cursor = std::min<unsigned int>(row, _column->jobs.size());
   return *this;
 }
 
@@ -49,7 +49,7 @@ Column &Column::gotoTop() {
 }
 
 Column &Column::gotoBottom() {
-  _cursor = _column.jobs.size() - 1;
+  _cursor = _column->jobs.size() - 1;
   return *this;
 }
 
@@ -68,20 +68,20 @@ void Column::render() {
 
   // column title
   // termui::terminal.MoveCursor(row + 1, col + 2);
-  termui::PaddedText(_column.title, termui::Styles::bold, termui::PaddingStyle::label).width(_width).height(1).render();
+  termui::PaddedText(_column->title, termui::Styles::bold, termui::PaddingStyle::label).width(_width).height(1).render();
   termui::terminal.CursorDown(2).CursorLeft(_width);
 
   int line_height  = 2;
   int line_spacing = 2;
 
-  if (_focussed && _column.Jobs().size() == 0) {
+  if (_focussed && _column->Jobs().size() == 0) {
     auto row_style = board.styleMap.at("highlight");
     // termui::Text("").width(_width - 2).height(2).style(termui::Style({termui::SGR::ReverseVideo})).render();
     termui::Text("").width(_width).height(2).style(row_style).render();
   }
   else {
-    for (int i = _start_line; i < std::min(_column.Jobs().size(), static_cast<size_t>(_start_line + _visible_rows)); i++) {
-      JobCell(_column.Jobs()[i]).width(_width).setFocus(_focussed && i == _cursor).render();
+    for (int i = _start_line; i < std::min(_column->Jobs().size(), static_cast<size_t>(_start_line + _visible_rows)); i++) {
+      JobCell(_column->Jobs()[i]).width(_width).setFocus(_focussed && i == _cursor).render();
       // give style here
       termui::terminal.CursorDown(3).CursorLeft(_width);
     }

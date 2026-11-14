@@ -9,7 +9,7 @@ namespace tui {
 
 class Column {
 private:
-  kan::Column  _column;
+  kan::Column *_column; // points into kan::board.columns so new/reloaded jobs show up
   unsigned int _width, _height;
   bool         _focussed;
   unsigned int _visible_rows;
@@ -19,7 +19,7 @@ private:
   void internal_update();
 
 public:
-  Column(kan::Column column);
+  Column(kan::Column &column);
 
   Column &width(uint n);
   Column &height(uint n);
