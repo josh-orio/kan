@@ -164,7 +164,7 @@ JobDetails &JobDetails::editMode(bool x) {
 
 JobDetails::Focus JobDetails::Focussed() { return _focus; }
 
-constexpr unsigned int item_gap = 2; // rows between event list items (blank + separator)
+constexpr unsigned int item_gap = 1; // rows between event list items (holds the separator)
 
 template <class... Ts> struct overloaded : Ts... {
   using Ts::operator()...;
@@ -300,14 +300,10 @@ void JobDetails::render() {
       termui::Line(termui::Line::Direction::Vertical, item_height).render();
     }
 
-    // separator - scan line 1 ("⎺") on the second gap row hugs the top of the row, so it sits on the
-    // boundary between the two gap rows, centring it. left aligned, ~60% of the content width (trial)
+    // separator - bottom scan line ("⎽") in the gap row between items, full content width
     if (i + 1 < std::min(_events.size(), static_cast<size_t>(_start_line + _visible_events))) {
-      auto content_w = _width - 4;
-      auto line_w    = content_w * 5 / 10;
-
-      termui::terminal.MoveCursor(init_cursor_r + item_height + 1, init_cursor_c);
-      termui::Line(termui::Line::Direction::Horizontal, line_w, "⎺").style(board.styleMap.at("item_separator")).render();
+      termui::terminal.MoveCursor(init_cursor_r + item_height, init_cursor_c);
+      termui::Line(termui::Line::Direction::Horizontal, _width - 4, "⎽").style(board.styleMap.at("item_separator")).render();
     }
 
     init_cursor_r += item_height + item_gap;
