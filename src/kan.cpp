@@ -29,6 +29,7 @@ KAN::KAN(std::string path) : _path() {
   board.loadJobs();
   board.loadIssues();
   board.loadStyleMap();
+  board.loadContributors();
 
   board.styleMap.add("debug", termui::Style(termui::Color::Inherit(), termui::Colors::Red));
   board.styleMap.add("default", termui::Style(termui::terminal.ForegroundColor(), termui::terminal.BackgroundColor()));
@@ -99,6 +100,9 @@ void KAN::init() {
 
   std::ofstream out_file_job(_path / "jobs" / std::format("{}.yaml", first_job.uuid));
   out_file_job << first_job.toYaml();
+
+  // contributors - filled in as people open the board (see tui::Board::show)
+  board.saveContributors();
 
   board.styleMap.add("homepage_title", termui::Styles::bold);
   board.saveStyleMap();

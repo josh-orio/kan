@@ -534,4 +534,41 @@ std::vector<User> Board::Users() {
     return users;
 }
 
+// contributors.yaml holds a list of users: [{name, email}, ...]
+void Board::loadContributors() {
+  contributors.clear();
+
+  auto file = _path / "contributors.yaml";
+  if (!std::filesystem::exists(file)) {
+    return;
+  }
+
+  for (const auto &user : YAML::LoadFile(file)) {
+    contributors.push_back(User().fromYaml(user));
+  }
+}
+
+bool Board::isContributor(const User &user) {
+  return std::find(contributors.begin(), contributors.end(), user) != contributors.end();
+}
+
+void Board::addContributor(User user) {
+  contributors.push_back(user);
+  saveContributors();
+}
+
+void Board::saveContributors() {
+  YAML::Node yaml(YAML::NodeType::Sequence);
+
+  for (auto &user : contributors) {
+    yaml.push_back(user.toYaml());
+  }
+
+  YAML::Emitter out;
+  out << yaml;
+
+  std::ofstream fout(_path / "contributors.yaml");
+  fout << out.c_str();
+}
+
 } // namespace kan

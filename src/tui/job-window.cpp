@@ -237,13 +237,14 @@ void JobWindow::process_input() {
 
     if (inp == "a" || (inp == termui::key::ENTER && _job_detail.Focussed() == JobDetails::Focus::Assignee)) { // set assignee
       kan::tui::UserMenu userMenu;
-      auto [state, selected_user] = userMenu.show();
+      auto [state, selected_user] = userMenu.setCursor(_job.assignee).show();
 
       if (state == termui::Interface::State::Submit) {
-        // std::cout << "Selected user: " << users[selected_user_index] << "\n";
+        auto old_assignee = _job.assignee.name.empty() ? std::string("None") : _job.assignee.Name();
+
         _job.assignee = selected_user;
 
-        _job.addEvent({selected_user.Name() + " was set as assigned user.", User().getFromSystem(), Timestamp().Now()});
+        _job.addEvent({std::format("Job assignee was updated: {} -> {}.", old_assignee, _job.assignee.Name()), User().getFromSystem(), Timestamp().Now()});
 
         _job_detail.Reload(_job);
         _history_viewer.Reload(_job.history);

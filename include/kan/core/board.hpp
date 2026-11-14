@@ -18,6 +18,7 @@ public:
   std::vector<kan::Column> columns;
   Issues                   issues;
   int                      next_id = 1;
+  std::vector<User>        contributors; // people listed in contributors.yaml
 
   termui::StyleMap styleMap;
 
@@ -59,6 +60,11 @@ public:
   void loadIssues();
 
   void loadStyleMap();
+
+  void loadContributors();
+  bool isContributor(const User &user);
+  void addContributor(User user);
+  void saveContributors();
   void saveStyleMap();
 
   // Board&

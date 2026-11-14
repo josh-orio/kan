@@ -35,7 +35,8 @@ void DialogBox::display() {
 
   // text
   termui::terminal.MoveCursor(window_start_row + 3, window_start_col + 2);
-  termui::Text(_text).width(_width - 4).height(4).style(termui::Style(termui::Color::Inherit(), termui::Colors::Red)).render();
+  // termui::Text(_text).width(_width - 4).height(4).style(termui::Style(termui::Color::Inherit(), termui::Colors::Red)).render();
+  termui::Text(_text).width(_width - 4).height(4).render();
 
   // control bar
   termui::terminal.MoveCursor(window_start_row + _height - 2, window_start_col + 2);
@@ -52,13 +53,20 @@ void DialogBox::display() {
   termui::terminal.write(" ");
 
   // delete button
-  termui::Button("Delete", termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo}), termui::Style()).width(8).setFocus(_selection).render();
+  termui::Button(_affirmative)
+      .focus_style(termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo}))
+      .blur_style(termui::Style())
+      .width(6)
+      .setFocus(_selection)
+      .render();
 
   termui::terminal.write(" ");
 
   // cancel button
-  termui::Button("Cancel", termui::Style(termui::Color::Inherit(), termui::Colors::Red, {termui::SGR::Bold}), termui::Style())
-      .width(8)
+  termui::Button(_negative)
+      .focus_style(termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo}))
+      .blur_style(termui::Style())
+      .width(6)
       .setFocus(!_selection)
       .render();
 

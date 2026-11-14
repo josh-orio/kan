@@ -17,8 +17,6 @@ private:
   std::string _title, _text, _affirmative, _negative;
 
   size_t _width = 60, _height = 10;
-  //   size_t aff_x1, aff_x2, aff_y; // these values hold bounds for the buttons
-  //   size_t neg_x1, neg_x2, neg_y; // which is used to detect if 'pressed'
   bool _selection; // t = affirmative selected, f = negative selected
                    //   bool   reprint;               // flag indicates if reprint is required
 
