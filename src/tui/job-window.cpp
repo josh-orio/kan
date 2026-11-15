@@ -51,7 +51,10 @@ void JobWindow::process_input() {
 
   auto tab = _tab_bar.GetTab();
 
-  if (inp == termui::key::ESC || inp == "q") {
+  if (inp == "?") { // checked first so it works on every tab
+    HelpDialog(jobWindowHelp).show();
+  }
+  else if (inp == termui::key::ESC || inp == "q") {
     state = termui::Interface::State::Exit;
   }
   else if (inp == termui::key::Tab) {
@@ -209,7 +212,7 @@ void JobWindow::process_input() {
     }
   }
 
-  else if (tab == 1 && inp != "?") {
+  else if (tab == 1) {
     if ((inp == termui::key::ENTER || inp == "o") && !_commit_list.Empty()) {
       CommitWindow(_commit_list.Selected()).show();
     }
@@ -221,9 +224,6 @@ void JobWindow::process_input() {
     }
   }
 
-  else if (inp == "?") {
-    HelpDialog(jobWindowHelp).show();
-  }
 }
 
 std::pair<bool, kan::Job> JobWindow::show() {
