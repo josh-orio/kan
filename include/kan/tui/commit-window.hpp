@@ -20,7 +20,8 @@ private:
   std::vector<git::FileChange> _files;
   std::string                  _error; // set when git couldn't read the commit
 
-  bool       _diff_mode = false; // diff of the selected file replaces the file list
+  bool       _diff_mode    = false; // diff of the selected file replaces the file list
+  bool       _side_by_side = false; // remembered between files
   DiffViewer _diff;
 
   unsigned int _width = 80, _height = 40;

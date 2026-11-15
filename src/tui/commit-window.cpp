@@ -164,6 +164,7 @@ void CommitWindow::display() {
                                {"↑↓", "scroll"},
                                {"t", "top"},
                                {"b", "bottom"},
+                               {"s", _side_by_side ? "unified" : "side by side"},
                            })
         .width(content_w)
         .render();
@@ -202,16 +203,20 @@ void CommitWindow::process_input() {
     else if (inp == "b") {
       _diff.GotoBottom();
     }
+    else if (inp == "s") {
+      _side_by_side = !_side_by_side;
+      _diff.sideBySide(_side_by_side);
+    }
 
     return;
   }
 
   if (inp == termui::key::ENTER && !_files.empty()) {
     try {
-      _diff = DiffViewer(git::fileDiff(_commit.hash, _files.at(_cursor)));
+      _diff = DiffViewer(git::fileDiff(_commit.hash, _files.at(_cursor))).sideBySide(_side_by_side);
     }
     catch (const std::exception &e) {
-      _diff = DiffViewer({"Couldn't read this diff from git."});
+      _diff = DiffViewer({"Couldn't read this diff from git."}).sideBySide(_side_by_side);
     }
 
     _diff_mode = true;
