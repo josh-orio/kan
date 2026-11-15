@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <string>
 
+#include <kan/cli.hpp>
 #include <kan/core.hpp>
 #include <kan/tui.hpp>
 

@@ -29,6 +29,11 @@ const std::vector<HelpSection> boardHelp = {
          {"", "resolves) finishes the job too."},
          {"⎇", "the job has a branch, ⎇✓ it's been merged"},
      }},
+    {"Command line",
+     {
+         {"", "kan new, ls, show, mv, assign, finish and more"},
+         {"", "work from the shell too - kan help lists them."},
+     }},
 };
 
 const std::vector<HelpSection> jobWindowHelp = {
