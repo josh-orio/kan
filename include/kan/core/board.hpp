@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <kan/core/column.hpp>
+#include <set>
 #include <vector>
 
 namespace kan {
@@ -20,6 +21,9 @@ public:
   int                      next_id = 1;
   std::vector<User>        contributors; // people listed in contributors.yaml
   std::vector<kan::Job>    archive;      // archived jobs, most recently archived first
+  std::vector<kan::Job>    finished;     // finished jobs, most recently finished first
+  std::set<std::string>    struck;       // uuids finished this session - they stay on the board, struck through, until kan closes
+  bool                     finish_on_last_column = false; // moving a job into the last column finishes it
 
   termui::StyleMap styleMap;
 
@@ -46,6 +50,8 @@ public:
   void deleteJob(kan::Job job); // removes the job's file for good
   void archiveJob(kan::Job job);
   void restoreJob(kan::Job job); // back to its old column, or the first column if that's gone
+  void finishJob(kan::Job job);
+  void reopenJob(kan::Job job);  // back to the column it was finished from, or the first column if that's gone
 
   void loadBoard();
   void saveBoard();

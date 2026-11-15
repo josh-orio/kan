@@ -34,7 +34,15 @@ void JobCell::render() {
   auto row_style_faint      = row_style;
   row_style_faint.attributes = {termui::SGR::Faint};
 
-  termui::Text(" " + _job.title).style(_focussed ? row_style_bold : termui::Style()).size(_width - 11, 1).render();
+  // finished this session - crossed out and faint until kan closes
+  auto strike = [&](termui::Style s) {
+    if (_job.finished) {
+      s.attributes = {termui::SGR::Faint, termui::SGR::CrossedOut};
+    }
+    return s;
+  };
+
+  termui::Text(" " + _job.title).style(strike(_focussed ? row_style_bold : termui::Style())).size(_width - 11, 1).render();
 
   termui::PaddedText("#" + std::to_string(_job.id))
       .setPadding(termui::PaddingStyle::label)
@@ -47,7 +55,7 @@ void JobCell::render() {
 
   termui::PaddedText(_job.description)
       .setPadding(termui::PaddingStyle::label)
-      .style(_focussed ? row_style: termui::Style())
+      .style(strike(_focussed ? row_style : termui::Style()))
       .size(_width, 1)
       .render();
 }

@@ -38,6 +38,71 @@ std::vector<int> parseJobRefs(const std::string &message) {
   return ids;
 }
 
+std::vector<int> parseClosingRefs(const std::string &message) {
+  static const std::vector<std::string> keywords = {"fix",    "fixes",    "fixed",    "close",   "closes",   "closed",
+                                                    "finish", "finishes", "finished", "resolve", "resolves", "resolved"};
+
+  std::string lower = message;
+  std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) { return std::tolower(c); });
+
+  std::vector<int> ids;
+
+  for (size_t pos = 0; pos < lower.size();) {
+    // read a word
+    if (!std::isalpha(static_cast<unsigned char>(lower[pos]))) {
+      pos++;
+      continue;
+    }
+
+    size_t end = pos;
+    while (end < lower.size() && std::isalpha(static_cast<unsigned char>(lower[end]))) {
+      end++;
+    }
+
+    bool keyword = (pos == 0 || !isWordChar(lower[pos - 1])) && std::find(keywords.begin(), keywords.end(), lower.substr(pos, end - pos)) != keywords.end();
+    pos          = end;
+
+    if (!keyword) {
+      continue;
+    }
+
+    // "fixes #1", "fixes: #1", "fixes #1, #2 and #3" - refs separated by spaces, commas, colons or "and"
+    while (true) {
+      size_t p = pos;
+      while (p < lower.size() && (lower[p] == ' ' || lower[p] == ',' || lower[p] == ':')) {
+        p++;
+      }
+      if (lower.compare(p, 4, "and ") == 0) {
+        p += 4;
+        while (p < lower.size() && lower[p] == ' ') {
+          p++;
+        }
+      }
+
+      if (p >= lower.size() || lower[p] != '#') {
+        break;
+      }
+
+      auto refs = parseJobRefs(message.substr(p, message.find_first_of(" ,:\n", p) - p));
+      if (refs.empty()) {
+        break;
+      }
+
+      if (std::find(ids.begin(), ids.end(), refs.front()) == ids.end()) {
+        ids.push_back(refs.front());
+      }
+
+      pos = message.find_first_of(" ,:\n", p);
+      if (pos == std::string::npos) {
+        pos = lower.size();
+        break;
+      }
+    }
+  }
+
+  return ids;
+}
+
 void postCommit(Board &board, const std::string &hash) {
   Commit commit = git::readCommit(hash);
 
@@ -61,6 +126,19 @@ void postCommit(Board &board, const std::string &hash) {
     board.saveJob(*job);
 
     std::cout << std::format("kan: linked commit to #{}\n", id);
+  }
+
+  for (int id : parseClosingRefs(commit.message)) {
+    Job *job = board.findJob(id);
+
+    if (job == nullptr || job->finished || job->archived) {
+      continue;
+    }
+
+    job->finish(commit.creator, commit.created, std::format("Job finished by commit {}.", commit.hash.substr(0, 7)));
+    board.saveJob(*job);
+
+    std::cout << std::format("kan: finished #{}\n", id);
   }
 }
 

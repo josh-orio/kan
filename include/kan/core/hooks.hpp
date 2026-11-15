@@ -10,6 +10,8 @@ namespace hooks {
 
 std::vector<int> parseJobRefs(const std::string &message); // ids referenced like #12, in order, without repeats
 
+std::vector<int> parseClosingRefs(const std::string &message); // ids after fixes/closes/finishes/resolves (any tense), e.g. "fixes #12, #13"
+
 void postCommit(Board &board, const std::string &hash);
 
 } // namespace hooks

@@ -10,6 +10,8 @@
 namespace kan {
 namespace tui {
 
+bool jobMatches(const kan::Job &job, const std::string &query); // the board's search: title, description, #number
+
 class Board : termui::Interface {
 private:
   uint _width, _height;

@@ -9,6 +9,8 @@ const std::vector<HelpSection> boardHelp = {
          {"←↑↓→", "move between jobs"},
          {"o  ↵", "open the selected job"},
          {"n", "new job in this column"},
+         {"f", "finish (strike off) the job, again to undo"},
+         {"F", "finished jobs"},
          {"a", "archived jobs"},
          {"s", "settings"},
          {"q", "quit"},
@@ -23,7 +25,8 @@ const std::vector<HelpSection> boardHelp = {
      {
          {"", "Mention #12 in a commit message to link that"},
          {"", "commit to job 12 - it shows up in the job's"},
-         {"", "Commits tab."},
+         {"", "Commits tab. \"fixes #12\" (or closes, finishes,"},
+         {"", "resolves) finishes the job too."},
      }},
 };
 
@@ -43,8 +46,9 @@ const std::vector<HelpSection> jobWindowHelp = {
          {"c", "add a comment"},
          {"t  b", "jump to top / bottom"},
      }},
-    {"Archive & delete",
+    {"Finish, archive & delete",
      {
+         {"f", "finish the job"},
          {"x", "archive the job"},
          {"D", "delete the job for good"},
      }},

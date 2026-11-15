@@ -18,6 +18,12 @@ struct Job {
   int         id = 0; // the #12 shown to users, 0 until assigned. uuid is the real identity, ids can change
   bool        archived = false; // archived jobs are kept (and keep their id) but leave the board
 
+  // finished jobs leave the board for the finished log
+  bool        finished = false;
+  User        finisher;
+  Timestamp   finished_at;
+  std::string finished_from; // column it was finished from, reopening puts it back there
+
   enum class Priority { Low, Normal, High };
   Priority priority;
 
@@ -35,6 +41,9 @@ struct Job {
   YAML::Node toYaml();
 
   void addEvent(Event e);
+
+  void finish(User by, Timestamp at, std::string note = "Job finished.");
+  void reopen(std::string to_status);
 };
 
 } // namespace kan

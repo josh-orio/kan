@@ -24,6 +24,13 @@ void Job::fromYaml(YAML::Node yaml) {
   id          = yaml["id"].as<int>(0);
   archived    = yaml["archived"].as<bool>(false);
 
+  if (auto f = yaml["finished"]; f && f.IsMap()) {
+    finished      = true;
+    finisher      = User().fromYaml(f["by"]);
+    finished_at   = Timestamp(f["at"]);
+    finished_from = f["from"].as<std::string>("");
+  }
+
   comments = Comments(yaml["comments"]);
   commits  = Commits(yaml["commits"]);
   priority = yaml["priority"].as<Priority>();
@@ -44,12 +51,34 @@ YAML::Node Job::toYaml() {
   job["id"]          = id;
   job["archived"]    = archived;
 
+  if (finished) {
+    job["finished"]["by"]   = finisher.toYaml();
+    job["finished"]["at"]   = finished_at.toYaml();
+    job["finished"]["from"] = finished_from;
+  }
+
   job["comments"] = comments.toYaml();
   job["commits"]  = commits.toYaml();
   job["priority"] = priority;
   job["history"]  = history.toYaml();
 
   return job;
+}
+
+void Job::finish(User by, Timestamp at, std::string note) {
+  finished      = true;
+  finisher      = by;
+  finished_at   = at;
+  finished_from = status;
+
+  addEvent({note, by, at});
+}
+
+void Job::reopen(std::string to_status) {
+  finished = false;
+  status   = to_status;
+
+  addEvent({std::format("Job reopened to {}.", to_status), User().getFromSystem(), Timestamp().Now()});
 }
 
 void Job::addEvent(Event e) {

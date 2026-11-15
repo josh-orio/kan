@@ -9,7 +9,7 @@ namespace tui {
 
 class SettingsDialog : termui::Interface {
 private:
-  uint _width = 100, _height = 40;
+  uint _width = 64, _height = 8;
 
   void display();
   void process_input();

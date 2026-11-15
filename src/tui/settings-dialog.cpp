@@ -18,7 +18,20 @@ void SettingsDialog::display() {
   termui::terminal.MoveCursor(window_start_row + 1, window_start_col + 2);
   termui::Text("KAN I Change Some Settings?", termui::Styles::bold).width(_width - 4).height(1).render();
 
-  auto col_width = (_width - 6) / 2;
+  // f toggles finishing jobs that get moved into the last column
+  auto last = board.Statuses().empty() ? std::string("the last column") : board.Statuses().back();
+
+  termui::terminal.MoveCursor(window_start_row + 3, window_start_col + 4);
+  termui::Text(board.finish_on_last_column ? "[x]" : "[ ]", termui::Styles::bold).width(3).height(1).render();
+  termui::Text(std::format(" finish jobs moved into {}", last)).width(_width - 4 - 4 - 3).height(1).render();
+
+  termui::terminal.MoveCursor(window_start_row + _height - 2, window_start_col + 2);
+  kan::tui::ControlStrip({
+                             {"esc", "close"},
+                             {"f", "toggle"},
+                         })
+      .width(_width - 4)
+      .render();
 
   termui::terminal.flush();
 }
@@ -26,8 +39,12 @@ void SettingsDialog::display() {
 void SettingsDialog::process_input() {
   auto inp = termui::terminal.read();
 
-  if (inp == termui::key::ESC) {
+  if (inp == termui::key::ESC || inp == "q") {
     state = termui::Interface::State::Exit;
+  }
+  else if (inp == "f") {
+    board.finish_on_last_column = !board.finish_on_last_column;
+    board.saveBoard();
   }
 }
 

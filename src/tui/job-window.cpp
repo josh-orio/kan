@@ -112,6 +112,13 @@ void JobWindow::process_input() {
         _job_detail     = JobDetails(_job);
         _history_viewer = HistoryViewer(_job.history);
         _modified       = true;
+
+        if (board.finish_on_last_column && _job.status == statuses.back()) {
+          board.finishJob(_job);
+          _modified = false; // already saved
+          state     = termui::Interface::State::Exit;
+          return;
+        }
       }
     }
     if (inp == "p" || (inp == termui::key::ENTER && _job_detail.Focussed() == JobDetails::Focus::Priority)) { // set priority
@@ -169,6 +176,15 @@ void JobWindow::process_input() {
 
         _job_detail.Reload(_job);
         _history_viewer.Reload(_job.history);
+      }
+    }
+
+    if (inp == "f" && !_job.finished) {
+      if (DialogBox("Finish job", std::format("Finish #{} {}? It moves to the finished log (F on the board).", _job.id, _job.title), "finish", "cancel").show()) {
+        board.finishJob(_job); // saves any other edits made in this window too
+        _modified = false;
+        state     = termui::Interface::State::Exit;
+        return;
       }
     }
 

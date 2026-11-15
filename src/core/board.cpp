@@ -17,6 +17,8 @@ void Board::fromYaml(YAML::Node yaml) {
   title   = yaml["title"].as<std::string>();
   next_id = yaml["next_id"].as<int>(1);
 
+  finish_on_last_column = yaml["finish_on_last_column"].as<bool>(false);
+
   for (const auto &col : yaml["columns"]) {
     columns.push_back(kan::Column(col));
   }
@@ -26,6 +28,8 @@ YAML::Node Board::toYaml() {
   YAML::Node yaml;
   yaml["title"]   = title;
   yaml["next_id"] = next_id;
+
+  yaml["finish_on_last_column"] = finish_on_last_column;
 
   std::vector<YAML::Node> col_jsons;
   for (auto &c : columns) {
@@ -66,6 +70,12 @@ Job *Board::findJob(int id) {
     }
   }
 
+  for (auto &job : finished) {
+    if (job.id == id) {
+      return &job;
+    }
+  }
+
   for (auto &job : archive) { // commits can still be linked to archived jobs
     if (job.id == id) {
       return &job;
@@ -91,6 +101,29 @@ void Board::deleteJob(kan::Job job) {
 void Board::archiveJob(kan::Job job) {
   job.archived = true;
   job.addEvent({"Job archived.", User().getFromSystem(), Timestamp().Now()});
+
+  saveJob(job);
+  reloadJobs();
+}
+
+void Board::finishJob(kan::Job job) {
+  job.finish(User().getFromSystem(), Timestamp().Now());
+  struck.insert(job.uuid);
+
+  saveJob(job);
+  reloadJobs();
+}
+
+void Board::reopenJob(kan::Job job) {
+  auto statuses = Statuses();
+  auto to       = job.finished_from.empty() ? job.status : job.finished_from;
+
+  if (std::find(statuses.begin(), statuses.end(), to) == statuses.end() && !statuses.empty()) {
+    to = statuses.front();
+  }
+
+  job.reopen(to);
+  struck.erase(job.uuid);
 
   saveJob(job);
   reloadJobs();
@@ -171,6 +204,14 @@ void Board::loadJobs() {
       continue;
     }
 
+    if (loaded_job.finished) {
+      finished.push_back(loaded_job);
+
+      if (!struck.contains(loaded_job.uuid)) { // struck jobs also stay in their column for now
+        continue;
+      }
+    }
+
     for (auto &col : board.Columns()) {
       if (col.title == loaded_job.status) {
         col.Jobs().push_back(loaded_job);
@@ -186,6 +227,7 @@ void Board::loadJobs() {
 
   // archiving is the last thing that happens to a job, so updated is when it was archived
   std::sort(archive.begin(), archive.end(), [](const kan::Job &a, const kan::Job &b) { return a.updated.time > b.updated.time; });
+  std::sort(finished.begin(), finished.end(), [](const kan::Job &a, const kan::Job &b) { return a.finished_at.time > b.finished_at.time; });
 }
 
 void Board::saveJob(uint col, uint row) {
@@ -212,6 +254,7 @@ void Board::reloadJobs() {
     col.Jobs().clear();
   }
   archive.clear();
+  finished.clear();
 
   loadJobs();
 

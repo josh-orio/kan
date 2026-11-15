@@ -25,7 +25,7 @@ static std::string lower(std::string s) {
 
 // every word in the query has to match - "#12" or "12" matches job number 12, anything else is a
 // case-insensitive substring of the title or description
-static bool matches(const kan::Job &job, const std::string &query) {
+bool jobMatches(const kan::Job &job, const std::string &query) {
   auto text = lower(job.title + "\n" + job.description);
 
   std::istringstream words(lower(query));
@@ -48,7 +48,7 @@ std::vector<unsigned int> Board::visibleRows(unsigned int col) {
   auto                     &jobs = board.Jobs(col);
 
   for (unsigned int i = 0; i < jobs.size(); i++) {
-    if (matches(jobs[i], _query)) {
+    if (jobMatches(jobs[i], _query)) {
       rows.push_back(i);
     }
   }
@@ -233,6 +233,8 @@ void Board::display() {
                        {"/", "search"},
                        {"o", "open"},
                        {"n", "new job"},
+                       {"f", "finish"},
+                       {"F", "finished"},
                        {"a", "archive"},
                        {"?", "help"},
                        {"s", "settings"},
@@ -344,6 +346,25 @@ void Board::process_input() {
 
   else if (inp == "a") {
     tui::ArchiveWindow().show();
+  }
+
+  else if (inp == "F") {
+    tui::FinishedWindow().show();
+  }
+
+  else if (inp == "f") { // strike off the selected job, or un-strike it
+    auto rows = visibleRows(ActiveColumn());
+
+    if (ActiveRow() < rows.size()) {
+      auto job = board.Job(ActiveColumn(), rows.at(ActiveRow()));
+
+      if (job.finished) {
+        board.reopenJob(job);
+      }
+      else if (DialogBox("Finish job", std::format("Finish #{} {}? It moves to the finished log (F).", job.id, job.title), "finish", "cancel").show()) {
+        board.finishJob(job);
+      }
+    }
   }
 
   else if (inp == "?") {

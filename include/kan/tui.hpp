@@ -14,6 +14,7 @@
 #include <kan/tui/description.hpp>
 #include <kan/tui/dialog-box.hpp>
 #include <kan/tui/diff-viewer.hpp>
+#include <kan/tui/finished-window.hpp>
 #include <kan/tui/help-dialog.hpp>
 #include <kan/tui/history-viewer.hpp>
 #include <kan/tui/job-cell.hpp>
