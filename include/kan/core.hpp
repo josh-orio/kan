@@ -13,6 +13,7 @@
 #include <kan/core/uuid.hpp>
 #include <kan/core/commits.hpp>
 #include <kan/core/git.hpp>
+#include <kan/core/watcher.hpp>
 
 namespace kan {
 extern Board &board;

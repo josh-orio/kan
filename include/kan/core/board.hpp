@@ -34,6 +34,8 @@ public:
 
   Board(std::string path);
 
+  std::filesystem::path Path(); // the .kan directory
+
   void       fromYaml(YAML::Node yaml);
   YAML::Node toYaml();
 
@@ -67,6 +69,7 @@ public:
   void saveJob(kan::Job);
 
   void reloadJobs();
+  bool refresh(); // re-reads everything changed outside kan (eg by a git pull), true if the columns were replaced
 
   void               loadBranches();
   const git::Branch *branchFor(int id); // nullptr if the job has no branch

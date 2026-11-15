@@ -124,10 +124,22 @@ void Board::show() {
     }
   }
 
+  auto dir   = board.Path();
+  _kan_watch = kan::Watcher({dir / "kan.yaml", dir / "jobs", dir / "contributors.yaml"});
+
+  if (auto git_dir = git::gitDir(); !git_dir.empty()) {
+    auto common = git::commonDir();
+    _git_watch  = kan::Watcher({git_dir / "HEAD", git_dir / "logs" / "HEAD", common / "packed-refs", common / "refs" / "heads"});
+  }
+
   state = State::Continue;
 
   do {
-    display();
+    if (_redraw) {
+      display();
+    }
+    _redraw = true;
+
     process_input();
 
   } while (state == State::Continue);
@@ -247,8 +259,60 @@ void Board::display() {
   termui::terminal.flush();
 }
 
+bool Board::refresh() {
+  bool changed = termui::terminal.width() != _width || termui::terminal.height() != _height; // resized
+
+  if (_git_watch.changed()) {
+    board.loadBranches();
+    changed = true;
+  }
+
+  if (!_kan_watch.changed()) {
+    return changed;
+  }
+
+  // keep the cursor on the same job if it's still in this column
+  auto        rows     = visibleRows(_active_col);
+  std::string selected = _active_row < rows.size() ? board.Job(_active_col, rows[_active_row]).uuid : "";
+
+  try {
+    if (board.refresh()) { // the tui columns point into the old ones
+      _columns.clear();
+      for (auto &c : board.columns) {
+        _columns.push_back(tui::Column(c));
+      }
+
+      _active_col = std::min<uint>(_active_col, board.columns.empty() ? 0 : board.columns.size() - 1);
+    }
+  }
+  catch (const std::exception &e) { // a file caught half written, mid pull say - have another go next time
+    logMessage(std::string("refresh failed: ") + e.what());
+    _kan_watch.reset();
+  }
+
+  if (board.columns.empty()) {
+    return true;
+  }
+
+  rows        = visibleRows(_active_col);
+  _active_row = std::min<uint>(_active_row, rows.empty() ? 0 : rows.size() - 1);
+
+  for (uint i = 0; i < rows.size(); i++) {
+    if (board.Job(_active_col, rows[i]).uuid == selected) {
+      _active_row = i;
+    }
+  }
+
+  return true;
+}
+
 void Board::process_input() {
-  std::string inp = termui::terminal.read();
+  std::string inp = readKey(1000);
+
+  if (inp.empty()) { // nothing pressed, see if anything changed under us
+    _redraw = refresh();
+    return;
+  }
 
   // while typing a search, keys go into the query (arrows still move through the results)
   if (_searching) {

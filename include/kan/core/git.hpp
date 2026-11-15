@@ -1,6 +1,7 @@
 #ifndef CORE_GIT_HPP
 #define CORE_GIT_HPP
 
+#include <filesystem>
 #include <kan/core/commits.hpp>
 #include <string>
 #include <vector>
@@ -39,6 +40,9 @@ std::string jobBranchName(int id, const std::string &title); // 12, "Fix login c
 int         branchJobId(const std::string &branch);          // 12-fix-login-crash or josh/12-fix -> 12, 0 if it isn't a job branch
 
 std::string switchBranch(const std::string &name, bool create); // git switch [-c], returns git's error or "" on success
+
+std::filesystem::path gitDir();    // .git of this worktree, empty outside a git repo
+std::filesystem::path commonDir(); // .git shared by every worktree - branches live here
 
 } // namespace git
 } // namespace kan

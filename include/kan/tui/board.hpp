@@ -25,6 +25,13 @@ private:
   std::vector<unsigned int> visibleRows(unsigned int col); // indices of the jobs in a column that match the search
   void                      setQuery(std::string query);
 
+  // live refresh - the board is checked about once a second while it waits for a key
+  kan::Watcher _kan_watch; // kan.yaml, jobs/, contributors.yaml
+  kan::Watcher _git_watch; // HEAD and branches, for the ⎇ markers
+  bool         _redraw = true;
+
+  bool refresh(); // true if anything on screen needs redrawing
+
   void display();
   void process_input();
   void internal_update();

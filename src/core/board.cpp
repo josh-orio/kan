@@ -13,6 +13,8 @@ Board &Board::instance() {
 
 Board::Board(std::string path) : _path(path) {}
 
+std::filesystem::path Board::Path() { return _path; }
+
 void Board::fromYaml(YAML::Node yaml) {
   title   = yaml["title"].as<std::string>();
   next_id = yaml["next_id"].as<int>(1);
@@ -258,6 +260,47 @@ void Board::reloadJobs() {
 
   loadJobs();
 
+}
+
+bool Board::refresh() {
+  kan::Board fresh(_path);
+  fresh.fromYaml(YAML::LoadFile(_path / "kan.yaml"));
+
+  title                 = fresh.title;
+  next_id               = std::max(next_id, fresh.next_id);
+  finish_on_last_column = fresh.finish_on_last_column;
+
+  bool replace_columns = fresh.Statuses() != Statuses();
+  if (replace_columns) {
+    columns = fresh.columns;
+  }
+
+  // a job finished while it's on the board, by a commit say, gets struck through like one finished here
+  std::set<std::string> on_board;
+  for (auto &col : columns) {
+    for (auto &job : col.Jobs()) {
+      if (!job.finished) {
+        on_board.insert(job.uuid);
+      }
+    }
+  }
+
+  reloadJobs();
+
+  bool newly_struck = false;
+  for (auto &job : finished) {
+    if (on_board.contains(job.uuid)) {
+      newly_struck |= struck.insert(job.uuid).second;
+    }
+  }
+
+  if (newly_struck) {
+    reloadJobs();
+  }
+
+  loadContributors();
+
+  return replace_columns;
 }
 
 void Board::loadBranches() {

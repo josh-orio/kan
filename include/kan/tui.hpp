@@ -17,6 +17,7 @@
 #include <kan/tui/finished-window.hpp>
 #include <kan/tui/help-dialog.hpp>
 #include <kan/tui/history-viewer.hpp>
+#include <kan/tui/input.hpp>
 #include <kan/tui/job-cell.hpp>
 #include <kan/tui/job-details.hpp>
 #include <kan/tui/job-window.hpp>

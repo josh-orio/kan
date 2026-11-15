@@ -358,5 +358,19 @@ std::string switchBranch(const std::string &name, bool create) {
   return output.empty() ? std::string("git switch failed") : output;
 }
 
+static std::filesystem::path revParse(const std::string &args) {
+  auto [status, output] = exec(std::format("git rev-parse {} 2>/dev/null", args));
+  output.erase(output.find_last_not_of("\n") + 1);
+
+  return status == 0 ? std::filesystem::path(output) : std::filesystem::path();
+}
+
+std::filesystem::path gitDir() { return revParse("--absolute-git-dir"); }
+
+std::filesystem::path commonDir() {
+  auto dir = revParse("--path-format=absolute --git-common-dir"); // git 2.31+
+  return dir.empty() ? gitDir() : dir;
+}
+
 } // namespace git
 } // namespace kan
