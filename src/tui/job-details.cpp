@@ -186,13 +186,28 @@ void JobDetails::render() {
     termui::terminal.write("·");
   }
 
+  // branch, right aligned on the assignee row: "⎇ 12-fix-login-crash · merged"
+  unsigned int branch_w = 0;
+
+  if (auto branch = board.branchFor(_job.id)) {
+    auto state = branch->current ? std::string(" · checked out") : branch->merged ? std::string(" · merged") : std::string();
+    auto text  = "⎇ " + branch->name + state;
+
+    branch_w = std::min<unsigned int>(termui::visible_length(text), _width / 2);
+
+    termui::terminal.MoveCursor(row + 2, col + _width - branch_w);
+    termui::Text(text, termui::Styles::faint).width(branch_w).height(1).align(termui::Text::Alignment::Right).render();
+  }
+
   // assignee
+  auto assignee_w = _width - 2 - (branch_w > 0 ? branch_w + 2 : 0);
+
   termui::terminal.MoveCursor(row + 2, col + 2);
   if (_job.assignee.name.empty()) {
-    termui::Text("No assignee", termui::Styles::faint).width(_width - 2).height(1).render();
+    termui::Text("No assignee", termui::Styles::faint).width(assignee_w).height(1).render();
   }
   else {
-    termui::Text(_job.assignee.Name(), ::tui::stls::bold).width(_width - 2).height(1).render();
+    termui::Text(_job.assignee.Name(), ::tui::stls::bold).width(assignee_w).height(1).render();
   }
 
   // created

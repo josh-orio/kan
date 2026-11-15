@@ -30,6 +30,7 @@ KAN::KAN(std::string path) : _path() {
   board.loadIssues();
   board.loadStyleMap();
   board.loadContributors();
+  board.loadBranches();
 
   board.styleMap.add("default", termui::Style(termui::terminal.ForegroundColor(), termui::terminal.BackgroundColor()));
 

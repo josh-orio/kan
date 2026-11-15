@@ -260,6 +260,30 @@ void Board::reloadJobs() {
 
 }
 
+void Board::loadBranches() {
+  branches.clear();
+
+  // the checked out branch wins if a job has a few, then one still being worked on
+  auto rank = [](const git::Branch &b) { return b.current ? 2 : !b.merged ? 1 : 0; };
+
+  for (auto &branch : git::branches()) {
+    int id = git::branchJobId(branch.name);
+
+    if (id == 0) {
+      continue;
+    }
+
+    if (auto it = branches.find(id); it == branches.end() || rank(branch) > rank(it->second)) {
+      branches[id] = branch;
+    }
+  }
+}
+
+const git::Branch *Board::branchFor(int id) {
+  auto it = branches.find(id);
+  return it == branches.end() ? nullptr : &it->second;
+}
+
 void Board::saveIssue(Issue issue) {
 
   YAML::Emitter out;

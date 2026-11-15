@@ -6,6 +6,8 @@ namespace tui {
 DialogBox::DialogBox(const std::string &title, const std::string &text, const std::string &yes, const std::string &no)
     : _title(title), _text(text), _yes(yes), _no(no) {}
 
+void DialogBox::notice(const std::string &title, const std::string &text) { DialogBox(title, text, "ok", "").show(); }
+
 bool DialogBox::show() {
   state = State::Continue;
 
@@ -39,18 +41,22 @@ void DialogBox::display() {
 
   // control bar
   termui::terminal.MoveCursor(window_start_row + _height - 2, window_start_col + 2);
-  kan::tui::ControlStrip({
-                             {"y", _yes},
-                             {"n", _no},
-                         })
-      .width(_width - 4)
-      .render();
+  auto strip = _no.empty() ? kan::tui::ControlStrip({{"↵", _yes}}) : kan::tui::ControlStrip({{"y", _yes}, {"n", _no}});
+  strip.width(_width - 4).render();
 
   termui::terminal.flush();
 }
 
 void DialogBox::process_input() {
   std::string inp = termui::terminal.read();
+
+  if (_no.empty()) { // a notice
+    if (inp == termui::key::ENTER || inp == termui::key::ESC || inp == "y" || inp == "n" || inp == "q") {
+      _answer = true;
+      state   = State::Select;
+    }
+    return;
+  }
 
   if (inp == "y" || inp == "Y") {
     _answer = true;

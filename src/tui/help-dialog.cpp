@@ -27,6 +27,7 @@ const std::vector<HelpSection> boardHelp = {
          {"", "commit to job 12 - it shows up in the job's"},
          {"", "Commits tab. \"fixes #12\" (or closes, finishes,"},
          {"", "resolves) finishes the job too."},
+         {"⎇", "the job has a branch, ⎇✓ it's been merged"},
      }},
 };
 
@@ -56,6 +57,11 @@ const std::vector<HelpSection> jobWindowHelp = {
      {
          {"↵", "view commit, then ↵ on a file for its diff"},
          {"s", "toggle side by side diff"},
+     }},
+    {"Git",
+     {
+         {"g", "switch to the job's branch, creating it"},
+         {"", "(12-fix-login-crash) if it doesn't exist"},
      }},
 };
 

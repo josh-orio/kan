@@ -13,6 +13,8 @@ public:
 
   bool show(); // t = y pressed, f = n pressed
 
+  static void notice(const std::string &title, const std::string &text); // nothing to answer, ↵ or esc closes it
+
 private:
   std::string _title, _text, _yes, _no;
 

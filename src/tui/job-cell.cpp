@@ -44,7 +44,14 @@ void JobCell::render() {
 
   termui::Text(" " + _job.title).style(strike(_focussed ? row_style_bold : termui::Style())).size(_width - 11, 1).render();
 
-  termui::PaddedText("#" + std::to_string(_job.id))
+  // ⎇ the job has a branch, ⎇✓ and it's been merged
+  std::string label = "#" + std::to_string(_job.id);
+
+  if (auto branch = board.branchFor(_job.id)) {
+    label = (branch->merged ? "⎇✓ " : "⎇ ") + label;
+  }
+
+  termui::PaddedText(label)
       .setPadding(termui::PaddingStyle::label)
       .style(_focussed ? row_style_faint: termui::Styles::faint)
       .size(11, 1)

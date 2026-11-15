@@ -3,6 +3,8 @@
 
 #include <filesystem>
 #include <kan/core/column.hpp>
+#include <kan/core/git.hpp>
+#include <map>
 #include <set>
 #include <vector>
 
@@ -24,6 +26,7 @@ public:
   std::vector<kan::Job>    finished;     // finished jobs, most recently finished first
   std::set<std::string>    struck;       // uuids finished this session - they stay on the board, struck through, until kan closes
   bool                     finish_on_last_column = false; // moving a job into the last column finishes it
+  std::map<int, git::Branch> branches;                    // job id -> its branch (12-fix-login-crash), read from git
 
   termui::StyleMap styleMap;
 
@@ -64,6 +67,9 @@ public:
   void saveJob(kan::Job);
 
   void reloadJobs();
+
+  void               loadBranches();
+  const git::Branch *branchFor(int id); // nullptr if the job has no branch
 
   void saveIssue(Issue issue);
   void loadIssues();

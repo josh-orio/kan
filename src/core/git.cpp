@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <cctype>
+#include <charconv>
 #include <cstdio>
 #include <format>
 #include <kan/core.hpp>
@@ -12,7 +15,8 @@ static void checkHash(const std::string &hash) {
   }
 }
 
-static std::string run(const std::string &cmd) {
+// runs a command, giving back its exit status and stdout
+static std::pair<int, std::string> exec(const std::string &cmd) {
   FILE *pipe = popen(cmd.c_str(), "r");
 
   if (pipe == nullptr) {
@@ -26,11 +30,34 @@ static std::string run(const std::string &cmd) {
     output.append(buffer, n);
   }
 
-  if (pclose(pipe) != 0) {
+  return {pclose(pipe), output};
+}
+
+static std::string run(const std::string &cmd) {
+  auto [status, output] = exec(cmd);
+
+  if (status != 0) {
     throw std::runtime_error("git failed: " + cmd);
   }
 
   return output;
+}
+
+static std::vector<std::string> lines(const std::string &output) {
+  std::vector<std::string> out;
+  size_t                   pos = 0;
+
+  while (pos < output.size()) {
+    size_t next = output.find('\n', pos);
+    if (next == std::string::npos) {
+      next = output.size();
+    }
+
+    out.push_back(output.substr(pos, next - pos));
+    pos = next + 1;
+  }
+
+  return out;
 }
 
 // splits git's -z output on NULs
@@ -199,6 +226,136 @@ std::vector<std::string> fileDiff(const std::string &hash, const FileChange &fil
   }
 
   return lines;
+}
+
+std::string defaultBranch() {
+  auto exists = [](const std::string &ref) { return exec(std::format("git show-ref --verify --quiet {} 2>/dev/null", quote(ref))).first == 0; };
+
+  // a clone knows the remote's default, prefer the local copy of it since that's what gets merged into first
+  auto [status, origin] = exec("git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null");
+  origin.erase(origin.find_last_not_of("\n") + 1);
+
+  if (status == 0 && origin.starts_with("origin/")) {
+    auto name = origin.substr(7);
+    return exists("refs/heads/" + name) ? name : origin;
+  }
+
+  for (std::string name : {"main", "master"}) {
+    if (exists("refs/heads/" + name)) {
+      return name;
+    }
+  }
+
+  return "";
+}
+
+std::vector<Branch> branches() {
+  auto [status, output] = exec("git for-each-ref --format='%(refname:short)%00%(objectname)%00%(HEAD)' refs/heads 2>/dev/null");
+
+  if (status != 0) {
+    return {};
+  }
+
+  std::vector<Branch> out;
+
+  for (const auto &line : lines(output)) {
+    auto parts = fields(line);
+
+    if (parts.size() < 3) {
+      continue;
+    }
+
+    out.push_back({parts[0], parts[1], parts[2] == "*"});
+  }
+
+  auto target = defaultBranch();
+
+  if (target.empty()) {
+    return out;
+  }
+
+  auto [merged_status, merged_output] = exec(std::format("git for-each-ref --merged {} --format='%(refname:short)' refs/heads 2>/dev/null", quote(target)));
+
+  if (merged_status != 0) {
+    return out;
+  }
+
+  auto merged = lines(merged_output);
+
+  auto [tip_status, target_tip] = exec(std::format("git rev-parse {} 2>/dev/null", quote(target)));
+  target_tip.erase(target_tip.find_last_not_of("\n") + 1);
+
+  for (auto &branch : out) {
+    if (branch.name == target || branchJobId(branch.name) == 0 || std::find(merged.begin(), merged.end(), branch.name) == merged.end()) {
+      continue;
+    }
+
+    // a branch that was just created is "merged" too, as nothing is on it yet. the reflog tells them apart -
+    // one entry means it hasn't moved since it was created. only job branches are checked, it's a git call each
+    auto [reflog_status, reflog] = exec(std::format("git reflog show --format=%H {} -- 2>/dev/null", quote("refs/heads/" + branch.name)));
+    auto moves                   = lines(reflog).size();
+
+    if (reflog_status == 0 && moves > 0) {
+      branch.merged = moves > 1;
+    }
+    else { // no reflog, eg a branch that came from a fetch - best guess
+      branch.merged = branch.tip != target_tip;
+    }
+  }
+
+  return out;
+}
+
+std::string jobBranchName(int id, const std::string &title) {
+  std::string slug;
+  bool        gap = false;
+
+  for (unsigned char c : title) {
+    if (std::isalnum(c) && c < 128) {
+      if (gap && !slug.empty()) {
+        slug += '-';
+      }
+      slug += static_cast<char>(std::tolower(c));
+      gap = false;
+    }
+    else {
+      gap = true;
+    }
+  }
+
+  // keep it short, cutting at a word break
+  constexpr size_t max = 40;
+
+  if (slug.size() > max) {
+    auto cut = slug.rfind('-', max);
+    slug     = slug.substr(0, cut == std::string::npos ? max : cut);
+  }
+
+  return slug.empty() ? std::to_string(id) : std::format("{}-{}", id, slug);
+}
+
+int branchJobId(const std::string &branch) {
+  auto name = branch.substr(branch.rfind('/') + 1); // josh/12-fix -> 12-fix
+
+  int  id = 0;
+  auto [ptr, ec] = std::from_chars(name.data(), name.data() + name.size(), id);
+
+  if (ec != std::errc() || ptr == name.data() || id <= 0) {
+    return 0;
+  }
+
+  return ptr == name.data() + name.size() || *ptr == '-' ? id : 0;
+}
+
+std::string switchBranch(const std::string &name, bool create) {
+  auto [status, output] = exec(std::format("git switch {}{} 2>&1", create ? "-c " : "", quote(name)));
+
+  if (status == 0) {
+    return "";
+  }
+
+  output.erase(output.find_last_not_of("\n") + 1);
+  return output.empty() ? std::string("git switch failed") : output;
 }
 
 } // namespace git

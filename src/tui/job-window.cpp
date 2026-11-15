@@ -57,6 +57,9 @@ void JobWindow::process_input() {
   else if (inp == termui::key::ESC || inp == "q") {
     state = termui::Interface::State::Exit;
   }
+  else if (inp == "g") {
+    switchToBranch();
+  }
   else if (inp == termui::key::Tab) {
     _tab_bar.TabIncrement();
   }
@@ -240,6 +243,38 @@ void JobWindow::process_input() {
     }
   }
 
+}
+
+// g - check out the job's branch, making it first if there isn't one
+void JobWindow::switchToBranch() {
+  auto branch = board.branchFor(_job.id);
+
+  if (branch && branch->current) {
+    DialogBox::notice("Branch", std::format("You're already on {}.", branch->name));
+    return;
+  }
+
+  auto name   = branch ? branch->name : git::jobBranchName(_job.id, _job.title);
+  auto create = branch == nullptr;
+
+  auto question = create ? std::format("Create the branch {} and switch to it?", name) : std::format("Switch to the branch {}?", name);
+
+  if (!DialogBox("Branch", question, "switch", "cancel").show()) {
+    return;
+  }
+
+  if (auto error = git::switchBranch(name, create); !error.empty()) {
+    DialogBox::notice("Couldn't switch branch", error);
+    return;
+  }
+
+  if (create) {
+    _job.addEvent({std::format("Branch {} created.", name), User().getFromSystem(), Timestamp().Now()});
+    _history_viewer.Reload(_job.history);
+    _modified = true;
+  }
+
+  board.loadBranches();
 }
 
 std::pair<bool, kan::Job> JobWindow::show() {

@@ -28,6 +28,8 @@ class JobWindow : termui::Interface {
   void display();
   void process_input();
 
+  void switchToBranch();
+
 public:
   JobWindow(kan::Job job);
 
