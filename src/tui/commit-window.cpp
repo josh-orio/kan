@@ -110,12 +110,12 @@ void CommitWindow::display() {
 
     if (_diff_mode) {
       termui::terminal.MoveCursor(r, 2);
-      _diff.size(content_w, _height > r + 2 ? _height - r - 2 : 0).render();
+      _diff.size(content_w, _height > r + 1 ? _height - r - 1 : 0).render();
     }
 
     // file list
     if (!_diff_mode) {
-      _visible_rows = _height > r + 2 ? _height - r - 2 : 0;
+      _visible_rows = _height > r + 1 ? _height - r - 1 : 0;
 
       if (_cursor < _start_line) {
         _start_line = _cursor;
@@ -157,7 +157,7 @@ void CommitWindow::display() {
   }
 
   // control strip
-  termui::terminal.MoveCursor(_height - 1, 2);
+  termui::terminal.MoveCursor(_height, 2); // rows are 1-based, so this is the last row
   if (_diff_mode) {
     kan::tui::ControlStrip({
                                {"esc", "back to files"},
