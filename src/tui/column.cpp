@@ -5,6 +5,16 @@ namespace tui {
 
 Column::Column(kan::Column &column) : _column(&column), _cursor(0), _start_line(0) {}
 
+Column &Column::filter(std::vector<unsigned int> rows) {
+  if (rows != _rows) { // the result set changed, start from the top again
+    _cursor     = 0;
+    _start_line = 0;
+  }
+
+  _rows = rows;
+  return *this;
+}
+
 Column &Column::width(uint n) {
   _width = n;
   return *this;
@@ -31,13 +41,13 @@ Column &Column::cursorUp() {
 
 Column &Column::cursorDown() {
 
-  _cursor + 1 < _column->jobs.size() ? _cursor++ : _cursor;
+  _cursor + 1 < _rows.size() ? _cursor++ : _cursor;
   _cursor >= _start_line + _visible_rows ? _start_line = _cursor - _visible_rows + 1 : _start_line;
   return *this;
 }
 
 Column &Column::setCursor(unsigned int row) {
-  _cursor = std::min<unsigned int>(row, _column->jobs.size());
+  _cursor = std::min<unsigned int>(row, _rows.size());
   return *this;
 }
 
@@ -47,7 +57,7 @@ Column &Column::gotoTop() {
 }
 
 Column &Column::gotoBottom() {
-  _cursor = _column->jobs.size() - 1;
+  _cursor = _rows.empty() ? 0 : _rows.size() - 1;
   return *this;
 }
 
@@ -69,13 +79,13 @@ void Column::render() {
   int line_height  = 2;
   int line_spacing = 2;
 
-  if (_focussed && _column->Jobs().size() == 0) {
+  if (_focussed && _rows.empty()) {
     auto row_style = board.styleMap.at("highlight");
     termui::Text("").width(_width).height(2).style(row_style).render();
   }
   else {
-    for (int i = _start_line; i < std::min(_column->Jobs().size(), static_cast<size_t>(_start_line + _visible_rows)); i++) {
-      JobCell(_column->Jobs()[i]).width(_width).setFocus(_focussed && i == _cursor).render();
+    for (int i = _start_line; i < std::min(_rows.size(), static_cast<size_t>(_start_line + _visible_rows)); i++) {
+      JobCell(_column->Jobs()[_rows[i]]).width(_width).setFocus(_focussed && i == _cursor).render();
       // give style here
       termui::terminal.CursorDown(3).CursorLeft(_width);
     }

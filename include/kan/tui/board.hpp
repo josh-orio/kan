@@ -17,6 +17,12 @@ private:
 
   std::vector<tui::Column> _columns;
 
+  std::string _query;             // search text, matched against job title, description and number
+  bool        _searching = false; // typing into the search bar
+
+  std::vector<unsigned int> visibleRows(unsigned int col); // indices of the jobs in a column that match the search
+  void                      setQuery(std::string query);
+
   void display();
   void process_input();
   void internal_update();

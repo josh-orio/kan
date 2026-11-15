@@ -1,6 +1,8 @@
 #include <kan/tui.hpp>
 
+#include <algorithm>
 #include <format>
+#include <sstream>
 
 namespace kan {
 namespace tui {
@@ -14,6 +16,49 @@ Board::Board() : _active_col(0), _active_row(0) {
     for (auto &c : board.columns) {
     _columns.push_back(tui::Column(c));
   }
+}
+
+static std::string lower(std::string s) {
+  std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
+  return s;
+}
+
+// every word in the query has to match - "#12" or "12" matches job number 12, anything else is a
+// case-insensitive substring of the title or description
+static bool matches(const kan::Job &job, const std::string &query) {
+  auto text = lower(job.title + "\n" + job.description);
+
+  std::istringstream words(lower(query));
+  std::string        word;
+
+  while (words >> word) {
+    auto number = word.starts_with("#") ? word.substr(1) : word;
+    bool is_id  = !number.empty() && number.find_first_not_of("0123456789") == std::string::npos && std::to_string(job.id) == number;
+
+    if (!is_id && text.find(word) == std::string::npos) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+std::vector<unsigned int> Board::visibleRows(unsigned int col) {
+  std::vector<unsigned int> rows;
+  auto                     &jobs = board.Jobs(col);
+
+  for (unsigned int i = 0; i < jobs.size(); i++) {
+    if (matches(jobs[i], _query)) {
+      rows.push_back(i);
+    }
+  }
+
+  return rows;
+}
+
+void Board::setQuery(std::string query) {
+  _query      = query;
+  _active_row = 0;
 }
 
 Board &Board::width(uint n) {
@@ -36,24 +81,24 @@ void Board::Up(uint n) {
 }
 
 void Board::Down(uint n) {
-  _active_row = std::min<int>(board.Jobs(_active_col).size() == 0 ? 0 : board.Jobs(_active_col).size() - 1, _active_row + n);
+  auto count  = visibleRows(_active_col).size();
+  _active_row = std::min<int>(count == 0 ? 0 : count - 1, _active_row + n);
   _columns.at(_active_col).cursorDown();
 }
 
 void Board::Left(uint n) {
   _active_col = std::max<int>(0, _active_col - n);
 
-  if (_active_row > board.Jobs(_active_col).size()) {
-    _active_row = board.Jobs(_active_col).size();
-
+  if (_active_row > visibleRows(_active_col).size()) {
+    _active_row = visibleRows(_active_col).size();
   }
 }
 
 void Board::Right(uint n) {
   _active_col = std::min<int>(board.Columns().size() - 1, _active_col + n);
 
-  if (_active_row > board.Jobs(_active_col).size()) {
-    _active_row = board.Jobs(_active_col).size();
+  if (_active_row > visibleRows(_active_col).size()) {
+    _active_row = visibleRows(_active_col).size();
   }
 }
 
@@ -126,6 +171,8 @@ void Board::display() {
 
       auto& column = _columns.at(i);
 
+      column.filter(visibleRows(i));
+
       if (i == _active_col) {
         column.focus();
 
@@ -150,17 +197,49 @@ void Board::display() {
 
     termui::terminal.MoveCursor(termui::terminal.height(), 2);
 
-    ControlStrip({
-                     {"←↑↓→", "navigate"},
-                     {"tab", "section"},
-                     {"o", "open"},
-                     {"n", "new job"},
-                     {"?", "help"},
-                     {"s", "settings"},
-                     {"q", "quit"},
-                 })
-        .width(_width - 2)
-        .render();
+    if (_searching || !_query.empty()) {
+      // search bar replaces the control strip: "/ query  3 matches          esc clear  ↵ done"
+      unsigned int count = 0;
+      for (unsigned int i = 0; i < board.Columns().size(); i++) {
+        count += visibleRows(i).size();
+      }
+
+      auto strip = _searching ? ControlStrip({{"esc", "clear"}, {"↑↓", "navigate"}, {"↵", "done"}}) : ControlStrip({{"esc", "clear"}, {"/", "edit search"}, {"o", "open"}});
+      auto strip_w = 34u;
+      auto bar_w   = _width - 2 > strip_w + 1 ? _width - 2 - strip_w - 1 : 0;
+
+      termui::TextRow(bar_w)
+          .add(termui::Text("/", termui::Styles::bold))
+          .add(termui::Text(_query.empty() ? std::string("search title, description or #number") : _query, _query.empty() ? termui::Styles::faint : termui::Style()))
+          .add(termui::Text(std::format("{} {}", count, count == 1 ? "match" : "matches"), termui::Styles::faint))
+          .render();
+
+      termui::terminal.MoveCursor(termui::terminal.height(), 2 + bar_w + 1);
+      strip.width(strip_w).render();
+
+      if (_searching) { // park the terminal cursor at the end of the query
+        termui::terminal.MoveCursor(termui::terminal.height(), 2 + 2 + termui::visible_length(_query));
+        termui::terminal.ShowCursor();
+      }
+      else {
+        termui::terminal.HideCursor();
+      }
+    }
+    else {
+      termui::terminal.HideCursor();
+
+      ControlStrip({
+                       {"←↑↓→", "navigate"},
+                       {"/", "search"},
+                       {"o", "open"},
+                       {"n", "new job"},
+                       {"?", "help"},
+                       {"s", "settings"},
+                       {"q", "quit"},
+                   })
+          .width(_width - 2)
+          .render();
+    }
 
   termui::terminal.flush();
 }
@@ -168,7 +247,46 @@ void Board::display() {
 void Board::process_input() {
   std::string inp = termui::terminal.read();
 
-  if (inp == "q") {
+  // while typing a search, keys go into the query (arrows still move through the results)
+  if (_searching) {
+    if (inp == termui::key::ESC) {
+      _searching = false;
+      setQuery("");
+    }
+    else if (inp == termui::key::ENTER) {
+      _searching = false;
+    }
+    else if (inp == termui::key::DEL) {
+      if (!_query.empty()) {
+        setQuery(_query.substr(0, _query.size() - 1));
+      }
+    }
+    else if (inp == termui::key::U_ARROW) {
+      Up();
+    }
+    else if (inp == termui::key::D_ARROW) {
+      Down();
+    }
+    else if (inp == termui::key::L_ARROW) {
+      Left();
+    }
+    else if (inp == termui::key::R_ARROW) {
+      Right();
+    }
+    else if (inp.size() == 1 && std::isprint(static_cast<unsigned char>(inp[0]))) {
+      setQuery(_query + inp);
+    }
+
+    return;
+  }
+
+  if (inp == "/") {
+    _searching = true;
+  }
+  else if (inp == termui::key::ESC && !_query.empty()) {
+    setQuery("");
+  }
+  else if (inp == "q") {
     state = termui::Interface::State::Exit;
     // serialize board out to disk
   }
@@ -202,7 +320,13 @@ void Board::process_input() {
 
       // seralize job out to disk
 
-      auto [modified, job] = tui::JobWindow(board.Job(ActiveColumn(), ActiveRow())).show();
+      auto rows = visibleRows(ActiveColumn());
+
+      if (ActiveRow() >= rows.size()) {
+        return;
+      }
+
+      auto [modified, job] = tui::JobWindow(board.Job(ActiveColumn(), rows.at(ActiveRow()))).show();
 
       // if modified
       if (modified) {

@@ -16,10 +16,14 @@ private:
   unsigned int _start_line;
   unsigned int _cursor;
 
+  std::vector<unsigned int> _rows; // indices into the column's jobs that are shown (all of them unless searching)
+
   void internal_update();
 
 public:
   Column(kan::Column &column);
+
+  Column &filter(std::vector<unsigned int> rows);
 
   Column &width(uint n);
   Column &height(uint n);
