@@ -16,6 +16,7 @@ namespace kan {
 struct Job {
   std::string title, description, status, uuid;
   int         id = 0; // the #12 shown to users, 0 until assigned. uuid is the real identity, ids can change
+  bool        archived = false; // archived jobs are kept (and keep their id) but leave the board
 
   enum class Priority { Low, Normal, High };
   Priority priority;

@@ -4,7 +4,7 @@ namespace kan {
 namespace tui {
 
 DialogBox::DialogBox(const std::string &title, const std::string &text, const std::string &affirmative, const std::string &negative)
-    : _title(title), _text(text), _affirmative(affirmative), _negative(negative), _selection(true) {}
+    : _title(title), _text(text), _affirmative(affirmative), _negative(negative), _selection(false) {} // start on the negative (safe) option
 
 bool DialogBox::show() {
   state = State::Continue;
@@ -15,7 +15,7 @@ bool DialogBox::show() {
 
   } while (state == State::Continue);
 
-  return _selection;
+  return state == State::Select && _selection; // esc is always a no
 }
 
 void DialogBox::display() {

@@ -233,6 +233,7 @@ void Board::display() {
                        {"/", "search"},
                        {"o", "open"},
                        {"n", "new job"},
+                       {"a", "archive"},
                        {"?", "help"},
                        {"s", "settings"},
                        {"q", "quit"},
@@ -339,6 +340,10 @@ void Board::process_input() {
 
   else if (inp == "s") {
     tui::SettingsDialog().show();
+  }
+
+  else if (inp == "a") {
+    tui::ArchiveWindow().show();
   }
 
   else if (inp == "?") {

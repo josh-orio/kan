@@ -19,6 +19,7 @@ public:
   Issues                   issues;
   int                      next_id = 1;
   std::vector<User>        contributors; // people listed in contributors.yaml
+  std::vector<kan::Job>    archive;      // archived jobs, most recently archived first
 
   termui::StyleMap styleMap;
 
@@ -42,7 +43,9 @@ public:
   kan::Job *findJob(int id);
   int       nextJobId();
 
-  void deleteJob(kan::Job job);
+  void deleteJob(kan::Job job); // removes the job's file for good
+  void archiveJob(kan::Job job);
+  void restoreJob(kan::Job job); // back to its old column, or the first column if that's gone
 
   void loadBoard();
   void saveBoard();

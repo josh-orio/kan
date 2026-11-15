@@ -66,6 +66,12 @@ Job *Board::findJob(int id) {
     }
   }
 
+  for (auto &job : archive) { // commits can still be linked to archived jobs
+    if (job.id == id) {
+      return &job;
+    }
+  }
+
   return nullptr;
 }
 
@@ -77,12 +83,31 @@ int Board::nextJobId() {
 }
 
 void Board::deleteJob(kan::Job job) {
+  std::filesystem::remove(_path / "jobs" / std::format("{}.yaml", job.uuid));
 
-  for (auto &col : board.Columns()) {
-    auto &jobs = col.Jobs();
-    jobs.erase(std::remove_if(jobs.begin(), jobs.end(), [&](const kan::Job &j) { return j.uuid == job.uuid; }), jobs.end());
+  reloadJobs();
+}
+
+void Board::archiveJob(kan::Job job) {
+  job.archived = true;
+  job.addEvent({"Job archived.", User().getFromSystem(), Timestamp().Now()});
+
+  saveJob(job);
+  reloadJobs();
+}
+
+void Board::restoreJob(kan::Job job) {
+  auto statuses = Statuses();
+
+  if (std::find(statuses.begin(), statuses.end(), job.status) == statuses.end() && !statuses.empty()) {
+    job.status = statuses.front();
   }
 
+  job.archived = false;
+  job.addEvent({std::format("Job restored from the archive to {}.", job.status), User().getFromSystem(), Timestamp().Now()});
+
+  saveJob(job);
+  reloadJobs();
 }
 
 void Board::loadBoard() {
@@ -141,6 +166,11 @@ void Board::loadJobs() {
   assignJobIds(loaded_jobs);
 
   for (const auto &loaded_job : loaded_jobs) {
+    if (loaded_job.archived) {
+      archive.push_back(loaded_job);
+      continue;
+    }
+
     for (auto &col : board.Columns()) {
       if (col.title == loaded_job.status) {
         col.Jobs().push_back(loaded_job);
@@ -153,6 +183,9 @@ void Board::loadJobs() {
   for (auto &col : board.Columns()) {
     std::sort(col.Jobs().begin(), col.Jobs().end(), [](const kan::Job &a, const kan::Job &b) { return a.created.time < b.created.time; });
   }
+
+  // archiving is the last thing that happens to a job, so updated is when it was archived
+  std::sort(archive.begin(), archive.end(), [](const kan::Job &a, const kan::Job &b) { return a.updated.time > b.updated.time; });
 }
 
 void Board::saveJob(uint col, uint row) {
@@ -178,6 +211,7 @@ void Board::reloadJobs() {
   for (auto &col : board.Columns()) {
     col.Jobs().clear();
   }
+  archive.clear();
 
   loadJobs();
 

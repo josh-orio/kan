@@ -169,6 +169,24 @@ void JobWindow::process_input() {
       }
     }
 
+    if (inp == "x") {
+      if (DialogBox("Archive job", std::format("Archive #{} {}? You can restore it from the archive (a) on the board.", _job.id, _job.title), "Archive", "Cancel").show()) {
+        board.archiveJob(_job); // saves any other edits made in this window too
+        _modified = false;      // already saved - stop the board saving it back onto the board
+        state     = termui::Interface::State::Exit;
+        return;
+      }
+    }
+
+    if (inp == "D") {
+      if (DialogBox("Delete job", std::format("Delete #{} {} for good? This can't be undone - archive it with x if you might want it back.", _job.id, _job.title), "Delete", "Cancel").show()) {
+        board.deleteJob(_job);
+        _modified = false;
+        state     = termui::Interface::State::Exit;
+        return;
+      }
+    }
+
     if (inp == "c") {
       auto [success, comment] = NewCommentWindow().show();
 
@@ -204,7 +222,7 @@ void JobWindow::process_input() {
   }
 
   else if (inp == "?") {
-    JobWindowHelp().show();
+    HelpDialog(jobWindowHelp).show();
   }
 }
 

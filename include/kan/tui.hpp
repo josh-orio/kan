@@ -3,6 +3,7 @@
 
 #include <termui/termui.hpp>
 
+#include <kan/tui/archive-window.hpp>
 #include <kan/tui/board.hpp>
 #include <kan/tui/column.hpp>
 #include <kan/tui/comment.hpp>
@@ -17,7 +18,6 @@
 #include <kan/tui/history-viewer.hpp>
 #include <kan/tui/job-cell.hpp>
 #include <kan/tui/job-details.hpp>
-#include <kan/tui/job-window-help.hpp>
 #include <kan/tui/job-window.hpp>
 #include <kan/tui/mini-menu.hpp>
 #include <kan/tui/new-comment-window.hpp>

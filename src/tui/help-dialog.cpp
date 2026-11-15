@@ -3,18 +3,13 @@
 namespace kan {
 namespace tui {
 
-// sections of the help dialog - an empty key means the description is a line of prose
-struct HelpSection {
-  std::string                                      title;
-  std::vector<std::pair<std::string, std::string>> rows;
-};
-
-static const std::vector<HelpSection> sections = {
+const std::vector<HelpSection> boardHelp = {
     {"Board",
      {
          {"←↑↓→", "move between jobs"},
          {"o  ↵", "open the selected job"},
          {"n", "new job in this column"},
+         {"a", "archived jobs"},
          {"s", "settings"},
          {"q", "quit"},
      }},
@@ -32,13 +27,43 @@ static const std::vector<HelpSection> sections = {
      }},
 };
 
+const std::vector<HelpSection> jobWindowHelp = {
+    {"Job",
+     {
+         {"tab", "next tab"},
+         {"↑↓", "navigate"},
+         {"esc", "close the job"},
+     }},
+    {"Details",
+     {
+         {"e", "edit title and description"},
+         {"s", "set status"},
+         {"p", "set priority"},
+         {"a", "set assignee"},
+         {"c", "add a comment"},
+         {"t  b", "jump to top / bottom"},
+     }},
+    {"Archive & delete",
+     {
+         {"x", "archive the job"},
+         {"D", "delete the job for good"},
+     }},
+    {"Commits",
+     {
+         {"↵", "view commit, then ↵ on a file for its diff"},
+         {"s", "toggle side by side diff"},
+     }},
+};
+
+HelpDialog::HelpDialog(std::vector<HelpSection> sections) : _sections(sections) {}
+
 void HelpDialog::display() {
   auto key_w = 6u;
 
   // fit the box to the content: title + blank, then each section's header, rows and a blank line, then the control strip
   _width  = 56;
   _height = 3 + 2;
-  for (const auto &section : sections) {
+  for (const auto &section : _sections) {
     _height += 1 + section.rows.size() + 1;
   }
 
@@ -64,7 +89,7 @@ void HelpDialog::display() {
 
   auto row = window_start_row + 3;
 
-  for (const auto &section : sections) {
+  for (const auto &section : _sections) {
     termui::terminal.MoveCursor(row++, window_start_col + 2);
     termui::Text(section.title, termui::Styles::bold).width(_width - 4).height(1).render();
 
