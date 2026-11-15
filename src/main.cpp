@@ -17,8 +17,9 @@ int main(int argc, char *argv[]) {
                  "usage:\n"
                  "  kan [path]                  open the board in <path>/.kan (default: current directory),\n"
                  "                              creating a new board there if none exists\n"
-                 "  kan link-commit <hash>      link a commit to every job its message references with #N\n"
-                 "                              (run by the post-commit hook, e.g. \"fix #3\")\n"
+                 "  kan link-commit <hash>      link a commit to every job its message references with #N,\n"
+                 "                              and finish the jobs it closes (\"fixes #3\", \"closes #4, #5\").\n"
+                 "                              run by the post-commit hook\n"
                  "  kan help                    show this guide\n";
     return 0;
   }
