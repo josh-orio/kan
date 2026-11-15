@@ -145,6 +145,8 @@ JobDetails &JobDetails::editMode(bool x) {
 
 JobDetails::Focus JobDetails::Focussed() { return _focus; }
 
+bool JobDetails::DescriptionSelected() { return _focus == Focus::EventList && _cursor == 0; }
+
 constexpr unsigned int item_gap = 1; // rows between event list items (holds the separator)
 
 template <class... Ts> struct overloaded : Ts... {
@@ -217,6 +219,7 @@ void JobDetails::render() {
                              {"t", "top"},
                              {"b", "bottom"},
                              {"↵", "select"},
+                             {"e", "edit"},
                              {"?", "help"},
 
                          })

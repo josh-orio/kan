@@ -5,6 +5,8 @@ namespace tui {
 
 NewJob::NewJob() : new_job() {}
 
+NewJob::NewJob(kan::Job job) : new_job(job), _editing(true) {}
+
 void NewJob::display() {
   auto terminal_half_w = termui::terminal.halfWidth();
   auto terminal_half_h = termui::terminal.halfHeight();
@@ -68,7 +70,7 @@ void NewJob::display() {
   // 'finish' button
   termui::terminal.MoveCursor(window_start_row + 11, window_start_col + _width - 10);
 
-  termui::Button("Finish")
+  termui::Button(_editing ? "Save" : "Finish")
       .focus_style(termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo}))
       .blur_style(termui::Style())
       .setFocus(_selected_field == Focus::Finish)
@@ -153,7 +155,10 @@ std::pair<bool, kan::Job> NewJob::show() {
 
   termui::terminal.HideCursor(); // just in case
 
-  if (state == termui::Interface::State::Submit) {
+  if (state == termui::Interface::State::Submit && _editing) {
+    return {true, new_job};
+  }
+  else if (state == termui::Interface::State::Submit) {
 
     new_job.history.addEvent({"Job created.", User().getFromSystem(), Timestamp().Now()});
     new_job.creator = User().getFromSystem();

@@ -148,6 +148,27 @@ void JobWindow::process_input() {
       }
     }
 
+    if (inp == "e" || (inp == termui::key::ENTER && _job_detail.DescriptionSelected())) { // edit title + description
+      auto [saved, edited] = NewJob(_job).show();
+
+      if (saved) {
+        if (edited.title != _job.title) {
+          _job.addEvent({std::format("Job title was updated: {} -> {}.", _job.title, edited.title), User().getFromSystem(), Timestamp().Now()});
+          _job.title = edited.title;
+          _modified  = true;
+        }
+
+        if (edited.description != _job.description) {
+          _job.description = edited.description;
+          _job.addEvent({"Job description was updated.", User().getFromSystem(), Timestamp().Now()});
+          _modified = true;
+        }
+
+        _job_detail.Reload(_job);
+        _history_viewer.Reload(_job.history);
+      }
+    }
+
     if (inp == "c") {
       auto [success, comment] = NewCommentWindow().show();
 

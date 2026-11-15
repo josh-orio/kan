@@ -14,12 +14,14 @@ class NewJob : termui::Interface {
   Focus _selected_field = Focus::Title;
 
   kan::Job new_job;
+  bool     _editing = false; // editing an existing job rather than creating one
 
   void display();
   void process_input();
 
 public:
   NewJob();
+  NewJob(kan::Job job); // prefilled with the job's title and description, saves instead of creating
 
   std::pair<bool, kan::Job> show();
 };

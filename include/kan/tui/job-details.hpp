@@ -32,6 +32,7 @@ public:
   JobDetails &editMode(bool x);
 
   Focus Focussed();
+  bool  DescriptionSelected(); // cursor is on the description at the top of the event list
 
   void render();
 
