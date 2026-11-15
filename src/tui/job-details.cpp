@@ -14,7 +14,6 @@ std::vector<std::variant<JobDescription, kan::Comment, kan::Commit>> idk(Job job
     events.push_back(c);
   }
 
-  // sort records (newest first)
   using Event = std::variant<JobDescription, kan::Comment, kan::Commit>;
 
   auto timeOf = [](const Event &e) {
@@ -79,12 +78,6 @@ JobDetails &JobDetails::CursorUp() {
       _cursor < _start_line ? _start_line = _cursor : _start_line;
     }
   }
-  // else if (_selected_field == Focus::Archive) {
-  //   _selected_field = Focus::Description;
-  // }
-  // else if (_selected_field == Focus::Delete) {
-  //   _selected_field = Focus::Description;
-  // }
 
   return *this;
 }
@@ -105,12 +98,6 @@ JobDetails &JobDetails::CursorDown() {
     _cursor + 1 < _events.size() ? _cursor++ : _cursor;
     _cursor >= _start_line + _visible_events ? _start_line = _cursor - _visible_events + 1 : _start_line;
   }
-  // else if (_selected_field == Focus::Description) {
-  //   _selected_field = Focus::Archive;
-  // }
-  // else if (_selected_field == Focus::Archive) {
-  //   _selected_field = Focus::Delete;
-  // }
 
   return *this;
 }
@@ -119,9 +106,6 @@ JobDetails &JobDetails::CursorLeft() {
   if (_focus == Focus::Priority) {
     _focus = Focus::Status;
   }
-  // else if (_selected_field == Focus::Delete) {
-  //   _selected_field = Focus::Archive;
-  // }
 
   return *this;
 }
@@ -130,9 +114,6 @@ JobDetails &JobDetails::CursorRight() {
   if (_focus == Focus::Status) {
     _focus = Focus::Priority;
   }
-  // else if (_selected_field == Focus::Archive) {
-  //   _selected_field = Focus::Delete;
-  // }
 
   return *this;
 }
@@ -183,15 +164,12 @@ void JobDetails::render() {
 
   // status
   termui::terminal.MoveCursor(row, col + 2);
-  // termui::Text(_job.status, ::tui::stl(::tui::clrs::Red, ::tui::clr::Inherit())).width(_width - 2).height(1).render();
   termui::Text(_job.status).width(_width - 2).height(1).render();
 
-  // priority (symbol + text)
   termui::terminal.MoveCursor(row, col + _width - 10);
   termui::terminal.write(priorityIcon(_job.priority));
 
   termui::terminal.MoveCursor(row, col + _width - 8);
-  // termui::Text(priorityStr(_job.priority)).style(termui::Style(termui::Color::Inherit(), termui::Colors::Red, {termui::SGR::Bold})).width(6).render();
   termui::Text(priorityStr(_job.priority)).width(6).render();
 
   // priority indicator
@@ -310,18 +288,6 @@ void JobDetails::render() {
   }
   // clang-format on
 
-  // // desc indicator
-  // if (_selected_field == Focus::Description) {
-  //   termui::terminal.MoveCursor(row + 2, col);
-  //   // termui::Line(termui::Line::Direction::Vertical, _height - 7).render();
-  //   termui::Line(termui::Line::Direction::Vertical, height).render();
-  // }
-
-  // // job description
-  // termui::terminal.MoveCursor(row + 2, col + 2);
-  // desc.render();
-  // // termui::Input(_job.description).render();
-  // // .height(_height - 7).valueStyle(board.styleMap.at(_edit_mode ? "selected_darkmode" : "")).render();
 }
 
 void JobDetails::internal_update() {

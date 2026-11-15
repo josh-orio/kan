@@ -14,7 +14,6 @@ public:
   HistoryViewer &width(unsigned int w);
   HistoryViewer &height(unsigned int h);
 
-  // void ReloadComments(Comments comments);
   void Reload(History h);
 
   void CursorUp(unsigned int count = 1);

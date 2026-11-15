@@ -52,7 +52,6 @@ void HistoryViewer::render() {
     for (int i = _start_line; i < std::min(_history.size(), static_cast<size_t>(_start_line + _visible_rows)); i++) {
       auto start_row = row + (3 * (i - _start_line));
 
-      // if (i + _start_line == _cursor) {
       if (i == _cursor) {
         termui::terminal.MoveCursor(start_row, col);
         termui::Line(termui::Line::Direction::Vertical, 2).render();
@@ -94,7 +93,6 @@ void HistoryViewer::internal_update() { // add args for recalcRows and sort to p
     _visible_rows++;
   }
 
-  // sort records (newest first)
   std::sort(_history.events.begin(), _history.events.end(), [](const Event &a, const Event &b) { return a.time.time > b.time.time; });
 }
 

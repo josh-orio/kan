@@ -31,10 +31,6 @@ void NewJob::display() {
   std::tie(rc_row, rc_col)  = termui::terminal.GetFutureCursorPosition();
   }
 
-  // if (_selected_field == Focus::Title) {
-  //   termui::terminal.SaveCursorPosition();
-  // }
-
   // description header
   termui::terminal.MoveCursor(window_start_row + 5, window_start_col + 2);
   termui::Text("Description", termui::Styles::bold).width(_width - 4).height(3).render();
@@ -47,10 +43,6 @@ void NewJob::display() {
    if (_selected_field == Focus::Description) {
       std::tie(rc_row, rc_col) = termui::terminal.GetFutureCursorPosition();
   }
-
-  // if (_selected_field == Focus::Description) {
-  //   termui::terminal.SaveCursorPosition();
-  // }
 
   // window ctrl strip
   termui::terminal.MoveCursor(window_start_row + 11, window_start_col + 2);
@@ -75,16 +67,7 @@ void NewJob::display() {
 
   // 'finish' button
   termui::terminal.MoveCursor(window_start_row + 11, window_start_col + _width - 10);
-  // termui::Button b = termui::Button("Finish").focus_style(termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo})).blur_style(termui::Style()).width(8);
 
-  // if (_selected_field == Focus::Finish) {
-  //   b.focus();
-  // }
-  // else {
-  //   b.blur();
-  // }
-
-  // b.render();
   termui::Button("Finish")
       .focus_style(termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo}))
       .blur_style(termui::Style())
@@ -93,7 +76,6 @@ void NewJob::display() {
       .render();
 
   if (_selected_field != Focus::Finish) {
-    // termui::terminal.RestoreCursorPosition();
     termui::terminal.MoveCursor(rc_row, rc_col);
     termui::terminal.ShowCursor();
   }

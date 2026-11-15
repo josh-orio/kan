@@ -51,7 +51,7 @@ void MiniMenu::display() {
     }
 
     termui::terminal.MoveCursor(window_start_row + 3 + i + ((i - _start_line) * _line_spacing), window_start_col + 4);
-    termui::Text(_choices.at(i + _start_line)).size(_width - 6, 1).style(termui::Style(termui::Color::Inherit(), termui::Colors::Red)).render();
+    termui::Text(_choices.at(i + _start_line)).size(_width - 6, 1).render();
   }
 
   // control strip

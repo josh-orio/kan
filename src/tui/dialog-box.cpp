@@ -35,7 +35,6 @@ void DialogBox::display() {
 
   // text
   termui::terminal.MoveCursor(window_start_row + 3, window_start_col + 2);
-  // termui::Text(_text).width(_width - 4).height(4).style(termui::Style(termui::Color::Inherit(), termui::Colors::Red)).render();
   termui::Text(_text).width(_width - 4).height(4).render();
 
   // control bar

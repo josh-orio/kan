@@ -2,21 +2,6 @@
 
 namespace kan {
 
-// User &User::fromJson(nlohmann::json user) {
-//   name  = user.at("name");
-//   email = user.at("email");
-
-//   return *this;
-// };
-
-// nlohmann::json User::toJson() {
-//   nlohmann::ordered_json user;
-//   user["name"]  = name;
-//   user["email"] = email;
-
-//   return user;
-// };
-
 User &User::fromYaml(YAML::Node yaml) {
   if (!yaml || !yaml.IsDefined()) {
     logMessage("Failed to load a record of type User");

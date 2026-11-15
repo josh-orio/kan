@@ -31,7 +31,6 @@ KAN::KAN(std::string path) : _path() {
   board.loadStyleMap();
   board.loadContributors();
 
-  board.styleMap.add("debug", termui::Style(termui::Color::Inherit(), termui::Colors::Red));
   board.styleMap.add("default", termui::Style(termui::terminal.ForegroundColor(), termui::terminal.BackgroundColor()));
 
   // shifts the terminal background away from black/white so it stands out
@@ -52,7 +51,6 @@ KAN::KAN(std::string path) : _path() {
   board.styleMap.add("item_separator", termui::Style(offsetColor(60), termui::Color::Inherit()));
 
   renderer = tui::Board();
-  // renderer.load();
 }
 
 void KAN::init() {
@@ -77,20 +75,10 @@ void KAN::init() {
 
   board.columns.push_back(Column(YAML::Load(R"({"title": "Done",})")));
 
-  // std::ofstream out_file(_path / "kan.json");//, std::ios::binary);
   std::ofstream out_file(_path / "kan.yaml");
   out_file << board.toYaml();
 
-  // time_t timestamp;
   Timestamp timestamp;
-
-  // nlohmann::json first_job_json{{"title", "First Job"},
-  //                               {"description", "Welcome to KAN!"},
-  //                               {"status", "Backlog"},
-  //                               {"created", timestamp.toJson()},
-  //                               {"updated", timestamp.toJson()},
-  //                               {"creator", kan::User().getFromSystem().toJson()},
-  //                               {"uuid", UUIDv7::generate().to_string()}};
 
   kan::Job first_job;
   first_job.title       = "First Job";
@@ -111,21 +99,7 @@ void KAN::init() {
 
 void KAN::start() {
   renderer.show();
-  // termui::TermSetups::fullscreen_no_mouse.configure();
 
-  // state = State::Continue;
-  // // bool reprint = true;
-
-  // do {
-  //   // if (reprint) {
-  //   display();
-  //   //   reprint = false;
-  //   // }
-  //   process_input();
-
-  // } while (state == State::Continue);
-
-  // termui::TermSetups::fullscreen.reset();
 }
 
 } // namespace kan

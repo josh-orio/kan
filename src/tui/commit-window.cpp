@@ -78,7 +78,6 @@ void CommitWindow::display() {
       deletions += f.deletions;
     }
 
-    // files header (or the open file's header in diff mode)
     termui::terminal.MoveCursor(r, 2);
     // TextRow packs segments left, so the hash gets its own slot pinned to the right edge
     auto hash_w = static_cast<unsigned int>(_commit.hash.size());

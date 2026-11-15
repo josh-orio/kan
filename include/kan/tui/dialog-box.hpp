@@ -18,7 +18,6 @@ private:
 
   size_t _width = 60, _height = 10;
   bool _selection; // t = affirmative selected, f = negative selected
-                   //   bool   reprint;               // flag indicates if reprint is required
 
   void display();
   void process_input();

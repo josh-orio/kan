@@ -157,7 +157,6 @@ private:
   Bytes bytes_;
 
   static uint64_t now_unix_ms() {
-    // using namespace std::chrono;
     return static_cast<uint64_t>(duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
   }
 

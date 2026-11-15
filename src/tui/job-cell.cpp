@@ -31,7 +31,6 @@ void JobCell::render() {
   auto row_style_bold       = row_style;
   row_style_bold.attributes = {termui::SGR::Bold};
 
-
   auto row_style_faint      = row_style;
   row_style_faint.attributes = {termui::SGR::Faint};
 

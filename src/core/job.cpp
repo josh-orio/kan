@@ -2,54 +2,12 @@
 
 namespace kan {
 
-// NLOHMANN_JSON_SERIALIZE_ENUM(Job::Priority, {
-//                                                 {Job::Priority::Low, "Low"},
-//                                                 {Job::Priority::Normal, "Normal"},
-//                                                 {Job::Priority::High, "High"},
-//                                             })
-
 Job::Job() : title(), description(), status(), priority(Priority::Normal), created(), updated(), creator(), uuid(UUID::generate().to_string()) {
   created = Timestamp().Now();
   updated = created;
 
   creator = User().getFromSystem();
 }
-
-// Job::Job(nlohmann::json json) { fromJson(json); }
-
-// nlohmann::json Job::toJson() {
-//   nlohmann::ordered_json job;
-//   job["title"]       = title;
-//   job["description"] = description;
-//   job["status"]      = status;
-//   job["created"]     = created.toJson();
-//   job["updated"]     = updated.toJson();
-//   job["creator"]     = creator.toJson();
-//   job["uuid"]        = uuid;
-
-//   job["comments"] = comments.toJson();
-//   job["priority"] = priority;
-//   job["history"]  = history.toJson();
-
-//   return job;
-// };
-
-// void Job::fromJson(nlohmann::json json) {
-//   // std::string tmp = json.dump();
-
-//   title       = json["title"];
-//   description = json["description"];
-//   status      = json["status"];
-//   created     = Timestamp(json["created"]);
-//   updated     = Timestamp(json["updated"]);
-//   uuid        = json["uuid"];
-
-//   // comments = Comments(json.value("comments", nlohmann::json::object()));
-
-//   priority = json.value("priority", Priority::Normal);
-
-//   // history = History(json.value("history", nlohmann::json::object()));
-// };
 
 Job::Job(YAML::Node yaml) { fromYaml(yaml); }
 

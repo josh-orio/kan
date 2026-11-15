@@ -5,25 +5,7 @@ namespace kan {
 // ---- Comment ----
 Comment::Comment() : uuid(UUID::generate()) {}
 
-// Comment::Comment(nlohmann::json json) { fromJson(json); }
-
 Comment::Comment(YAML::Node yaml) { fromYaml(yaml); }
-
-// void Comment::fromJson(nlohmann::json comment) {
-//   text    = termui::string(comment.at("text"));
-//   creator = User().fromJson(comment.at("creator"));
-//   created = Timestamp().fromJson(comment.at("created"));
-//   uuid    = comment.at("uuid");
-// }
-
-// nlohmann::json Comment::toJson() {
-//   return {
-//       {"text", text},
-//       {"creator", creator.toJson()},
-//       {"created", created.toJson()},
-//       {"uuid", uuid},
-//   };
-// }
 
 void Comment::fromYaml(YAML::Node yaml) {
   text    = yaml["text"].as<std::string>();
@@ -45,31 +27,7 @@ YAML::Node Comment::toYaml() {
 // ---- Comments ----
 Comments::Comments() : _comments() {}
 
-// Comments::Comments(nlohmann::json json) { fromJson(json); }
-
 Comments::Comments(YAML::Node yaml) { fromYaml(yaml); }
-
-// void Comments::fromJson(nlohmann::json comments) {
-//   _comments.clear();
-
-//   if (comments.empty() || comments.is_null()) {
-//     return;
-//   }
-
-//   for (auto &c : comments) {
-//     _comments.push_back(Comment(c));
-//   }
-// }
-
-// nlohmann::json Comments::toJson() {
-//   auto json = nlohmann::json::array();
-
-//   for (auto &c : _comments) {
-//     json.push_back(c.toJson());
-//   }
-
-//   return json;
-// }
 
 void Comments::fromYaml(YAML::Node yaml) {
   _comments.clear();

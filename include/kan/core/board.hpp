@@ -67,10 +67,6 @@ public:
   void saveContributors();
   void saveStyleMap();
 
-  // Board&
-  // void setTitle(std::string s);
-  // void setDescription(std::string s);
-  // void addColumn(std::string title);
 };
 
 } // namespace kan

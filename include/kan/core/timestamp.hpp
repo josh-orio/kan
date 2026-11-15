@@ -1,7 +1,6 @@
 #ifndef CORE_TIMESTAMP_HPP
 #define CORE_TIMESTAMP_HPP
 
-// #include <nlohmann/json.hpp>
 #include <yaml-cpp/yaml.h>
 
 namespace kan {
@@ -11,11 +10,7 @@ struct Timestamp {
   std::string timezone;
 
   Timestamp();
-  // Timestamp(nlohmann::json json);
   Timestamp(YAML::Node yaml);
-
-  // Timestamp     &fromJson(nlohmann::json timestamp);
-  // nlohmann::json toJson();
 
   Timestamp &fromYaml(YAML::Node yaml);
   YAML::Node toYaml();

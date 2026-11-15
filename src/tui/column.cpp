@@ -16,7 +16,6 @@ Column &Column::height(uint n) {
 
 Column &Column::focus() {
   _focussed = true;
-  // _cursor = std::min<int>(row, _column->Jobs().size());
   return *this;
 }
 Column &Column::blur() {
@@ -31,7 +30,6 @@ Column &Column::cursorUp() {
 }
 
 Column &Column::cursorDown() {
-  // internal_update();
 
   _cursor + 1 < _column->jobs.size() ? _cursor++ : _cursor;
   _cursor >= _start_line + _visible_rows ? _start_line = _cursor - _visible_rows + 1 : _start_line;
@@ -60,14 +58,11 @@ void Column::render() {
 
   internal_update();
 
-  // auto [row, col] = termui::terminal.GetCursorPosition();
-
   // clear space
   termui::Text("").height(_height).width(_width).render();
   termui::terminal.CursorUp(_height - 1).CursorLeft(_width);
 
   // column title
-  // termui::terminal.MoveCursor(row + 1, col + 2);
   termui::PaddedText(_column->title, termui::Styles::bold, termui::PaddingStyle::label).width(_width).height(1).render();
   termui::terminal.CursorDown(2).CursorLeft(_width);
 
@@ -76,7 +71,6 @@ void Column::render() {
 
   if (_focussed && _column->Jobs().size() == 0) {
     auto row_style = board.styleMap.at("highlight");
-    // termui::Text("").width(_width - 2).height(2).style(termui::Style({termui::SGR::ReverseVideo})).render();
     termui::Text("").width(_width).height(2).style(row_style).render();
   }
   else {

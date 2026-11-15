@@ -6,25 +6,7 @@ Event::Event() : uuid(UUID::generate()) {}
 
 Event::Event(termui::string _text, User _user, Timestamp _time) : text(_text), user(_user), time(_time), uuid(UUID::generate()) {}
 
-// Event::Event(nlohmann::json json) { fromJson(json); }
-
 Event::Event(YAML::Node yaml) { fromYaml(yaml); }
-
-// void Event::fromJson(nlohmann::json e) {
-//   text = termui::string(e.at("text"));
-//   user = User().fromJson(e.at("user"));
-//   time = Timestamp().fromJson(e.at("time"));
-//   uuid = termui::string(e.at("uuid"));
-// }
-
-// nlohmann::json Event::toJson() {
-//   return {
-//       {"text", text},
-//       {"user", user.toJson()},
-//       {"time", time.toJson()},
-//       {"uuid", uuid},
-//   };
-// }
 
 void Event::fromYaml(YAML::Node yaml) {
   text = yaml["text"].as<std::string>();
@@ -45,32 +27,7 @@ YAML::Node Event::toYaml() {
 
 History::History() {}
 
-// History::History(nlohmann::json json) { fromJson(json); }
-
 History::History(YAML::Node yaml) { fromYaml(yaml); }
-
-// void History::fromJson(nlohmann::json h) {
-//   _events.clear();
-
-//   // if (_events.empty() || h.is_null()) {
-//   if (h.is_null()) {
-//     return;
-//   }
-
-//   for (auto &c : h) {
-//     _events.push_back(Event(c));
-//   }
-// }
-
-// nlohmann::json History::toJson() {
-//   auto json = nlohmann::json::array();
-
-//   for (auto &e : _events) {
-//     json.push_back(e.toJson());
-//   }
-
-//   return json;
-// }
 
 void History::fromYaml(YAML::Node yaml) {
   events.clear();

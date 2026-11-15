@@ -5,25 +5,7 @@ namespace kan {
 // ---- Issue ----
 Issue::Issue() : uuid(UUID::generate()){}
 
-// Issue::Issue(nlohmann::json json) { fromJson(json); }
-
 Issue::Issue(YAML::Node yaml) { fromYaml(yaml); }
-
-// void Issue::fromJson(nlohmann::json issue) {
-//   description = termui::string(issue.at("description"));
-//   creator     = User().fromJson(issue.at("creator"));
-//   created     = Timestamp().fromJson(issue.at("created"));
-//   uuid        = issue.at("uuid");
-// }
-
-// nlohmann::json Issue::toJson() {
-//   return {
-//       {"description", description},
-//       {"creator", creator.toJson()},
-//       {"created", created.toJson()},
-//       {"uuid", uuid},
-//   };
-// }
 
 void Issue::fromYaml(YAML::Node yaml) {
   description = yaml["description"].as<std::string>();
@@ -44,30 +26,6 @@ YAML::Node Issue::toYaml() {
 
 // ---- Issues ----
 Issues::Issues() {}
-
-// Issues::Issues(nlohmann::json json) { fromJson(json); }
-
-// void Issues::fromJson(nlohmann::json issues) {
-//   _issues.clear();
-
-//   if (issues.empty() || issues.is_null()) {
-//     return;
-//   }
-
-//   for (auto &i : issues) {
-//     _issues.push_back(Issue(i));
-//   }
-// }
-
-// nlohmann::json Issues::toJson() {
-//   auto json = nlohmann::json::array();
-
-//   for (auto &i : _issues) {
-//     json.push_back(i.toJson());
-//   }
-
-//   return json;
-// }
 
 void Issues::fromYaml(YAML::Node yaml) {
   _issues.clear();

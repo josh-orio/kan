@@ -12,8 +12,6 @@ void ViewCommentWindow::display() {
   auto window_start_row = terminal_half_h - (_height / 2);
   auto window_start_col = terminal_half_w - (_width / 2);
 
-  // auto tab = _tab_bar.GetTab();
-
   // box
   termui::terminal.MoveCursor(window_start_row, window_start_col);
   termui::Box(_width, _height, termui::Borders::rounded, termui::Styles::faint).render();
@@ -28,9 +26,7 @@ void ViewCommentWindow::display() {
 
   // content
   termui::terminal.MoveCursor(window_start_row + 4, window_start_col + 2);
-  // termui::Text(_comment.text).width(_width - 4).height(_height - 7).render();
-  // termui::Pager(_comment.text).width(_width - 4).height(_height - 7).style(termui::Style(termui::Color::Inherit(), termui::Colors::Red)).render();
-  _pager.width(_width - 4).height(_height - 7).style(termui::Style(termui::Color::Inherit(), termui::Colors::Red)).render();
+  _pager.width(_width - 4).height(_height - 7).render();
 
   // control strip
   termui::terminal.MoveCursor(window_start_row + _height - 2, window_start_col + 2);

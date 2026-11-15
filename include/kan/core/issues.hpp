@@ -4,7 +4,6 @@
 #include <kan/core/timestamp.hpp>
 #include <kan/core/user.hpp>
 #include <kan/core/uuid.hpp>
-// #include <nlohmann/json.hpp>
 #include <string>
 
 namespace kan {
@@ -21,11 +20,7 @@ struct Issue {
   State state;
 
   Issue();
-  // Issue(nlohmann::json json);
   Issue(YAML::Node yaml);
-
-  // void fromJson(nlohmann::json json);
-  // nlohmann::json toJson();
 
   void       fromYaml(YAML::Node yaml);
   YAML::Node toYaml();
@@ -37,10 +32,6 @@ private:
 
 public:
   Issues();
-  // Issues(nlohmann::json json);
-
-  // void           fromJson(nlohmann::json json);
-  // nlohmann::json toJson();
 
   void       fromYaml(YAML::Node yaml);
   YAML::Node toYaml();

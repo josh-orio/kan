@@ -9,7 +9,6 @@
 #include <kan/core/uuid.hpp>
 #include <string>
 
-// #include <nlohmann/json.hpp>
 #include <yaml-cpp/yaml.h>
 
 namespace kan {
@@ -28,13 +27,8 @@ struct Job {
   Commits commits;
   History history;
 
-
   Job();
-  // Job(nlohmann::json json);
   Job(YAML::Node yaml);
-
-  // void           fromJson(nlohmann::json job);
-  // nlohmann::json toJson();
 
   void       fromYaml(YAML::Node yaml);
   YAML::Node toYaml();
