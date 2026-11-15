@@ -111,7 +111,7 @@ void ArchiveWindow::process_input() {
   else if (inp == "D" && !jobs.empty()) {
     auto job = jobs.at(_cursor);
 
-    if (DialogBox("Delete job", std::format("Delete #{} {} for good? This can't be undone.", job.id, job.title), "Delete", "Cancel").show()) {
+    if (DialogBox("Delete job", std::format("Delete #{} {} for good? This can't be undone.", job.id, job.title), "delete", "cancel").show()) {
       board.deleteJob(job);
     }
   }

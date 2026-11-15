@@ -54,7 +54,7 @@ void ViewCommentWindow::process_input() {
     _pager.cursor_down();
   }
   else if (inp == "d") {
-    auto confirm = DialogBox("Confirm delete", "Are you sure you want to delete this comment?", "Delete", "Cancel").show();
+    auto confirm = DialogBox("Confirm delete", "Are you sure you want to delete this comment?", "delete", "cancel").show();
 
     if (confirm) {
       state = termui::Interface::State::Delete;

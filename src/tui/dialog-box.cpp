@@ -3,8 +3,8 @@
 namespace kan {
 namespace tui {
 
-DialogBox::DialogBox(const std::string &title, const std::string &text, const std::string &affirmative, const std::string &negative)
-    : _title(title), _text(text), _affirmative(affirmative), _negative(negative), _selection(false) {} // start on the negative (safe) option
+DialogBox::DialogBox(const std::string &title, const std::string &text, const std::string &yes, const std::string &no)
+    : _title(title), _text(text), _yes(yes), _no(no) {}
 
 bool DialogBox::show() {
   state = State::Continue;
@@ -15,7 +15,7 @@ bool DialogBox::show() {
 
   } while (state == State::Continue);
 
-  return state == State::Select && _selection; // esc is always a no
+  return _answer;
 }
 
 void DialogBox::display() {
@@ -40,33 +40,10 @@ void DialogBox::display() {
   // control bar
   termui::terminal.MoveCursor(window_start_row + _height - 2, window_start_col + 2);
   kan::tui::ControlStrip({
-                             {"esc", "close"},
-                             {"←→", "navigate"},
-                             {"↵", "select"},
+                             {"y", _yes},
+                             {"n", _no},
                          })
-      .width(_width - 4 - 1 - 8 - 1 - 8 - 1)
-      .render();
-
-  // buttons
-
-  termui::terminal.write(" ");
-
-  // delete button
-  termui::Button(_affirmative)
-      .focus_style(termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo}))
-      .blur_style(termui::Style())
-      .width(6)
-      .setFocus(_selection)
-      .render();
-
-  termui::terminal.write(" ");
-
-  // cancel button
-  termui::Button(_negative)
-      .focus_style(termui::Style({termui::SGR::Bold, termui::SGR::ReverseVideo}))
-      .blur_style(termui::Style())
-      .width(6)
-      .setFocus(!_selection)
+      .width(_width - 4)
       .render();
 
   termui::terminal.flush();
@@ -75,17 +52,13 @@ void DialogBox::display() {
 void DialogBox::process_input() {
   std::string inp = termui::terminal.read();
 
-  if (inp == termui::key::ESC) {
-    state = termui::Interface::State::Exit;
+  if (inp == "y" || inp == "Y") {
+    _answer = true;
+    state   = State::Select;
   }
-  else if (inp == termui::key::ENTER) {
-    state = State::Select;
-  }
-  else if (inp == termui::key::L_ARROW) {
-    _selection = true;
-  }
-  else if (inp == termui::key::R_ARROW) {
-    _selection = false;
+  else if (inp == "n" || inp == "N") {
+    _answer = false;
+    state   = State::Select;
   }
 }
 

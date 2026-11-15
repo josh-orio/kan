@@ -1,4 +1,3 @@
-
 #ifndef TUI_DIALOG_BOX_HPP
 #define TUI_DIALOG_BOX_HPP
 
@@ -7,17 +6,18 @@
 namespace kan {
 namespace tui {
 
+// a yes/no question answered with y or n, the labels are what the control strip shows (y archive · n cancel)
 class DialogBox : public termui::Interface {
 public:
-  DialogBox(const std::string &title, const std::string &text, const std::string &affirmative, const std::string &negative);
+  DialogBox(const std::string &title, const std::string &text, const std::string &yes = "yes", const std::string &no = "no");
 
-  bool show(); // t = affirmative, f = negative
+  bool show(); // t = y pressed, f = n pressed
 
 private:
-  std::string _title, _text, _affirmative, _negative;
+  std::string _title, _text, _yes, _no;
 
   size_t _width = 60, _height = 10;
-  bool _selection; // t = affirmative selected, f = negative selected
+  bool   _answer = false;
 
   void display();
   void process_input();

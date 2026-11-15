@@ -22,7 +22,6 @@
 #include <kan/tui/mini-menu.hpp>
 #include <kan/tui/new-comment-window.hpp>
 #include <kan/tui/new-job.hpp>
-#include <kan/tui/register-user.hpp>
 #include <kan/tui/settings-dialog.hpp>
 #include <kan/tui/tab-bar.hpp>
 #include <kan/tui/user-menu.hpp>
