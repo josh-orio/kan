@@ -56,7 +56,7 @@ void DialogBox::process_input() {
     _answer = true;
     state   = State::Select;
   }
-  else if (inp == "n" || inp == "N") {
+  else if (inp == "n" || inp == "N" || inp == termui::key::ESC) { // esc backs out, same as n
     _answer = false;
     state   = State::Select;
   }
