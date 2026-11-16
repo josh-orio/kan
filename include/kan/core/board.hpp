@@ -49,6 +49,14 @@ public:
   std::vector<Job> &Jobs(unsigned int col_idx);
   Job              &Job(unsigned int col_idx, unsigned int row_idx);
 
+  // columns, from settings. jobs keep their column by name, so renaming or removing one rewrites the jobs in it
+  std::string columnNameProblem(std::string name, int skip = -1); // why a name can't be used ("" if it can), skip = the column being renamed
+  void        addColumn(std::string title, size_t at);
+  void        renameColumn(size_t idx, std::string title);
+  void        removeColumn(size_t idx, size_t move_jobs_to); // the jobs in it go to another column
+  void        moveColumn(size_t from, size_t to);
+  void        setColumnHeader(size_t idx, termui::Style style);
+
   kan::Job *findJob(int id);
   int       nextJobId();
 

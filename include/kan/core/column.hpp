@@ -10,6 +10,9 @@ namespace kan {
 struct Column {
   std::string      title;
   std::vector<Job> jobs;
+  termui::Style    header = defaultHeader(); // how the title is drawn on the board, set in settings
+
+  static termui::Style defaultHeader();
 
 public:
   Column() = default;

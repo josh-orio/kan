@@ -12,7 +12,7 @@ const std::vector<HelpSection> boardHelp = {
          {"f", "finish (strike off) the job, again to undo"},
          {"F", "finished jobs"},
          {"a", "archived jobs"},
-         {"s", "settings"},
+         {"s", "settings: columns and their styles"},
          {"q", "quit"},
      }},
     {"Search",

@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <format>
+#include <functional>
 #include <fstream>
 #include <kan/core.hpp>
 #include <set>
@@ -85,6 +86,134 @@ Job *Board::findJob(int id) {
   }
 
   return nullptr;
+}
+
+std::string Board::columnNameProblem(std::string name, int skip) {
+  if (name.find_first_not_of(" ") == std::string::npos) {
+    return "A column needs a name.";
+  }
+
+  auto lower = [](std::string s) {
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
+    return s;
+  };
+
+  for (int i = 0; i < static_cast<int>(columns.size()); i++) {
+    if (i != skip && lower(columns[i].title) == lower(name)) {
+      return std::format("There's already a column called {}.", columns[i].title);
+    }
+  }
+
+  return "";
+}
+
+void Board::addColumn(std::string title, size_t at) {
+  kan::Column column;
+  column.title = title;
+
+  columns.insert(columns.begin() + std::min(at, columns.size()), column);
+
+  saveBoard();
+  reloadJobs();
+}
+
+// every job that points at a column by name, wherever it lives - on the board, finished or archived
+static void forEachJob(Board &b, const std::function<void(kan::Job &)> &fn) {
+  for (auto &col : b.columns) {
+    for (auto &job : col.Jobs()) {
+      fn(job);
+    }
+  }
+  for (auto &job : b.finished) {
+    fn(job);
+  }
+  for (auto &job : b.archive) {
+    fn(job);
+  }
+}
+
+void Board::renameColumn(size_t idx, std::string title) {
+  auto old = columns.at(idx).title;
+
+  // the job files are rewritten, the history keeps the old name as it was at the time
+  forEachJob(*this, [&](kan::Job &job) {
+    bool changed = false;
+
+    if (job.status == old) {
+      job.status = title;
+      changed    = true;
+    }
+    if (job.finished_from == old) {
+      job.finished_from = title;
+      changed           = true;
+    }
+
+    if (changed) {
+      saveJob(job);
+    }
+  });
+
+  columns.at(idx).title = title;
+
+  saveBoard();
+  reloadJobs();
+}
+
+void Board::removeColumn(size_t idx, size_t move_jobs_to) {
+  auto old = columns.at(idx).title;
+  auto to  = columns.at(move_jobs_to).title;
+
+  for (auto &job : columns.at(idx).Jobs()) {
+    if (job.finished) { // struck through, saved with the finished ones below
+      continue;
+    }
+
+    job.status = to;
+    job.addEvent({std::format("Job status was updated: {} -> {}. The {} column was removed.", old, to, old), User().getFromSystem(), Timestamp().Now()});
+    saveJob(job);
+  }
+
+  // finished and archived jobs come back to the new column too
+  for (auto *list : {&finished, &archive}) {
+    for (auto &job : *list) {
+      bool changed = false;
+
+      if (job.status == old) {
+        job.status = to;
+        changed    = true;
+      }
+      if (job.finished_from == old) {
+        job.finished_from = to;
+        changed           = true;
+      }
+
+      if (changed) {
+        saveJob(job);
+      }
+    }
+  }
+
+  columns.erase(columns.begin() + idx);
+
+  saveBoard();
+  reloadJobs();
+}
+
+void Board::moveColumn(size_t from, size_t to) {
+  if (from >= columns.size() || to >= columns.size() || from == to) {
+    return;
+  }
+
+  auto column = columns.at(from);
+  columns.erase(columns.begin() + from);
+  columns.insert(columns.begin() + to, column);
+
+  saveBoard();
+}
+
+void Board::setColumnHeader(size_t idx, termui::Style style) {
+  columns.at(idx).header = style;
+  saveBoard();
 }
 
 int Board::nextJobId() {
@@ -214,10 +343,15 @@ void Board::loadJobs() {
       }
     }
 
-    for (auto &col : board.Columns()) {
-      if (col.title == loaded_job.status) {
-        col.Jobs().push_back(loaded_job);
-      }
+    auto col = std::find_if(board.Columns().begin(), board.Columns().end(), [&](kan::Column &c) { return c.title == loaded_job.status; });
+
+    // its column has gone, eg renamed on another branch - show it in the first column rather than lose it
+    if (col == board.Columns().end() && !board.Columns().empty()) {
+      col = board.Columns().begin();
+    }
+
+    if (col != board.Columns().end()) {
+      col->Jobs().push_back(loaded_job);
     }
   }
 
@@ -273,6 +407,11 @@ bool Board::refresh() {
   bool replace_columns = fresh.Statuses() != Statuses();
   if (replace_columns) {
     columns = fresh.columns;
+  }
+  else {
+    for (size_t i = 0; i < columns.size(); i++) {
+      columns[i].header = fresh.columns[i].header;
+    }
   }
 
   // a job finished while it's on the board, by a commit say, gets struck through like one finished here

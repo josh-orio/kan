@@ -259,6 +259,18 @@ void Board::display() {
   termui::terminal.flush();
 }
 
+void Board::rebuildColumns() { // the tui columns point into the old ones
+  _columns.clear();
+  for (auto &c : board.columns) {
+    _columns.push_back(tui::Column(c));
+  }
+
+  _active_col = std::min<uint>(_active_col, board.columns.empty() ? 0 : board.columns.size() - 1);
+
+  auto rows   = visibleRows(_active_col);
+  _active_row = std::min<uint>(_active_row, rows.empty() ? 0 : rows.size() - 1);
+}
+
 bool Board::refresh() {
   bool changed = termui::terminal.width() != _width || termui::terminal.height() != _height; // resized
 
@@ -276,13 +288,8 @@ bool Board::refresh() {
   std::string selected = _active_row < rows.size() ? board.Job(_active_col, rows[_active_row]).uuid : "";
 
   try {
-    if (board.refresh()) { // the tui columns point into the old ones
-      _columns.clear();
-      for (auto &c : board.columns) {
-        _columns.push_back(tui::Column(c));
-      }
-
-      _active_col = std::min<uint>(_active_col, board.columns.empty() ? 0 : board.columns.size() - 1);
+    if (board.refresh()) {
+      rebuildColumns();
     }
   }
   catch (const std::exception &e) { // a file caught half written, mid pull say - have another go next time
@@ -406,6 +413,7 @@ void Board::process_input() {
 
   else if (inp == "s") {
     tui::SettingsDialog().show();
+    rebuildColumns();
   }
 
   else if (inp == "a") {

@@ -30,7 +30,8 @@ private:
   kan::Watcher _git_watch; // HEAD and branches, for the ⎇ markers
   bool         _redraw = true;
 
-  bool refresh(); // true if anything on screen needs redrawing
+  bool refresh();        // true if anything on screen needs redrawing
+  void rebuildColumns(); // after board.columns was replaced, added to or removed from
 
   void display();
   void process_input();

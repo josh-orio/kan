@@ -73,7 +73,7 @@ void Column::render() {
   termui::terminal.CursorUp(_height - 1).CursorLeft(_width);
 
   // column title
-  termui::PaddedText(_column->title, termui::Styles::bold, termui::PaddingStyle::label).width(_width).height(1).render();
+  termui::PaddedText(_column->title, _column->header, termui::PaddingStyle::label).width(_width).height(1).render();
   termui::terminal.CursorDown(2).CursorLeft(_width);
 
   int line_height  = 2;
