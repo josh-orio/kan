@@ -17,16 +17,16 @@ private:
   void assignJobIds(std::vector<kan::Job> &jobs);
 
 public:
-  std::string              title;
-  std::vector<kan::Column> columns;
-  Issues                   issues;
-  int                      next_id = 1;
-  std::vector<User>        contributors; // people listed in contributors.yaml
-  std::vector<kan::Job>    archive;      // archived jobs, most recently archived first
-  std::vector<kan::Job>    finished;     // finished jobs, most recently finished first
-  std::set<std::string>    struck;       // uuids finished this session - they stay on the board, struck through, until kan closes
-  bool                     finish_on_last_column = false; // moving a job into the last column finishes it
-  std::map<int, git::Branch> branches;                    // job id -> its branch (12-fix-login-crash), read from git
+  std::string                title;
+  std::vector<kan::Column>   columns;
+  Issues                     issues;
+  int                        next_id = 1;
+  std::vector<User>          contributors;                  // people listed in contributors.yaml
+  std::vector<kan::Job>      archive;                       // archived jobs, most recently archived first
+  std::vector<kan::Job>      finished;                      // finished jobs, most recently finished first
+  std::set<std::string>      struck;                        // uuids finished this session - they stay on the board, struck through, until kan closes
+  bool                       finish_on_last_column = false; // moving a job into the last column finishes it
+  std::map<int, git::Branch> branches;                      // job id -> its branch (12-fix-login-crash), read from git
 
   termui::StyleMap styleMap;
 
@@ -64,7 +64,7 @@ public:
   void archiveJob(kan::Job job);
   void restoreJob(kan::Job job); // back to its old column, or the first column if that's gone
   void finishJob(kan::Job job);
-  void reopenJob(kan::Job job);  // back to the column it was finished from, or the first column if that's gone
+  void reopenJob(kan::Job job); // back to the column it was finished from, or the first column if that's gone
 
   void loadBoard();
   void saveBoard();
@@ -92,7 +92,6 @@ public:
   void addContributor(User user);
   void saveContributors();
   void saveStyleMap();
-
 };
 
 } // namespace kan

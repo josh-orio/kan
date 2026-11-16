@@ -337,7 +337,7 @@ std::string jobBranchName(int id, const std::string &title) {
 int branchJobId(const std::string &branch) {
   auto name = branch.substr(branch.rfind('/') + 1); // josh/12-fix -> 12-fix
 
-  int  id = 0;
+  int id         = 0;
   auto [ptr, ec] = std::from_chars(name.data(), name.data() + name.size(), id);
 
   if (ec != std::errc() || ptr == name.data() || id <= 0) {

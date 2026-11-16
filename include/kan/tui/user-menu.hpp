@@ -9,15 +9,15 @@ namespace tui {
 
 class UserMenu : termui::Interface {
 private:
-  std::string              _title = "Assign User";
+  std::string       _title = "Assign User";
   std::vector<User> _users;
   std::vector<User> _filtered; // _users narrowed down by _query
   std::string       _query;
-  unsigned int             _cursor;
-  unsigned int             _visible_lines;
-  unsigned int             _line_height = 1;
-  unsigned int             _start_line;
-  unsigned int             _line_spacing = 1;
+  unsigned int      _cursor;
+  unsigned int      _visible_lines;
+  unsigned int      _line_height = 1;
+  unsigned int      _start_line;
+  unsigned int      _line_spacing = 1;
 
   unsigned int _width = 60, _height = 15;
 

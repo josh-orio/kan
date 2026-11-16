@@ -15,7 +15,7 @@ namespace kan {
 
 struct Job {
   std::string title, description, status, uuid;
-  int         id = 0; // the #12 shown to users, 0 until assigned. uuid is the real identity, ids can change
+  int         id       = 0;     // the #12 shown to users, 0 until assigned. uuid is the real identity, ids can change
   bool        archived = false; // archived jobs are kept (and keep their id) but leave the board
 
   // finished jobs leave the board for the finished log
@@ -31,8 +31,8 @@ struct Job {
   Timestamp created, updated;
 
   Comments comments;
-  Commits commits;
-  History history;
+  Commits  commits;
+  History  history;
 
   Job();
   Job(YAML::Node yaml);

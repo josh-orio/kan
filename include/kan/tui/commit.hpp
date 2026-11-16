@@ -9,7 +9,7 @@ namespace tui {
 
 class Commit {
 private:
-  kan::Commit       _commit;
+  kan::Commit        _commit;
   std::optional<int> _width, _height;
   termui::Style      _style;
 

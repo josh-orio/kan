@@ -13,7 +13,7 @@ Board &Board::instance() {
 }
 
 Board::Board() : _active_col(0), _active_row(0) {
-    for (auto &c : board.columns) {
+  for (auto &c : board.columns) {
     _columns.push_back(tui::Column(c));
   }
 }
@@ -161,100 +161,102 @@ void Board::display() {
       .width(std::max<int>(_width - 4, termui::visible_length(board.Title())))
       .render();
 
-    int cols       = board.Columns().size();
+  int cols = board.Columns().size();
 
-    int col_width  = ((_width - 2) / cols) - 1;
-    int col_height = _height - 4; // 2 header, 2 footer
+  int col_width  = ((_width - 2) / cols) - 1;
+  int col_height = _height - 4; // 2 header, 2 footer
 
-    termui::Line line = termui::Line(termui::Line::Direction::Vertical, col_height).style(board.styleMap.at("column_separator"));
+  termui::Line line = termui::Line(termui::Line::Direction::Vertical, col_height).style(board.styleMap.at("column_separator"));
 
-    int row = 3, col = 2;
+  int row = 3, col = 2;
 
-    for (int i = 0; i < board.Columns().size(); i++) {
+  for (int i = 0; i < board.Columns().size(); i++) {
 
-      if (i == 0) {
-        termui::terminal.MoveCursor(row, col);
-        line.render();
-
-        col++;
-      }
-
-      termui::terminal.MoveCursor(row, col);
-
-      auto& column = _columns.at(i);
-
-      column.filter(visibleRows(i));
-
-      if (i == _active_col) {
-        column.focus();
-
-        if (i == _active_col) {
-          column.setCursor(_active_row);
-        }
-      }
-      else {
-        column.blur();
-      }
-
-      column.width(col_width).height(col_height);
-      column.render();
-
-      col += col_width;
-
+    if (i == 0) {
       termui::terminal.MoveCursor(row, col);
       line.render();
 
       col++;
     }
 
-    termui::terminal.MoveCursor(termui::terminal.height(), 2);
+    termui::terminal.MoveCursor(row, col);
 
-    if (_searching || !_query.empty()) {
-      // search bar replaces the control strip: "/ query  3 matches          esc clear  ↵ done"
-      unsigned int count = 0;
-      for (unsigned int i = 0; i < board.Columns().size(); i++) {
-        count += visibleRows(i).size();
-      }
+    auto &column = _columns.at(i);
 
-      auto strip = _searching ? ControlStrip({{"esc", "clear"}, {"↑↓", "navigate"}, {"↵", "done"}}) : ControlStrip({{"esc", "clear"}, {"/", "edit search"}, {"o", "open"}});
-      auto strip_w = 34u;
-      auto bar_w   = _width - 2 > strip_w + 1 ? _width - 2 - strip_w - 1 : 0;
+    column.filter(visibleRows(i));
 
-      termui::TextRow(bar_w)
-          .add(termui::Text("/", termui::Styles::bold))
-          .add(termui::Text(_query.empty() ? std::string("search title, description or #number") : _query, _query.empty() ? termui::Styles::faint : termui::Style()))
-          .add(termui::Text(std::format("{} {}", count, count == 1 ? "match" : "matches"), termui::Styles::faint))
-          .render();
+    if (i == _active_col) {
+      column.focus();
 
-      termui::terminal.MoveCursor(termui::terminal.height(), 2 + bar_w + 1);
-      strip.width(strip_w).render();
-
-      if (_searching) { // park the terminal cursor at the end of the query
-        termui::terminal.MoveCursor(termui::terminal.height(), 2 + 2 + termui::visible_length(_query));
-        termui::terminal.ShowCursor();
-      }
-      else {
-        termui::terminal.HideCursor();
+      if (i == _active_col) {
+        column.setCursor(_active_row);
       }
     }
     else {
-      termui::terminal.HideCursor();
-
-      ControlStrip({
-                       {"←↑↓→", "navigate"},
-                       {"/", "search"},
-                       {"o", "open"},
-                       {"n", "new job"},
-                       {"f", "finish"},
-                       {"F", "finished"},
-                       {"a", "archive"},
-                       {"?", "help"},
-                       {"s", "settings"},
-                       {"q", "quit"},
-                   })
-          .width(_width - 2)
-          .render();
+      column.blur();
     }
+
+    column.width(col_width).height(col_height);
+    column.render();
+
+    col += col_width;
+
+    termui::terminal.MoveCursor(row, col);
+    line.render();
+
+    col++;
+  }
+
+  termui::terminal.MoveCursor(termui::terminal.height(), 2);
+
+  if (_searching || !_query.empty()) {
+    // search bar replaces the control strip: "/ query  3 matches          esc clear  ↵ done"
+    unsigned int count = 0;
+    for (unsigned int i = 0; i < board.Columns().size(); i++) {
+      count += visibleRows(i).size();
+    }
+
+    auto strip   = _searching ? ControlStrip({{"esc", "clear"}, {"↑↓", "navigate"}, {"↵", "done"}})
+                              : ControlStrip({{"esc", "clear"}, {"/", "edit search"}, {"o", "open"}});
+    auto strip_w = 34u;
+    auto bar_w   = _width - 2 > strip_w + 1 ? _width - 2 - strip_w - 1 : 0;
+
+    termui::TextRow(bar_w)
+        .add(termui::Text("/", termui::Styles::bold))
+        .add(termui::Text(_query.empty() ? std::string("search title, description or #number") : _query,
+                          _query.empty() ? termui::Styles::faint : termui::Style()))
+        .add(termui::Text(std::format("{} {}", count, count == 1 ? "match" : "matches"), termui::Styles::faint))
+        .render();
+
+    termui::terminal.MoveCursor(termui::terminal.height(), 2 + bar_w + 1);
+    strip.width(strip_w).render();
+
+    if (_searching) { // park the terminal cursor at the end of the query
+      termui::terminal.MoveCursor(termui::terminal.height(), 2 + 2 + termui::visible_length(_query));
+      termui::terminal.ShowCursor();
+    }
+    else {
+      termui::terminal.HideCursor();
+    }
+  }
+  else {
+    termui::terminal.HideCursor();
+
+    ControlStrip({
+                     {"←↑↓→", "navigate"},
+                     {"/", "search"},
+                     {"o", "open"},
+                     {"n", "new job"},
+                     {"f", "finish"},
+                     {"F", "finished"},
+                     {"a", "archive"},
+                     {"?", "help"},
+                     {"s", "settings"},
+                     {"q", "quit"},
+                 })
+        .width(_width - 2)
+        .render();
+  }
 
   termui::terminal.flush();
 }
@@ -365,16 +367,16 @@ void Board::process_input() {
     // serialize board out to disk
   }
   else if (inp == termui::key::U_ARROW) {
-      Up();
+    Up();
   }
   else if (inp == termui::key::D_ARROW) {
-      Down();
+    Down();
   }
   else if (inp == termui::key::L_ARROW) {
-      Left();
+    Left();
   }
   else if (inp == termui::key::R_ARROW) {
-      Right();
+    Right();
   }
   else if (inp == "n") {
     auto [success, new_job] = tui::NewJob().show();
@@ -392,23 +394,22 @@ void Board::process_input() {
   }
   else if (inp == "o" || inp == termui::key::ENTER) {
 
-      // seralize job out to disk
+    // seralize job out to disk
 
-      auto rows = visibleRows(ActiveColumn());
+    auto rows = visibleRows(ActiveColumn());
 
-      if (ActiveRow() >= rows.size()) {
-        return;
-      }
+    if (ActiveRow() >= rows.size()) {
+      return;
+    }
 
-      auto [modified, job] = tui::JobWindow(board.Job(ActiveColumn(), rows.at(ActiveRow()))).show();
+    auto [modified, job] = tui::JobWindow(board.Job(ActiveColumn(), rows.at(ActiveRow()))).show();
 
-      // if modified
-      if (modified) {
+    // if modified
+    if (modified) {
 
-        board.saveJob(job);
-        board.reloadJobs();
-      }
-
+      board.saveJob(job);
+      board.reloadJobs();
+    }
   }
 
   else if (inp == "s") {
@@ -447,7 +448,6 @@ void Board::process_input() {
 void Board::internal_update() {
   _height = termui::terminal.height();
   _width  = termui::terminal.width();
-
 }
 
 } // namespace tui

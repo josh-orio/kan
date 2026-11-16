@@ -33,7 +33,12 @@ void ArchiveWindow::display() {
 
   if (jobs.empty()) {
     termui::terminal.MoveCursor(r, 2);
-    termui::Text("Nothing archived. Archive a job with x in its job window.").style(termui::Styles::faint).align(termui::Text::Alignment::Center).width(content_w).height(1).render();
+    termui::Text("Nothing archived. Archive a job with x in its job window.")
+        .style(termui::Styles::faint)
+        .align(termui::Text::Alignment::Center)
+        .width(content_w)
+        .height(1)
+        .render();
   }
 
   for (unsigned int i = _start_line; i < std::min<size_t>(jobs.size(), _start_line + _visible_rows); i++) {
@@ -57,19 +62,11 @@ void ArchiveWindow::display() {
     auto left_w  = (content_w - 2) > right_w + 1 ? (content_w - 2) - right_w - 1 : 0;
 
     termui::terminal.MoveCursor(row, 4);
-    termui::TextRow(left_w)
-        .paddingStyle(style)
-        .add(termui::Text(std::format("#{}", job.id), faint_style))
-        .add(termui::Text(job.title, bold_style))
-        .render();
+    termui::TextRow(left_w).paddingStyle(style).add(termui::Text(std::format("#{}", job.id), faint_style)).add(termui::Text(job.title, bold_style)).render();
 
     termui::Text(" ", style).width(1).height(1).render();
 
-    termui::TextRow(right_w)
-        .paddingStyle(style)
-        .add(termui::Text(job.status, faint_style))
-        .add(termui::Text(job.updated.toString(), style))
-        .render();
+    termui::TextRow(right_w).paddingStyle(style).add(termui::Text(job.status, faint_style)).add(termui::Text(job.updated.toString(), style)).render();
   }
 
   // control strip

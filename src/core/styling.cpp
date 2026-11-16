@@ -7,9 +7,9 @@ namespace kan {
 namespace styling {
 
 // the 16 standard terminal colours, in their ansi order
-static const std::vector<std::string> names = {"black",       "red",         "green",        "yellow",      "blue",        "magenta",
-                                               "cyan",        "white",       "bright-black", "bright-red",  "bright-green", "bright-yellow",
-                                               "bright-blue", "bright-magenta", "bright-cyan", "bright-white"};
+static const std::vector<std::string> names = {"black",       "red",          "green",      "yellow",       "blue",          "magenta",     "cyan",
+                                               "white",       "bright-black", "bright-red", "bright-green", "bright-yellow", "bright-blue", "bright-magenta",
+                                               "bright-cyan", "bright-white"};
 
 static std::string lower(std::string s) {
   std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });

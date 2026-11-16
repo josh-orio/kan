@@ -16,8 +16,8 @@ struct User { // struct to represent a Git user
 
   std::string toString();
   std::string Name();
-  
-  bool operator==(const User& other) const;
+
+  bool operator==(const User &other) const;
 };
 
 } // namespace kan

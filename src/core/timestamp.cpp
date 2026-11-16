@@ -42,7 +42,6 @@ std::string Timestamp::toString() {
   std::ostringstream oss;
   oss << std::put_time(&tm_buf, "%d %b %Y %H:%M:%S");
   return oss.str();
-
 }
 
 } // namespace kan

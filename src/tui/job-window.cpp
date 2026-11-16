@@ -183,7 +183,8 @@ void JobWindow::process_input() {
     }
 
     if (inp == "f" && !_job.finished) {
-      if (DialogBox("Finish job", std::format("Finish #{} {}? It moves to the finished log (F on the board).", _job.id, _job.title), "finish", "cancel").show()) {
+      if (DialogBox("Finish job", std::format("Finish #{} {}? It moves to the finished log (F on the board).", _job.id, _job.title), "finish", "cancel")
+              .show()) {
         board.finishJob(_job); // saves any other edits made in this window too
         _modified = false;
         state     = termui::Interface::State::Exit;
@@ -192,7 +193,9 @@ void JobWindow::process_input() {
     }
 
     if (inp == "x") {
-      if (DialogBox("Archive job", std::format("Archive #{} {}? You can restore it from the archive (a) on the board.", _job.id, _job.title), "archive", "cancel").show()) {
+      if (DialogBox("Archive job", std::format("Archive #{} {}? You can restore it from the archive (a) on the board.", _job.id, _job.title), "archive",
+                    "cancel")
+              .show()) {
         board.archiveJob(_job); // saves any other edits made in this window too
         _modified = false;      // already saved - stop the board saving it back onto the board
         state     = termui::Interface::State::Exit;
@@ -201,7 +204,10 @@ void JobWindow::process_input() {
     }
 
     if (inp == "D") {
-      if (DialogBox("Delete job", std::format("Delete #{} {} for good? This can't be undone - archive it with x if you might want it back.", _job.id, _job.title), "delete", "cancel").show()) {
+      if (DialogBox("Delete job",
+                    std::format("Delete #{} {} for good? This can't be undone - archive it with x if you might want it back.", _job.id, _job.title), "delete",
+                    "cancel")
+              .show()) {
         board.deleteJob(_job);
         _modified = false;
         state     = termui::Interface::State::Exit;
@@ -242,7 +248,6 @@ void JobWindow::process_input() {
       _commit_list.GotoBottom();
     }
   }
-
 }
 
 // g - check out the job's branch, making it first if there isn't one

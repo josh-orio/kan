@@ -52,8 +52,8 @@ const char *usage_text = "kan - a kanban board that lives in your git repo\n"
                          "kan ls prints tab separated columns, without a header, when it isn't writing to a terminal.\n"
                          "to open a board in a folder named like a command, give a path: kan ./ls\n";
 
-const std::vector<std::string> commands = {"new",     "ls",     "show",   "mv",          "assign", "comment", "finish",
-                                           "reopen",  "archive", "restore", "branch", "link-commit", "help", "--help", "-h"};
+const std::vector<std::string> commands = {"new",     "ls",      "show",   "mv",          "assign", "comment", "finish", "reopen",
+                                           "archive", "restore", "branch", "link-commit", "help",   "--help",  "-h"};
 
 // bad arguments - exit status 2, and a hint to look at kan help
 struct UsageError : std::runtime_error {
@@ -172,7 +172,7 @@ void openBoard() {
 int jobId(const std::string &ref) {
   auto digits = ref.starts_with("#") ? ref.substr(1) : ref;
 
-  int  id = 0;
+  int id         = 0;
   auto [ptr, ec] = std::from_chars(digits.data(), digits.data() + digits.size(), id);
 
   if (ec != std::errc() || ptr != digits.data() + digits.size() || id <= 0) {
@@ -371,7 +371,8 @@ int cmdLs(const std::vector<std::string> &raw) {
     assignee_w = std::min<size_t>(20, std::max(assignee_w, termui::visible_length(assigneeName(job))));
   }
 
-  std::cout << bold(std::format("{}  {}  {}  {}  {}", pad("#", id_w), pad("STATUS", status_w), pad("PRIORITY", 8), pad("ASSIGNEE", assignee_w), "TITLE")) << "\n";
+  std::cout << bold(std::format("{}  {}  {}  {}  {}", pad("#", id_w), pad("STATUS", status_w), pad("PRIORITY", 8), pad("ASSIGNEE", assignee_w), "TITLE"))
+            << "\n";
 
   for (auto &job : jobs) {
     auto line = std::format("{}  {}  {}  {}  {}", pad("#" + std::to_string(job.id), id_w), pad(where(job), status_w), pad(priorityName(job.priority), 8),
@@ -498,7 +499,8 @@ int cmdAssign(const std::vector<std::string> &raw) {
   auto old = job.assignee.name.empty() ? std::string("None") : job.assignee.Name();
 
   job.assignee = who;
-  job.addEvent({std::format("Job assignee was updated: {} -> {}.", old, who.name.empty() ? std::string("None") : who.Name()), User().getFromSystem(), Timestamp().Now()});
+  job.addEvent({std::format("Job assignee was updated: {} -> {}.", old, who.name.empty() ? std::string("None") : who.Name()), User().getFromSystem(),
+                Timestamp().Now()});
 
   board.saveJob(job);
 
@@ -682,16 +684,16 @@ int matchColumn(const std::vector<std::string> &columns, const std::string &name
     list += (list.empty() ? "" : ", ") + o;
   }
 
-  throw std::runtime_error(starts.empty() ? std::format("there's no column called {} - the columns are {}", name, list) : std::format("{} could be {}", name, list));
+  throw std::runtime_error(starts.empty() ? std::format("there's no column called {} - the columns are {}", name, list)
+                                          : std::format("{} could be {}", name, list));
 }
 
 bool isCommand(const std::string &arg) { return std::find(commands.begin(), commands.end(), arg) != commands.end(); }
 
 int run(const std::vector<std::string> &args) {
   static const std::map<std::string, int (*)(const std::vector<std::string> &)> handlers = {
-      {"new", cmdNew},         {"ls", cmdLs},           {"show", cmdShow},       {"mv", cmdMv},
-      {"assign", cmdAssign},   {"comment", cmdComment}, {"finish", cmdFinish},   {"reopen", cmdReopen},
-      {"archive", cmdArchive}, {"restore", cmdRestore}, {"branch", cmdBranch},   {"link-commit", cmdLinkCommit},
+      {"new", cmdNew},       {"ls", cmdLs},         {"show", cmdShow},       {"mv", cmdMv},           {"assign", cmdAssign}, {"comment", cmdComment},
+      {"finish", cmdFinish}, {"reopen", cmdReopen}, {"archive", cmdArchive}, {"restore", cmdRestore}, {"branch", cmdBranch}, {"link-commit", cmdLinkCommit},
   };
 
   auto it = args.empty() ? handlers.end() : handlers.find(args[0]);

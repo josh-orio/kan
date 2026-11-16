@@ -94,19 +94,11 @@ void CommitList::render() {
       auto left_w  = (_w - 2) > right_w + 1 ? (_w - 2) - right_w - 1 : 0;
 
       termui::terminal.MoveCursor(r, col + 2);
-      termui::TextRow(left_w)
-          .paddingStyle(style)
-          .add(termui::Text(title, bold_style))
-          .add(termui::Text(rest, faint_style))
-          .render();
+      termui::TextRow(left_w).paddingStyle(style).add(termui::Text(title, bold_style)).add(termui::Text(rest, faint_style)).render();
 
       termui::Text(" ", style).width(1).height(1).render();
 
-      termui::TextRow(right_w)
-          .paddingStyle(style)
-          .add(termui::Text(commit.hash.substr(0, 7), faint_style), 7)
-          .add(termui::Text(date, style))
-          .render();
+      termui::TextRow(right_w).paddingStyle(style).add(termui::Text(commit.hash.substr(0, 7), faint_style), 7).add(termui::Text(date, style)).render();
     }
   }
 

@@ -3,8 +3,8 @@
 
 #include <format>
 #include <kan/core.hpp>
-#include <kan/tui/tab-bar.hpp>
 #include <kan/tui/column.hpp>
+#include <kan/tui/tab-bar.hpp>
 #include <vector>
 
 namespace kan {
@@ -39,7 +39,6 @@ private:
 
 public:
   Board();
-
 
   static Board &instance();
 

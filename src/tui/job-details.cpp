@@ -10,7 +10,7 @@ std::vector<std::variant<JobDescription, kan::Comment, kan::Commit>> idk(Job job
     events.push_back(c);
   }
 
-  for (const auto &c: job.commits) {
+  for (const auto &c : job.commits) {
     events.push_back(c);
   }
 
@@ -305,7 +305,6 @@ void JobDetails::render() {
     init_cursor_r += item_height + item_gap;
   }
   // clang-format on
-
 }
 
 void JobDetails::internal_update() {

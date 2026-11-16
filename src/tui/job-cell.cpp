@@ -31,7 +31,7 @@ void JobCell::render() {
   auto row_style_bold       = row_style;
   row_style_bold.attributes = {termui::SGR::Bold};
 
-  auto row_style_faint      = row_style;
+  auto row_style_faint       = row_style;
   row_style_faint.attributes = {termui::SGR::Faint};
 
   // finished this session - crossed out and faint until kan closes
@@ -53,18 +53,14 @@ void JobCell::render() {
 
   termui::PaddedText(label)
       .setPadding(termui::PaddingStyle::label)
-      .style(_focussed ? row_style_faint: termui::Styles::faint)
+      .style(_focussed ? row_style_faint : termui::Styles::faint)
       .size(11, 1)
       .align(termui::Text::Alignment::Right)
       .render();
 
   termui::terminal.CursorLeft(_width).CursorDown(1);
 
-  termui::PaddedText(_job.description)
-      .setPadding(termui::PaddingStyle::label)
-      .style(strike(_focussed ? row_style : termui::Style()))
-      .size(_width, 1)
-      .render();
+  termui::PaddedText(_job.description).setPadding(termui::PaddingStyle::label).style(strike(_focussed ? row_style : termui::Style())).size(_width, 1).render();
 }
 
 } // namespace tui

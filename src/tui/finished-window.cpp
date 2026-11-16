@@ -163,7 +163,8 @@ void FinishedWindow::display() {
   if (_searching || !_query.empty()) {
     termui::TextRow(content_w)
         .add(termui::Text("/", termui::Styles::bold))
-        .add(termui::Text(_query.empty() ? std::string("search title, description or #number") : _query, _query.empty() ? termui::Styles::faint : termui::Style()))
+        .add(termui::Text(_query.empty() ? std::string("search title, description or #number") : _query,
+                          _query.empty() ? termui::Styles::faint : termui::Style()))
         .add(termui::Text(std::format("{} {}", jobs.size(), jobs.size() == 1 ? "match" : "matches"), termui::Styles::faint))
         .render();
 
@@ -251,7 +252,10 @@ void FinishedWindow::process_input() {
   else if (inp == "u" && !jobs.empty()) {
     auto job = jobs.at(_cursor);
 
-    if (DialogBox("Reopen job", std::format("Reopen #{} {}? It goes back to {}.", job.id, job.title, job.finished_from.empty() ? job.status : job.finished_from), "reopen", "cancel").show()) {
+    if (DialogBox("Reopen job",
+                  std::format("Reopen #{} {}? It goes back to {}.", job.id, job.title, job.finished_from.empty() ? job.status : job.finished_from), "reopen",
+                  "cancel")
+            .show()) {
       board.reopenJob(job);
     }
   }

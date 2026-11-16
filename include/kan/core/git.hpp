@@ -15,7 +15,7 @@ struct FileChange {
   std::string path;     // path after the commit
   std::string old_path; // path before the commit, only set for renames/copies
   int         additions = 0, deletions = 0;
-  bool        binary    = false; // git doesn't count lines for binary files
+  bool        binary = false; // git doesn't count lines for binary files
 };
 
 Commit readCommit(const std::string &hash);

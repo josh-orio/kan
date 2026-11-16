@@ -98,9 +98,6 @@ void KAN::init() {
   board.saveStyleMap();
 };
 
-void KAN::start() {
-  renderer.show();
-
-}
+void KAN::start() { renderer.show(); }
 
 } // namespace kan

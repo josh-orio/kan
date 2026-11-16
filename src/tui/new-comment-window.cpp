@@ -24,7 +24,7 @@ void NewCommentWindow::display() {
   termui::terminal.MoveCursor(window_start_row + 3, window_start_col + 2);
   termui::Input(_comment.text, "Type your comment...").size(_width - 4, 3).focussed(_selected_field == Focus::Text).render();
 
-  auto [row,col] = termui::terminal.GetFutureCursorPosition();
+  auto [row, col] = termui::terminal.GetFutureCursorPosition();
 
   // control bar
   termui::terminal.MoveCursor(window_start_row + 7, window_start_col + 2);

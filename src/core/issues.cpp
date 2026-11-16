@@ -3,7 +3,7 @@
 namespace kan {
 
 // ---- Issue ----
-Issue::Issue() : uuid(UUID::generate()){}
+Issue::Issue() : uuid(UUID::generate()) {}
 
 Issue::Issue(YAML::Node yaml) { fromYaml(yaml); }
 

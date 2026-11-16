@@ -23,7 +23,7 @@ std::vector<int> parseJobRefs(const std::string &message) {
     const char *start = message.data() + pos + 1;
     const char *end   = message.data() + message.size();
 
-    int  id = 0;
+    int id         = 0;
     auto [ptr, ec] = std::from_chars(start, end, id);
 
     if (ec != std::errc() || ptr == start || (ptr != end && isWordChar(*ptr)) || id <= 0) { // neither is #12abc

@@ -1,7 +1,7 @@
 #include <filesystem>
 #include <format>
-#include <functional>
 #include <fstream>
+#include <functional>
 #include <kan/core.hpp>
 #include <set>
 
@@ -324,7 +324,6 @@ void Board::loadJobs() {
 
     YAML::Node config = YAML::LoadFile(entry.path());
     loaded_jobs.push_back(kan::Job(config));
-
   }
 
   assignJobIds(loaded_jobs);
@@ -393,7 +392,6 @@ void Board::reloadJobs() {
   finished.clear();
 
   loadJobs();
-
 }
 
 bool Board::refresh() {
@@ -483,7 +481,6 @@ void Board::loadIssues() {
 
     board.issues.addIssue(loaded_issue);
   }
-
 }
 
 std::string styleToString(termui::Style style) {
@@ -621,7 +618,6 @@ void Board::loadStyleMap() {
   catch (const std::exception &e) {
     logMessage(std::string("Failed to load style.yaml: ") + e.what());
     return;
-  
   }
 
   for (auto const &s : style) {
@@ -646,29 +642,29 @@ void Board::saveStyleMap() {
 }
 
 std::vector<User> Board::Users() {
-    std::vector<User> users;
+  std::vector<User> users;
 
-    // Iterate through all jobs to collect users
-    for (auto &column : columns) {
-      const auto &jobs = column.Jobs();
-      for (const auto &job : jobs) {
-        // Collect creator, modifier, and assignee names
-        if (!job.creator.name.empty()) {
-          users.push_back(job.creator);
-        }
-        if (!job.modifier.name.empty()) {
-          users.push_back(job.modifier);
-        }
-        if (!job.assignee.name.empty()) {
-          users.push_back(job.assignee);
-        }
+  // Iterate through all jobs to collect users
+  for (auto &column : columns) {
+    const auto &jobs = column.Jobs();
+    for (const auto &job : jobs) {
+      // Collect creator, modifier, and assignee names
+      if (!job.creator.name.empty()) {
+        users.push_back(job.creator);
+      }
+      if (!job.modifier.name.empty()) {
+        users.push_back(job.modifier);
+      }
+      if (!job.assignee.name.empty()) {
+        users.push_back(job.assignee);
       }
     }
+  }
 
-    // Remove duplicates
-    users.erase(std::unique(users.begin(), users.end()), users.end());
-    
-    return users;
+  // Remove duplicates
+  users.erase(std::unique(users.begin(), users.end()), users.end());
+
+  return users;
 }
 
 // contributors.yaml holds a list of users: [{name, email}, ...]
@@ -685,9 +681,7 @@ void Board::loadContributors() {
   }
 }
 
-bool Board::isContributor(const User &user) {
-  return std::find(contributors.begin(), contributors.end(), user) != contributors.end();
-}
+bool Board::isContributor(const User &user) { return std::find(contributors.begin(), contributors.end(), user) != contributors.end(); }
 
 void Board::addContributor(User user) {
   contributors.push_back(user);

@@ -1,9 +1,9 @@
 #ifndef CORE_HISTORY_HPP
 #define CORE_HISTORY_HPP
 
-#include <kan/core/uuid.hpp>
 #include <kan/core/timestamp.hpp>
 #include <kan/core/user.hpp>
+#include <kan/core/uuid.hpp>
 #include <string>
 #include <termui/termui.hpp>
 
@@ -13,7 +13,7 @@ struct Event {
   termui::string text;
   User           user;
   Timestamp      time;
-UUID    uuid;
+  UUID           uuid;
 
   Event();
   Event(termui::string text, User user, Timestamp time);
@@ -21,7 +21,6 @@ UUID    uuid;
 
   void       fromYaml(YAML::Node yaml);
   YAML::Node toYaml();
-
 };
 
 struct History {

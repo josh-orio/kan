@@ -62,11 +62,11 @@ void HistoryViewer::render() {
 
       termui::terminal.MoveCursor(start_row + 1, col + 2);
 
-      auto bold_style = i == _cursor ? row_style : termui::Style();
+      auto bold_style       = i == _cursor ? row_style : termui::Style();
       bold_style.attributes = {termui::SGR::Bold};
 
-      termui::Text(_history.at(i ).user.Name()).style(termui::Styles::bold).size(_w - 2 - 20, 1).style(bold_style).render();
-      termui::Text(_history.at(i ).time.toString()).size(20, 1).align(termui::Text::Alignment::Right).style(i == _cursor ? row_style : termui::Style()).render();
+      termui::Text(_history.at(i).user.Name()).style(termui::Styles::bold).size(_w - 2 - 20, 1).style(bold_style).render();
+      termui::Text(_history.at(i).time.toString()).size(20, 1).align(termui::Text::Alignment::Right).style(i == _cursor ? row_style : termui::Style()).render();
     }
   }
 

@@ -104,8 +104,8 @@ void Column::internal_update() {
     _visible_rows++;
   }
 
-  if ( _cursor < _start_line) {
-    _start_line=_cursor;
+  if (_cursor < _start_line) {
+    _start_line = _cursor;
   }
   else if (_cursor >= _start_line + _visible_rows) {
     _start_line = _cursor - _visible_rows; // maybe -1

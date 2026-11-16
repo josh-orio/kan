@@ -26,7 +26,8 @@ std::pair<unsigned int, unsigned int> Description::size() {
 
   auto text = _description.text.empty() ? std::string("No description provided.") : _description.text;
 
-  auto [width, height] = termui::PaddedText(text).setPadding({2, 0, 1, 0}).style(_style).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).size();
+  auto [width, height] =
+      termui::PaddedText(text).setPadding({2, 0, 1, 0}).style(_style).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).size();
 
   return {width, height + 1};
 }
@@ -47,7 +48,12 @@ void Description::render() {
   termui::terminal.CursorDown(1).CursorLeft(w);
 
   if (_description.text.empty()) {
-    termui::PaddedText("No description provided.").setPadding({2, 0, 1, 0}).style(faint_style).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).render();
+    termui::PaddedText("No description provided.")
+        .setPadding({2, 0, 1, 0})
+        .style(faint_style)
+        .width(w)
+        .height(has_h ? std::optional<int>(h - 1) : std::nullopt)
+        .render();
   }
   else {
     termui::PaddedText(_description.text).setPadding({2, 0, 1, 0}).style(_style).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).render();

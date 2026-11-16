@@ -19,7 +19,7 @@ void Job::fromYaml(YAML::Node yaml) {
   updated     = Timestamp(yaml["updated"]);
   creator     = User().fromYaml(yaml["creator"]);
   modifier    = User().fromYaml(yaml["modifier"]);
-  assignee     = User().fromYaml(yaml["assignee"]);
+  assignee    = User().fromYaml(yaml["assignee"]);
   uuid        = yaml["uuid"].as<std::string>();
   id          = yaml["id"].as<int>(0);
   archived    = yaml["archived"].as<bool>(false);

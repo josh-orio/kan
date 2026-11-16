@@ -1,9 +1,9 @@
 #ifndef CORE_COMMENTS_HPP
 #define CORE_COMMENTS_HPP
 
-#include <kan/core/uuid.hpp>
 #include <kan/core/timestamp.hpp>
 #include <kan/core/user.hpp>
+#include <kan/core/uuid.hpp>
 #include <string>
 #include <termui/termui.hpp>
 

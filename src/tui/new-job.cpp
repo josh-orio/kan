@@ -26,11 +26,10 @@ void NewJob::display() {
 
   // title content
   termui::terminal.MoveCursor(window_start_row + 3, window_start_col + 2);
-  termui::Input(new_job.title, "What needs to be done?").width(_width - 4).height(1)
-  .focussed(_selected_field == Focus::Title).render();
+  termui::Input(new_job.title, "What needs to be done?").width(_width - 4).height(1).focussed(_selected_field == Focus::Title).render();
 
-   if (_selected_field == Focus::Title) {
-  std::tie(rc_row, rc_col)  = termui::terminal.GetFutureCursorPosition();
+  if (_selected_field == Focus::Title) {
+    std::tie(rc_row, rc_col) = termui::terminal.GetFutureCursorPosition();
   }
 
   // description header
@@ -39,11 +38,10 @@ void NewJob::display() {
 
   // description content
   termui::terminal.MoveCursor(window_start_row + 7, window_start_col + 2);
-  termui::Input(new_job.description, "Give some more info...").width(_width - 4).height(3)
-   .focussed(_selected_field == Focus::Description).render();
+  termui::Input(new_job.description, "Give some more info...").width(_width - 4).height(3).focussed(_selected_field == Focus::Description).render();
 
-   if (_selected_field == Focus::Description) {
-      std::tie(rc_row, rc_col) = termui::terminal.GetFutureCursorPosition();
+  if (_selected_field == Focus::Description) {
+    std::tie(rc_row, rc_col) = termui::terminal.GetFutureCursorPosition();
   }
 
   // window ctrl strip
@@ -144,7 +142,7 @@ void NewJob::process_input() {
 }
 
 std::pair<bool, kan::Job> NewJob::show() {
-  state = State::Continue;
+  state           = State::Continue;
   _selected_field = Focus::Title;
 
   do {
