@@ -33,8 +33,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN OFF)
 
 FetchContent_Declare(
   termui
-  # GIT_REPOSITORY https://github.com/josh-orio/termui.git
-  GIT_REPOSITORY /Users/joshorio/work/termui
+  GIT_REPOSITORY https://github.com/josh-orio/termui.git
   GIT_TAG main
 )
 FetchContent_MakeAvailable(termui)
