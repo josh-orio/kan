@@ -44,6 +44,9 @@ std::string switchBranch(const std::string &name, bool create); // git switch [-
 std::filesystem::path gitDir();    // .git of this worktree, empty outside a git repo
 std::filesystem::path commonDir(); // .git shared by every worktree - branches live here
 
+std::filesystem::path
+hooksDir(const std::filesystem::path &repo); // where git runs hooks from for the repo holding <repo> (core.hooksPath aware), empty outside a git repo
+
 } // namespace git
 } // namespace kan
 

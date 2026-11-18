@@ -28,7 +28,7 @@ KAN is a terminal based project management tool that lives entirely in your repo
 
 ## Building
 
-KAN is C++20 and uses `#embed`, so it needs a recent Clang. The makefile uses `llvm@20` from Homebrew.
+KAN is C++20. The makefile uses `llvm@20` from Homebrew, but the Apple Clang that comes with Xcode works too.
 
 ```sh
 brew install llvm@20 cmake
@@ -82,13 +82,10 @@ Jobs are given by number (`12` or `#12`), columns match without case by a unique
 
 ### Linking commits
 
-Add a post-commit hook so commits that mention a job get linked to it:
+When kan makes a new board inside a git repo it adds a post-commit hook (respecting `core.hooksPath`), so commits that mention a job get linked to it. An existing shell hook is kept and the kan line is added to the end. Anyone cloning a repo that already has a board can add it themselves:
 
 ```sh
-cat > .git/hooks/post-commit <<'EOF'
-#!/bin/sh
-kan link-commit "$(git rev-parse HEAD)"
-EOF
+echo 'kan link-commit "$(git rev-parse HEAD)"' >> .git/hooks/post-commit
 chmod +x .git/hooks/post-commit
 ```
 

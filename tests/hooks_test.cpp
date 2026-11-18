@@ -44,3 +44,64 @@ TEST(parseClosingRefs, IgnoresPlainRefs) {
   EXPECT_EQ(kan::hooks::parseClosingRefs("fixes #12abc"), ids({}));
   EXPECT_EQ(kan::hooks::parseClosingRefs(""), ids({}));
 }
+
+class InstallHook : public ::testing::Test {
+protected:
+  TempDir dir{"hook"};
+  InDir   in{dir.path};
+
+  std::string hook() {
+    std::ifstream in(dir / ".git/hooks/post-commit");
+    return std::string(std::istreambuf_iterator<char>(in), {});
+  }
+};
+
+TEST_F(InstallHook, AddsAHook) {
+  gitInit();
+
+  EXPECT_NE(kan::hooks::installHook(dir.path), "");
+  EXPECT_TRUE(hook().starts_with("#!/bin/sh\n"));
+  EXPECT_NE(hook().find("kan link-commit"), std::string::npos);
+
+  auto perms = std::filesystem::status(dir / ".git/hooks/post-commit").permissions();
+  EXPECT_NE(perms & std::filesystem::perms::owner_exec, std::filesystem::perms::none);
+}
+
+TEST_F(InstallHook, OnlyOnce) {
+  gitInit();
+
+  kan::hooks::installHook(dir.path);
+  auto first = hook();
+
+  EXPECT_EQ(kan::hooks::installHook(dir.path), "");
+  EXPECT_EQ(hook(), first);
+}
+
+TEST_F(InstallHook, KeepsAnExistingShellHook) {
+  gitInit();
+  std::ofstream(dir / ".git/hooks/post-commit") << "#!/bin/sh\necho mine\n";
+
+  kan::hooks::installHook(dir.path);
+
+  EXPECT_TRUE(hook().starts_with("#!/bin/sh\necho mine\n"));
+  EXPECT_NE(hook().find("kan link-commit"), std::string::npos);
+}
+
+TEST_F(InstallHook, LeavesOtherLanguagesAlone) {
+  gitInit();
+  std::ofstream(dir / ".git/hooks/post-commit") << "#!/usr/bin/env python3\nprint('mine')\n";
+
+  EXPECT_NE(kan::hooks::installHook(dir.path).find("isn't a shell script"), std::string::npos);
+  EXPECT_EQ(hook(), "#!/usr/bin/env python3\nprint('mine')\n");
+}
+
+TEST_F(InstallHook, FollowsHooksPath) {
+  gitInit();
+  sh("git config core.hooksPath .githooks");
+
+  kan::hooks::installHook(dir.path);
+
+  EXPECT_TRUE(std::filesystem::exists(dir / ".githooks/post-commit"));
+}
+
+TEST_F(InstallHook, NothingOutsideARepo) { EXPECT_EQ(kan::hooks::installHook(dir.path), ""); }

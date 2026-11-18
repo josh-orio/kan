@@ -3,6 +3,7 @@
 #include <charconv>
 #include <cstdio>
 #include <format>
+#include <fstream>
 #include <iostream>
 #include <kan/core.hpp>
 #include <stdexcept>
@@ -140,6 +141,45 @@ void postCommit(Board &board, const std::string &hash) {
 
     std::cout << std::format("kan: finished #{}\n", id);
   }
+}
+
+std::string installHook(const std::filesystem::path &repo) {
+  static const std::string block = "\n# kan - links commits that mention #N to job N (see kan help)\n"
+                                   "command -v kan >/dev/null 2>&1 && kan link-commit \"$(git rev-parse HEAD)\"\n";
+
+  auto dir = git::hooksDir(repo);
+  if (dir.empty()) {
+    return "";
+  }
+
+  auto hook = dir / "post-commit";
+
+  std::string existing;
+  if (std::filesystem::exists(hook)) {
+    std::ifstream in(hook);
+    existing.assign(std::istreambuf_iterator<char>(in), {});
+  }
+
+  if (existing.find("kan link-commit") != std::string::npos) {
+    return "";
+  }
+
+  // appending shell to a python (or any other) hook would break it
+  if (!existing.empty() && existing.substr(0, existing.find('\n')).find("sh") == std::string::npos) {
+    return std::format(
+        "kan: {} isn't a shell script, so commits won't be linked to jobs. Add this line to it to link them:\n  kan link-commit \"$(git rev-parse HEAD)\"",
+        hook.string());
+  }
+
+  std::error_code ec;
+  std::filesystem::create_directories(dir, ec);
+
+  std::ofstream(hook, std::ios::app) << (existing.empty() ? "#!/bin/sh\n" : "") << block;
+
+  std::filesystem::permissions(hook, std::filesystem::perms::owner_exec | std::filesystem::perms::group_exec | std::filesystem::perms::others_exec,
+                               std::filesystem::perm_options::add, ec);
+
+  return std::format("kan: added a post-commit hook ({}) so commits that mention #N are linked to job N", hook.string());
 }
 
 } // namespace hooks

@@ -13,6 +13,7 @@ namespace kan {
 class KAN : termui::Interface {
 private:
   std::filesystem::path _path;
+  std::string           _hook_note; // what init did about the post-commit hook, shown once the board is up
 
   void init();
 

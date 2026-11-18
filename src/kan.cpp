@@ -5,16 +5,6 @@
 
 namespace kan {
 
-namespace scripts {
-constexpr char setup_py[] = {
-#embed "../scripts/setup.py"
-};
-
-constexpr char post_commit_py[] = {
-#embed "../scripts/post-commit.py"
-};
-}; // namespace scripts
-
 KAN::KAN(std::string path) : _path() {
   std::filesystem::path dir(path);
 
@@ -94,8 +84,17 @@ void KAN::init() {
 
   board.styleMap.add("homepage_title", termui::Styles::bold);
   board.saveStyleMap();
+
+  _hook_note = hooks::installHook(std::filesystem::absolute(_path).parent_path());
 };
 
-void KAN::start() { renderer.show(); }
+void KAN::start() {
+  if (!_hook_note.empty()) {
+    termui::terminal.ClearScreen();
+    tui::DialogBox::notice("Git hook", _hook_note.substr(_hook_note.find(' ') + 1)); // drop the "kan: " prefix
+  }
+
+  renderer.show();
+}
 
 } // namespace kan
