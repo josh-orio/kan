@@ -51,3 +51,18 @@ TEST_F(BoardTest, RenamesAndRemovesColumns) {
   load();
   EXPECT_EQ(kan::board.Jobs(0).size(), 1u);
 }
+
+TEST_F(BoardTest, AllJobsListsEachJobOnce) {
+  makeBoard(dir.path, {"Backlog", "Done"});
+  load();
+
+  kan::board.saveJob(job(1, "open", "Backlog"));
+  kan::board.saveJob(job(2, "archived", "Backlog"));
+  kan::board.saveJob(job(3, "finished", "Backlog"));
+  kan::board.reloadJobs();
+
+  kan::board.archiveJob(*kan::board.findJob(2));
+  kan::board.finishJob(*kan::board.findJob(3)); // struck - on the board and in the finished log
+
+  EXPECT_EQ(kan::board.allJobs().size(), 3u);
+}

@@ -10,6 +10,7 @@
 #include <kan/core/hooks.hpp>
 #include <kan/core/job.hpp>
 #include <kan/core/logging.hpp>
+#include <kan/core/stats.hpp>
 #include <kan/core/styling.hpp>
 #include <kan/core/timestamp.hpp>
 #include <kan/core/user.hpp>

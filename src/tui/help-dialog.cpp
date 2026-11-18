@@ -13,6 +13,7 @@ const std::vector<HelpSection> boardHelp = {
          {"u", "undo the last change to a job"},
          {"F", "finished jobs"},
          {"a", "archived jobs"},
+         {"i", "stats: throughput, cycle time, time in each column"},
          {"s", "settings: columns and their styles"},
          {"q", "quit"},
      }},
