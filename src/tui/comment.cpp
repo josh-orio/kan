@@ -20,9 +20,22 @@ Comment &Comment::style(termui::Style s) {
   return *this;
 }
 
+Comment &Comment::maxLines(std::optional<int> n) {
+  _max_lines = n;
+  return *this;
+}
+
+unsigned int Comment::textLines() { return termui::Text(_comment.text).width(std::max(1, *_width - 2)).size().second; }
+
+bool Comment::truncated() { return _max_lines.has_value() && textLines() > *_max_lines; }
+
 std::pair<unsigned int, unsigned int> Comment::size() {
   bool has_w = _width.has_value(), has_h = _height.has_value();
   int  w = *_width, h = *_height;
+
+  if (truncated()) {
+    return {w, 1 + 1 + *_max_lines + 1}; // header, gap, the lines shown, the more note
+  }
 
   auto [width, height] =
       termui::PaddedText(_comment.text).setPadding({2, 0, 1, 0}).style(_style).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).size();
@@ -44,6 +57,18 @@ void Comment::render() {
       .render();
 
   termui::terminal.CursorDown(1).CursorLeft(w);
+
+  if (truncated()) {
+    auto hidden = textLines() - *_max_lines;
+
+    auto [row, col] = termui::terminal.GetFutureCursorPosition();
+    termui::PaddedText(_comment.text).setPadding({2, 0, 1, 0}).style(_style).width(w).height(*_max_lines + 1).render();
+
+    termui::terminal.MoveCursor(row + *_max_lines + 1, col);
+    auto faint = termui::Style(_style.foregroundColor, _style.backgroundColor, {termui::SGR::Faint});
+    termui::PaddedText(std::format("… {} more line{} · ↵ to read", hidden, hidden == 1 ? "" : "s"), faint).setPadding({2, 0, 0, 0}).width(w).height(1).render();
+    return;
+  }
 
   termui::PaddedText(_comment.text).setPadding({2, 0, 1, 0}).style(_style).width(w).height(has_h ? std::optional<int>(h - 1) : std::nullopt).render();
 }

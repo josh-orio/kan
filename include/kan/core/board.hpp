@@ -10,16 +10,32 @@
 
 namespace kan {
 
+// one undoable action - every job file it wrote or removed, as it was before and after
+struct UndoStep {
+  struct File {
+    std::string before, after;  // yaml, "" if the file didn't (or doesn't) exist
+    bool        struck = false; // was struck through on the board before
+  };
+
+  std::string                 label; // "Finish #12"
+  std::map<std::string, File> files; // by job uuid
+};
+
 struct Board {
 private:
   std::filesystem::path _path;
+
+  std::vector<UndoStep> _undo;              // this session's actions, newest last
+  bool                  _recording = false; // between beginUndo and endUndo
+
+  std::string readJobFile(const std::string &uuid);
+  void        record(const std::string &uuid, const std::string &after); // notes a job file write for the step being recorded
 
   void assignJobIds(std::vector<kan::Job> &jobs);
 
 public:
   std::string                title;
   std::vector<kan::Column>   columns;
-  Issues                     issues;
   int                        next_id = 1;
   std::vector<User>          contributors;                  // people listed in contributors.yaml
   std::vector<kan::Job>      archive;                       // archived jobs, most recently archived first
@@ -42,12 +58,12 @@ public:
   std::vector<std::string> Statuses();
   std::vector<User>        Users();
 
-  std::string          Title();
-  std::vector<Column> &Columns();
+  std::string               Title();
+  std::vector<kan::Column> &Columns();
 
-  Column           &Column(unsigned int idx);
-  std::vector<Job> &Jobs(unsigned int col_idx);
-  Job              &Job(unsigned int col_idx, unsigned int row_idx);
+  kan::Column           &Column(unsigned int idx);
+  std::vector<kan::Job> &Jobs(unsigned int col_idx);
+  kan::Job              &Job(unsigned int col_idx, unsigned int row_idx);
 
   // columns, from settings. jobs keep their column by name, so renaming or removing one rewrites the jobs in it
   std::string columnNameProblem(std::string name, int skip = -1); // why a name can't be used ("" if it can), skip = the column being renamed
@@ -58,7 +74,9 @@ public:
   void        setColumnHeader(size_t idx, termui::Style style);
 
   kan::Job *findJob(int id);
-  int       nextJobId();
+
+  std::vector<kan::Job> allJobs(); // on the board, finished and archived, each once
+  int                   nextJobId();
 
   void deleteJob(kan::Job job); // removes the job's file for good
   void archiveJob(kan::Job job);
@@ -79,11 +97,14 @@ public:
   void reloadJobs();
   bool refresh(); // re-reads everything changed outside kan (eg by a git pull), true if the columns were replaced
 
+  // undo - jobs only, and only this session. a step covers every job write between beginUndo and endUndo
+  void        beginUndo(std::string label);
+  void        endUndo(); // drops the step if it didn't change anything
+  bool        canUndo();
+  std::string undo(); // puts the files of the last step back, returns what was undone, or why it couldn't be
+
   void               loadBranches();
   const git::Branch *branchFor(int id); // nullptr if the job has no branch
-
-  void saveIssue(Issue issue);
-  void loadIssues();
 
   void loadStyleMap();
 

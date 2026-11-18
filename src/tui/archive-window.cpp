@@ -103,13 +103,19 @@ void ArchiveWindow::process_input() {
     _cursor = jobs.empty() ? 0 : jobs.size() - 1;
   }
   else if ((inp == "r" || inp == termui::key::ENTER) && !jobs.empty()) {
+    board.beginUndo(std::format("restoring #{}", jobs.at(_cursor).id));
     board.restoreJob(jobs.at(_cursor)); // reloads, so the archive shrinks underneath us
+    board.endUndo();
   }
   else if (inp == "D" && !jobs.empty()) {
     auto job = jobs.at(_cursor);
 
-    if (DialogBox("Delete job", std::format("Delete #{} {} for good? This can't be undone.", job.id, job.title), "delete", "cancel").show()) {
+    if (DialogBox("Delete job", std::format("Delete #{} {} for good? u on the board brings it back until kan is closed.", job.id, job.title), "delete",
+                  "cancel")
+            .show()) {
+      board.beginUndo(std::format("deleting #{}", job.id));
       board.deleteJob(job);
+      board.endUndo();
     }
   }
 }

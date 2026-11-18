@@ -5,16 +5,6 @@
 
 namespace kan {
 
-namespace scripts {
-constexpr char setup_py[] = {
-#embed "../scripts/setup.py"
-};
-
-constexpr char post_commit_py[] = {
-#embed "../scripts/post-commit.py"
-};
-}; // namespace scripts
-
 KAN::KAN(std::string path) : _path() {
   std::filesystem::path dir(path);
 
@@ -27,7 +17,6 @@ KAN::KAN(std::string path) : _path() {
   board = Board(_path); // create board instace pointing to path
   board.loadBoard();
   board.loadJobs();
-  board.loadIssues();
   board.loadStyleMap();
   board.loadContributors();
   board.loadBranches();
@@ -62,11 +51,14 @@ void KAN::init() {
   // create some directories
   std::filesystem::create_directory(_path);
   std::filesystem::create_directory(_path / "jobs");
-  std::filesystem::create_directory(_path / "issues");
 
   // board
   kan::Board board = Board(_path);
-  board.title      = "New Project";
+  board.title      = std::filesystem::absolute(_path).parent_path().filename().string(); // the repo's folder, eg kan
+
+  if (board.title.empty()) { // a board at /
+    board.title = "New Project";
+  }
 
   board.columns.push_back(Column(YAML::Load(R"({"title": "Backlog",})")));
 
@@ -96,8 +88,17 @@ void KAN::init() {
 
   board.styleMap.add("homepage_title", termui::Styles::bold);
   board.saveStyleMap();
+
+  _hook_note = hooks::installHook(std::filesystem::absolute(_path).parent_path());
 };
 
-void KAN::start() { renderer.show(); }
+void KAN::start() {
+  if (!_hook_note.empty()) {
+    termui::terminal.ClearScreen();
+    tui::DialogBox::notice("Git hook", _hook_note.substr(_hook_note.find(' ') + 1)); // drop the "kan: " prefix
+  }
+
+  renderer.show();
+}
 
 } // namespace kan

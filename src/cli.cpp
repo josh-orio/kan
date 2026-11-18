@@ -45,6 +45,8 @@ const char *usage_text = "kan - a kanban board that lives in your git repo\n"
                          "  kan link-commit <hash>         link a commit to every job its message references with #N,\n"
                          "                                 and finish the jobs it closes (\"fixes #3\", \"closes #4, #5\").\n"
                          "                                 run by the post-commit hook\n"
+                         "  kan stats [--weeks N]          how the board is moving: jobs finished each week, cycle time,\n"
+                         "                                 time spent in each column (default: the last 8 weeks)\n"
                          "  kan help                       show this guide\n"
                          "\n"
                          "<job> is a job number, 12 or #12. <who> is me, or part of a contributor's name or email.\n"
@@ -53,7 +55,7 @@ const char *usage_text = "kan - a kanban board that lives in your git repo\n"
                          "to open a board in a folder named like a command, give a path: kan ./ls\n";
 
 const std::vector<std::string> commands = {"new",     "ls",      "show",   "mv",          "assign", "comment", "finish", "reopen",
-                                           "archive", "restore", "branch", "link-commit", "help",   "--help",  "-h"};
+                                           "archive", "restore", "branch", "link-commit", "stats",  "help",    "--help", "-h"};
 
 // bad arguments - exit status 2, and a hint to look at kan help
 struct UsageError : std::runtime_error {
@@ -522,7 +524,7 @@ int cmdComment(const std::vector<std::string> &raw) {
   comment.created = Timestamp().Now();
 
   job.comments.addComment(comment);
-  job.addEvent({"Comment added.", comment.creator, comment.created});
+  job.addEvent({"Comment added.", comment.creator, comment.created}, false);
 
   board.saveJob(job);
 
@@ -688,12 +690,67 @@ int matchColumn(const std::vector<std::string> &columns, const std::string &name
                                           : std::format("{} could be {}", name, list));
 }
 
+int cmdStats(const std::vector<std::string> &raw) {
+  auto args = parse(raw, {{"weeks", 'w'}});
+
+  int weeks = 8;
+  if (args.options.contains("weeks")) {
+    weeks = jobId(args.options["weeks"]); // any positive whole number
+  }
+
+  openBoard();
+
+  auto jobs   = board.allJobs();
+  auto report = stats::build(board.Statuses(), jobs, std::time(nullptr), weeks);
+
+  size_t label_w = 12;
+  for (auto &c : report.columns) {
+    label_w = std::max(label_w, termui::visible_length(c.column) + 2);
+  }
+  for (auto &f : report.finishers) {
+    label_w = std::max(label_w, termui::visible_length(f.name) + 2);
+  }
+
+  auto row = [&](const std::string &label, const std::string &value) { std::cout << "  " << pad(label, label_w) << value << "\n"; };
+
+  std::cout << bold(std::format("Last {} weeks", weeks)) << "\n";
+  row("Finished", std::format("{} {}  {}  {}", report.finished, report.finished == 1 ? "job" : "jobs", stats::sparkline(report.finished_per_week),
+                              faint(std::format("{} this week", report.finished_per_week.back()))));
+  row("Created", std::format("{} {}", report.created, report.created == 1 ? "job" : "jobs"));
+
+  if (report.cycle_median_days) {
+    row("Cycle time", std::format("{} median, 85% within {}", stats::days(*report.cycle_median_days), stats::days(*report.cycle_p85_days)));
+  }
+
+  std::cout << "\n" << bold(pad("Columns", label_w + 2)) << faint(pad("now", 6) + "average stay") << "\n";
+  for (auto &c : report.columns) {
+    std::cout << "  " << pad(c.column, label_w) << pad(std::to_string(c.jobs_now), 6) << (c.average_days ? stats::days(*c.average_days) : faint("-")) << "\n";
+  }
+
+  if (!report.finishers.empty()) {
+    std::cout << "\n" << bold("Finished by") << "\n";
+    for (auto &f : report.finishers) {
+      row(f.name, std::to_string(f.finished));
+    }
+  }
+
+  if (!report.oldest.empty()) {
+    std::cout << "\n" << bold("Waiting longest") << "\n";
+    for (auto &[job, d] : report.oldest) {
+      std::cout << "  " << faint(pad("#" + std::to_string(job->id), 6)) << pad(job->title, 40) << pad(job->status, 14) << stats::days(d) << "\n";
+    }
+  }
+
+  return 0;
+}
+
 bool isCommand(const std::string &arg) { return std::find(commands.begin(), commands.end(), arg) != commands.end(); }
 
 int run(const std::vector<std::string> &args) {
   static const std::map<std::string, int (*)(const std::vector<std::string> &)> handlers = {
       {"new", cmdNew},       {"ls", cmdLs},         {"show", cmdShow},       {"mv", cmdMv},           {"assign", cmdAssign}, {"comment", cmdComment},
       {"finish", cmdFinish}, {"reopen", cmdReopen}, {"archive", cmdArchive}, {"restore", cmdRestore}, {"branch", cmdBranch}, {"link-commit", cmdLinkCommit},
+      {"stats", cmdStats},
   };
 
   auto it = args.empty() ? handlers.end() : handlers.find(args[0]);

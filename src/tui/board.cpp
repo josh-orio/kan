@@ -248,6 +248,7 @@ void Board::display() {
                      {"o", "open"},
                      {"n", "new job"},
                      {"f", "finish"},
+                     {"u", "undo"},
                      {"F", "finished"},
                      {"a", "archive"},
                      {"?", "help"},
@@ -387,7 +388,9 @@ void Board::process_input() {
 
       board.Column(ActiveColumn()).Jobs().push_back(new_job);
 
+      board.beginUndo(std::format("new job #{}", new_job.id));
       board.saveJob(new_job);
+      board.endUndo();
     }
 
     state = termui::Interface::State::Continue;
@@ -402,14 +405,16 @@ void Board::process_input() {
       return;
     }
 
-    auto [modified, job] = tui::JobWindow(board.Job(ActiveColumn(), rows.at(ActiveRow()))).show();
+    auto opened = board.Job(ActiveColumn(), rows.at(ActiveRow()));
 
-    // if modified
+    board.beginUndo(std::format("changes to #{}", opened.id)); // finishing, archiving or deleting from the window are saved in there
+    auto [modified, job] = tui::JobWindow(opened).show();
+
     if (modified) {
-
       board.saveJob(job);
       board.reloadJobs();
     }
+    board.endUndo();
   }
 
   else if (inp == "s") {
@@ -425,6 +430,10 @@ void Board::process_input() {
     tui::FinishedWindow().show();
   }
 
+  else if (inp == "i") {
+    tui::StatsWindow().show();
+  }
+
   else if (inp == "f") { // strike off the selected job, or un-strike it
     auto rows = visibleRows(ActiveColumn());
 
@@ -432,11 +441,26 @@ void Board::process_input() {
       auto job = board.Job(ActiveColumn(), rows.at(ActiveRow()));
 
       if (job.finished) {
+        board.beginUndo(std::format("reopening #{}", job.id));
         board.reopenJob(job);
+        board.endUndo();
       }
       else if (DialogBox("Finish job", std::format("Finish #{} {}? It moves to the finished log (F).", job.id, job.title), "finish", "cancel").show()) {
+        board.beginUndo(std::format("finishing #{}", job.id));
         board.finishJob(job);
+        board.endUndo();
       }
+    }
+  }
+
+  else if (inp == "u") {
+    if (board.canUndo()) {
+      auto result = board.undo();
+      rebuildColumns();
+      DialogBox::notice("Undo", result);
+    }
+    else {
+      DialogBox::notice("Undo", "Nothing to undo yet. Undo covers changes to jobs made since kan was opened.");
     }
   }
 

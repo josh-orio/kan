@@ -23,11 +23,13 @@ static std::pair<unsigned int, unsigned int> drawBox(unsigned int width, unsigne
 
 bool SettingsDialog::onColumn() { return _cursor < board.columns.size(); }
 
+bool SettingsDialog::onOption(Option o) { return _cursor == board.columns.size() + o; }
+
 void SettingsDialog::display() {
   auto &columns = board.columns;
 
-  _cursor = std::min<unsigned int>(_cursor, columns.size()); // columns.size() is the option row
-  _height = columns.size() + 11;
+  _cursor = std::min<unsigned int>(_cursor, columns.size() + OptionCount - 1); // the options follow the columns
+  _height = columns.size() + 10 + OptionCount;
 
   auto [top, left] = drawBox(_width, _height);
 
@@ -65,10 +67,20 @@ void SettingsDialog::display() {
   termui::terminal.MoveCursor(row++, left + 2);
   termui::Text("Options", termui::Styles::bold).width(_width - 4).height(1).render();
 
-  if (_cursor == columns.size()) {
-    termui::terminal.MoveCursor(row, left + 2);
-    termui::terminal.write("·");
-  }
+  auto cursorFor = [&](Option o) {
+    if (onOption(o)) {
+      termui::terminal.MoveCursor(row, left + 2);
+      termui::terminal.write("·");
+    }
+  };
+
+  cursorFor(Name);
+  termui::terminal.MoveCursor(row, left + 4);
+  termui::Text("Board name", termui::Styles::faint).width(14).height(1).render();
+  termui::Text(board.title, termui::Styles::bold).width(_width - 4 - 4 - 14).height(1).render();
+  row++;
+
+  cursorFor(FinishOnLast);
 
   auto last = columns.empty() ? std::string("the last column") : columns.back().title;
 
@@ -79,7 +91,7 @@ void SettingsDialog::display() {
   termui::terminal.MoveCursor(top + _height - 2, left + 2);
 
   auto strip = onColumn() ? ControlStrip({{"esc", "close"}, {"↵", "style"}, {"r", "rename"}, {"n", "new"}, {"< >", "move"}, {"D", "delete"}})
-                          : ControlStrip({{"esc", "close"}, {"↵", "toggle"}, {"n", "new column"}});
+                          : ControlStrip({{"esc", "close"}, {"↵", onOption(Name) ? "rename board" : "toggle"}, {"n", "new column"}});
   strip.width(_width - 4).render();
 
   termui::terminal.flush();
@@ -95,9 +107,12 @@ void SettingsDialog::process_input() {
     _cursor > 0 ? _cursor-- : _cursor;
   }
   else if (inp == termui::key::D_ARROW) {
-    _cursor < board.columns.size() ? _cursor++ : _cursor;
+    _cursor + 1 < board.columns.size() + OptionCount ? _cursor++ : _cursor;
   }
-  else if (inp == "f" || (!onColumn() && (inp == termui::key::ENTER || inp == " "))) {
+  else if (onOption(Name) && (inp == termui::key::ENTER || inp == "r")) {
+    renameBoard();
+  }
+  else if (inp == "f" || (onOption(FinishOnLast) && (inp == termui::key::ENTER || inp == " "))) {
     board.finish_on_last_column = !board.finish_on_last_column;
     board.saveBoard();
   }
@@ -141,6 +156,24 @@ static std::optional<std::string> askColumnName(const std::string &title, const 
   }
 
   return std::nullopt;
+}
+
+void SettingsDialog::renameBoard() {
+  TextPrompt prompt("Rename board", board.title, "Board name");
+
+  while (auto name = prompt.show()) {
+    name->erase(0, name->find_first_not_of(" "));
+    name->erase(name->find_last_not_of(" ") + 1);
+
+    if (name->empty()) {
+      prompt = TextPrompt("Rename board", *name, "Board name").error("A board needs a name.");
+      continue;
+    }
+
+    board.title = *name;
+    board.saveBoard();
+    return;
+  }
 }
 
 void SettingsDialog::addColumn() {

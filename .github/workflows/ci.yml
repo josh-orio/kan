@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            name: macos-arm64
+          - os: ubuntu-24.04
+            name: linux-x86_64
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # the same compiler as the makefile: llvm@20 on macOS, clang-20 on Linux
+      - name: Install Clang 20 (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install llvm@20
+          echo "CC=$(brew --prefix llvm@20)/bin/clang" >> "$GITHUB_ENV"
+          echo "CXX=$(brew --prefix llvm@20)/bin/clang++" >> "$GITHUB_ENV"
+
+      - name: Install Clang 20 (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          wget -qO llvm.sh https://apt.llvm.org/llvm.sh
+          sudo bash llvm.sh 20
+          echo "CC=clang-20" >> "$GITHUB_ENV"
+          echo "CXX=clang++-20" >> "$GITHUB_ENV"
+
+      - name: Configure
+        env:
+          PROJECT_NAME: kan
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build build -j
+
+      # the tests make throwaway git repos and commits
+      - name: Test
+        run: |
+          git config --global user.name ci
+          git config --global user.email ci@example.com
+          git config --global init.defaultBranch main
+          ctest --test-dir build --output-on-failure
+
+      - name: Package
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          mkdir dist
+          cp build/kan dist/
+          strip dist/kan
+          tar -czf kan-${{ github.ref_name }}-${{ matrix.name }}.tar.gz -C dist kan
+
+      - uses: actions/upload-artifact@v4
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: kan-${{ matrix.name }}
+          path: kan-*.tar.gz
+
+  release:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        run: cd dist && shasum -a 256 kan-*.tar.gz > SHA256SUMS
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

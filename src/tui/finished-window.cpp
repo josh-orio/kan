@@ -242,12 +242,14 @@ void FinishedWindow::process_input() {
     _cursor = jobs.empty() ? 0 : jobs.size() - 1;
   }
   else if (inp == termui::key::ENTER && !jobs.empty()) {
+    board.beginUndo(std::format("changes to #{}", jobs.at(_cursor).id));
     auto [modified, job] = JobWindow(jobs.at(_cursor)).show();
 
     if (modified) {
       board.saveJob(job);
       board.reloadJobs();
     }
+    board.endUndo();
   }
   else if (inp == "u" && !jobs.empty()) {
     auto job = jobs.at(_cursor);
@@ -256,7 +258,9 @@ void FinishedWindow::process_input() {
                   std::format("Reopen #{} {}? It goes back to {}.", job.id, job.title, job.finished_from.empty() ? job.status : job.finished_from), "reopen",
                   "cancel")
             .show()) {
+      board.beginUndo(std::format("reopening #{}", job.id));
       board.reopenJob(job);
+      board.endUndo();
     }
   }
 }
