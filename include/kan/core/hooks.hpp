@@ -14,6 +14,10 @@ std::vector<int> parseClosingRefs(const std::string &message); // ids after fixe
 
 void postCommit(Board &board, const std::string &hash);
 
+// adds kan's post-commit hook to the git repo holding <repo>, keeping whatever hook is already there.
+// returns what happened, for printing ("" when there's nothing to say, eg outside a git repo or already installed)
+std::string installHook(const std::filesystem::path &repo);
+
 } // namespace hooks
 } // namespace kan
 

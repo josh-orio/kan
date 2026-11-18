@@ -372,5 +372,13 @@ std::filesystem::path commonDir() {
   return dir.empty() ? gitDir() : dir;
 }
 
+std::filesystem::path hooksDir(const std::filesystem::path &repo) {
+  auto [status, output] =
+      exec(std::format("git -C {} rev-parse --path-format=absolute --git-path hooks 2>/dev/null", quote(std::filesystem::absolute(repo).string())));
+  output.erase(output.find_last_not_of("\n") + 1);
+
+  return status == 0 ? std::filesystem::path(output) : std::filesystem::path();
+}
+
 } // namespace git
 } // namespace kan
