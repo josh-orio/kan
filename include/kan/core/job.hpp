@@ -4,7 +4,6 @@
 #include <kan/core/comments.hpp>
 #include <kan/core/commits.hpp>
 #include <kan/core/history.hpp>
-#include <kan/core/issues.hpp>
 #include <kan/core/user.hpp>
 #include <kan/core/uuid.hpp>
 #include <string>

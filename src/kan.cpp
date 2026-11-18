@@ -27,7 +27,6 @@ KAN::KAN(std::string path) : _path() {
   board = Board(_path); // create board instace pointing to path
   board.loadBoard();
   board.loadJobs();
-  board.loadIssues();
   board.loadStyleMap();
   board.loadContributors();
   board.loadBranches();
@@ -62,7 +61,6 @@ void KAN::init() {
   // create some directories
   std::filesystem::create_directory(_path);
   std::filesystem::create_directory(_path / "jobs");
-  std::filesystem::create_directory(_path / "issues");
 
   // board
   kan::Board board = Board(_path);
