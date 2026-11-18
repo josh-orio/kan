@@ -15,6 +15,8 @@ class JobDetails : termui::Interface {
 public:
   enum class Focus { Status, Priority, Assignee, EventList };
 
+  using Item = std::variant<JobDescription, kan::Comment, kan::Commit>;
+
   JobDetails(kan::Job job);
 
   JobDetails &size(uint w, uint h);
@@ -33,6 +35,8 @@ public:
 
   Focus Focussed();
   bool  DescriptionSelected(); // cursor is on the description at the top of the event list
+
+  std::optional<Item> Selected(); // the event list item under the cursor, if the list is focussed
 
   void render();
 

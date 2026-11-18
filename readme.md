@@ -64,6 +64,7 @@ Press `?` anywhere for the keys that work on that screen.
 | `e` | edit title and description |
 | `s` / `p` / `a` | set status, priority, assignee |
 | `c` | add a comment |
+| `↵` | on a comment or commit, read it in full / open it |
 | `f` / `x` / `D` | finish, archive, delete |
 | `g` | switch to the job's branch |
 

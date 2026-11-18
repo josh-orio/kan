@@ -50,6 +50,7 @@ const std::vector<HelpSection> jobWindowHelp = {
          {"p", "set priority"},
          {"a", "set assignee"},
          {"c", "add a comment"},
+         {"↵", "read a comment in full, or open a commit"},
          {"t  b", "jump to top / bottom"},
      }},
     {"Finish, archive & delete",

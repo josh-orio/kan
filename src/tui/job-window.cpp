@@ -229,6 +229,25 @@ void JobWindow::process_input() {
       }
     }
 
+    else if (inp == termui::key::ENTER || inp == "o") { // open the comment or commit under the cursor
+      auto item = _job_detail.Selected();
+
+      if (item && std::holds_alternative<kan::Commit>(*item)) {
+        CommitWindow(std::get<kan::Commit>(*item)).show();
+      }
+      else if (item && std::holds_alternative<kan::Comment>(*item)) {
+        auto comment = std::get<kan::Comment>(*item);
+
+        if (ViewCommentWindow(comment).show() == termui::Interface::State::Delete) {
+          _job.comments.deleteComment(comment);
+          _job.addEvent({"Comment deleted.", User().getFromSystem(), Timestamp().Now()}, false);
+
+          _job_detail.Reload(_job);
+          _history_viewer.Reload(_job.history);
+          _modified = true;
+        }
+      }
+    }
     else if (inp == "t") {
       _job_detail.GotoTop();
     }

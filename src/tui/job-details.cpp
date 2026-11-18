@@ -56,6 +56,8 @@ std::string priorityIcon(Job::Priority p) {
   }
 }
 
+constexpr int comment_lines = 4; // longer comments are cut short, ↵ opens the whole thing
+
 JobDetails::JobDetails(kan::Job job) : _job(job), _events(idk(job)) {}
 
 JobDetails &JobDetails::size(uint w, uint h) {
@@ -144,6 +146,13 @@ JobDetails &JobDetails::editMode(bool x) {
 }
 
 JobDetails::Focus JobDetails::Focussed() { return _focus; }
+
+std::optional<JobDetails::Item> JobDetails::Selected() {
+  if (_focus != Focus::EventList || _cursor >= _events.size()) {
+    return std::nullopt;
+  }
+  return _events.at(_cursor);
+}
 
 bool JobDetails::DescriptionSelected() { return _focus == Focus::EventList && _cursor == 0; }
 
@@ -264,7 +273,7 @@ void JobDetails::render() {
         description.render();
       },
       [&](const kan::Comment &c) {
-        auto comment = tui::Comment(c).width(_width - 4);
+        auto comment = tui::Comment(c).width(_width - 4).maxLines(comment_lines);
         
         std::tie(item_width, item_height) = comment.size();
 
@@ -320,7 +329,7 @@ void JobDetails::internal_update() {
         item_heights.push_back(height);
       },
       [&](const kan::Comment &c) {
-        auto comment = tui::Comment(c).width(_width -4);
+        auto comment = tui::Comment(c).width(_width -4).maxLines(comment_lines);
 
         auto [width,height]= comment.size();
 

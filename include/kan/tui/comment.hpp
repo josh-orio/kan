@@ -12,6 +12,9 @@ private:
   kan::Comment       _comment;
   std::optional<int> _width, _height;
   termui::Style      _style;
+  std::optional<int> _max_lines; // longer comments are cut short with a "more lines" note
+
+  unsigned int textLines();
 
 public:
   Comment(kan::Comment comment);
@@ -20,6 +23,9 @@ public:
   Comment &height(std::optional<int> n);
 
   Comment &style(termui::Style s);
+  Comment &maxLines(std::optional<int> n);
+
+  bool truncated();
 
   std::pair<unsigned int, unsigned int> size();
 
