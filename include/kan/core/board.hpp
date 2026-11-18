@@ -58,12 +58,12 @@ public:
   std::vector<std::string> Statuses();
   std::vector<User>        Users();
 
-  std::string          Title();
-  std::vector<Column> &Columns();
+  std::string               Title();
+  std::vector<kan::Column> &Columns();
 
-  Column           &Column(unsigned int idx);
-  std::vector<Job> &Jobs(unsigned int col_idx);
-  Job              &Job(unsigned int col_idx, unsigned int row_idx);
+  kan::Column           &Column(unsigned int idx);
+  std::vector<kan::Job> &Jobs(unsigned int col_idx);
+  kan::Job              &Job(unsigned int col_idx, unsigned int row_idx);
 
   // columns, from settings. jobs keep their column by name, so renaming or removing one rewrites the jobs in it
   std::string columnNameProblem(std::string name, int skip = -1); // why a name can't be used ("" if it can), skip = the column being renamed
