@@ -22,13 +22,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install GCC (Linux)
+      # the same compiler as the makefile: llvm@20 on macOS, clang-20 on Linux
+      - name: Install Clang 20 (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install llvm@20
+          echo "CC=$(brew --prefix llvm@20)/bin/clang" >> "$GITHUB_ENV"
+          echo "CXX=$(brew --prefix llvm@20)/bin/clang++" >> "$GITHUB_ENV"
+
+      - name: Install Clang 20 (Linux)
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y g++-14
-          echo "CXX=g++-14" >> "$GITHUB_ENV"
-          echo "CC=gcc-14" >> "$GITHUB_ENV"
+          wget -qO llvm.sh https://apt.llvm.org/llvm.sh
+          sudo bash llvm.sh 20
+          echo "CC=clang-20" >> "$GITHUB_ENV"
+          echo "CXX=clang++-20" >> "$GITHUB_ENV"
 
       - name: Configure
         env:

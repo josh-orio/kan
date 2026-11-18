@@ -2,7 +2,7 @@ PROJECT := kan
 BUILD_DIR := build
 EXECUTABLE := $(BUILD_DIR)/$(PROJECT)
 
-# The code needs Clang (it uses #embed), so pick clang 20 per platform:
+# Builds with clang 20 on every platform, the same as CI:
 # macOS -> Homebrew's llvm@20, Linux -> distro clang-20 (e.g. apt install clang-20).
 ifeq ($(shell uname -s),Darwin)
 LLVM_PREFIX := $(shell brew --prefix llvm@20)

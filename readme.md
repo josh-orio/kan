@@ -33,7 +33,8 @@ KAN is a terminal based project management tool that lives entirely in your repo
 KAN is C++20. The makefile uses `llvm@20` from Homebrew, but the Apple Clang that comes with Xcode works too.
 
 ```sh
-brew install llvm@20 cmake
+brew install llvm@20 cmake          # macOS
+sudo apt install clang-20 cmake      # Linux (or apt.llvm.org's llvm.sh 20)
 make build      # builds build/kan
 make test       # builds and runs the tests
 ```
