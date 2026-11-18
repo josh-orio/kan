@@ -204,8 +204,7 @@ void JobWindow::process_input() {
     }
 
     if (inp == "D") {
-      if (DialogBox("Delete job",
-                    std::format("Delete #{} {} for good? This can't be undone - archive it with x if you might want it back.", _job.id, _job.title), "delete",
+      if (DialogBox("Delete job", std::format("Delete #{} {} for good? u on the board brings it back until kan is closed.", _job.id, _job.title), "delete",
                     "cancel")
               .show()) {
         board.deleteJob(_job);

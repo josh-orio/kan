@@ -13,6 +13,7 @@ KAN is a terminal based project management tool that lives entirely in your repo
 - **Branches** - press `g` on a job to switch to its branch (`12-fix-login-crash`), creating it if needed. Cards show `⎇` while a job has a branch and `⎇✓` once it's merged.
 - **Live refresh** - the board picks up changes to the `.kan` files and git (a pull, a branch switch) without restarting.
 - **Finishing and archiving** - strike jobs off with `f`, archive them with `x`, and bring either back later.
+- **Undo** - `u` takes back the last change to a job, including deleting one, for as long as kan is open.
 - **Theming** - column header colours and styles are set from the settings dialog (`s`) or in `kan.yaml`.
 - **A command line interface** - `kan new`, `ls`, `mv`, `assign` and more work from the shell, so kan can be scripted from CI and git aliases.
 
@@ -54,6 +55,7 @@ Press `?` anywhere for the keys that work on that screen.
 | `n` | new job in this column |
 | `f` / `F` | finish a job / view finished jobs |
 | `a` | view archived jobs |
+| `u` | undo the last change to a job (this session) |
 | `/` | search titles, descriptions and #numbers |
 | `s` | settings: columns and their styles |
 | `q` | quit |
