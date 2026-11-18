@@ -19,7 +19,6 @@ private:
 public:
   std::string                title;
   std::vector<kan::Column>   columns;
-  Issues                     issues;
   int                        next_id = 1;
   std::vector<User>          contributors;                  // people listed in contributors.yaml
   std::vector<kan::Job>      archive;                       // archived jobs, most recently archived first
@@ -81,9 +80,6 @@ public:
 
   void               loadBranches();
   const git::Branch *branchFor(int id); // nullptr if the job has no branch
-
-  void saveIssue(Issue issue);
-  void loadIssues();
 
   void loadStyleMap();
 

@@ -464,25 +464,6 @@ const git::Branch *Board::branchFor(int id) {
   return it == branches.end() ? nullptr : &it->second;
 }
 
-void Board::saveIssue(Issue issue) {
-
-  YAML::Emitter out;
-  out << issue.toYaml();
-
-  std::ofstream fout(_path / "issues" / std::format("{}.yaml", issue.uuid.to_string()));
-  fout << out.c_str();
-}
-
-void Board::loadIssues() {
-  for (const auto &entry : std::filesystem::directory_iterator(_path / "issues")) {
-
-    YAML::Node config = YAML::LoadFile(entry.path());
-    kan::Issue loaded_issue(config);
-
-    board.issues.addIssue(loaded_issue);
-  }
-}
-
 std::string styleToString(termui::Style style) {
 
   std::string modifier_codes;

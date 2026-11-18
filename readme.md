@@ -99,8 +99,7 @@ chmod +x .git/hooks/post-commit
 ├── kan.yaml            board title, columns and their styles
 ├── contributors.yaml   people who can be assigned jobs
 ├── style.yaml
-├── jobs/               one YAML file per job, with its comments and linked commits
-└── issues/
+└── jobs/               one YAML file per job, with its comments and linked commits
 ```
 
 Commit the `.kan` folder with the rest of your repo.
