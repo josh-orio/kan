@@ -10,6 +10,7 @@ const std::vector<HelpSection> boardHelp = {
          {"o  ↵", "open the selected job"},
          {"n", "new job in this column"},
          {"f", "finish (strike off) the job, again to undo"},
+         {"u", "undo the last change to a job"},
          {"F", "finished jobs"},
          {"a", "archived jobs"},
          {"s", "settings: columns and their styles"},

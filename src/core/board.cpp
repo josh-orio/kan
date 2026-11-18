@@ -224,6 +224,7 @@ int Board::nextJobId() {
 }
 
 void Board::deleteJob(kan::Job job) {
+  record(job.uuid, "");
   std::filesystem::remove(_path / "jobs" / std::format("{}.yaml", job.uuid));
 
   reloadJobs();
@@ -239,9 +240,9 @@ void Board::archiveJob(kan::Job job) {
 
 void Board::finishJob(kan::Job job) {
   job.finish(User().getFromSystem(), Timestamp().Now());
-  struck.insert(job.uuid);
 
-  saveJob(job);
+  saveJob(job); // before striking it, so undo remembers it wasn't
+  struck.insert(job.uuid);
   reloadJobs();
 }
 
@@ -254,9 +255,9 @@ void Board::reopenJob(kan::Job job) {
   }
 
   job.reopen(to);
-  struck.erase(job.uuid);
 
   saveJob(job);
+  struck.erase(job.uuid);
   reloadJobs();
 }
 
@@ -380,8 +381,83 @@ void Board::saveJob(kan::Job job) {
   YAML::Emitter out;
   out << job.toYaml();
 
+  record(job.uuid, out.c_str());
+
   std::ofstream fout(_path / "jobs" / std::format("{}.yaml", job.uuid));
   fout << out.c_str();
+}
+
+std::string Board::readJobFile(const std::string &uuid) {
+  std::ifstream in(_path / "jobs" / std::format("{}.yaml", uuid));
+  return std::string(std::istreambuf_iterator<char>(in), {});
+}
+
+void Board::record(const std::string &uuid, const std::string &after) {
+  if (!_recording) {
+    return;
+  }
+
+  auto &files = _undo.back().files;
+
+  if (!files.contains(uuid)) {
+    files[uuid] = {readJobFile(uuid), "", struck.contains(uuid)};
+  }
+
+  files[uuid].after = after;
+}
+
+void Board::beginUndo(std::string label) {
+  endUndo();
+
+  _undo.push_back({label, {}});
+  _recording = true;
+
+  if (_undo.size() > 100) {
+    _undo.erase(_undo.begin());
+  }
+}
+
+void Board::endUndo() {
+  if (_recording && _undo.back().files.empty()) {
+    _undo.pop_back();
+  }
+
+  _recording = false;
+}
+
+bool Board::canUndo() { return !_undo.empty() && !_recording; }
+
+std::string Board::undo() {
+  if (!canUndo()) {
+    return "Nothing to undo.";
+  }
+
+  auto step = _undo.back();
+  _undo.pop_back();
+
+  // someone else (a git pull, the cli, a commit) changed one of these since - putting it back would lose their change
+  for (auto &[uuid, file] : step.files) {
+    if (readJobFile(uuid) != file.after) {
+      return std::format("Can't undo {} - the job has been changed since.", step.label);
+    }
+  }
+
+  for (auto &[uuid, file] : step.files) {
+    auto path = _path / "jobs" / std::format("{}.yaml", uuid);
+
+    if (file.before.empty()) {
+      std::filesystem::remove(path);
+    }
+    else {
+      std::ofstream(path) << file.before;
+    }
+
+    file.struck ? (void)struck.insert(uuid) : (void)struck.erase(uuid);
+  }
+
+  reloadJobs();
+
+  return std::format("Undid {}.", step.label);
 }
 
 void Board::reloadJobs() {

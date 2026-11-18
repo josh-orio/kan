@@ -10,9 +10,26 @@
 
 namespace kan {
 
+// one undoable action - every job file it wrote or removed, as it was before and after
+struct UndoStep {
+  struct File {
+    std::string before, after;  // yaml, "" if the file didn't (or doesn't) exist
+    bool        struck = false; // was struck through on the board before
+  };
+
+  std::string                 label; // "Finish #12"
+  std::map<std::string, File> files; // by job uuid
+};
+
 struct Board {
 private:
   std::filesystem::path _path;
+
+  std::vector<UndoStep> _undo;              // this session's actions, newest last
+  bool                  _recording = false; // between beginUndo and endUndo
+
+  std::string readJobFile(const std::string &uuid);
+  void        record(const std::string &uuid, const std::string &after); // notes a job file write for the step being recorded
 
   void assignJobIds(std::vector<kan::Job> &jobs);
 
@@ -77,6 +94,12 @@ public:
 
   void reloadJobs();
   bool refresh(); // re-reads everything changed outside kan (eg by a git pull), true if the columns were replaced
+
+  // undo - jobs only, and only this session. a step covers every job write between beginUndo and endUndo
+  void        beginUndo(std::string label);
+  void        endUndo(); // drops the step if it didn't change anything
+  bool        canUndo();
+  std::string undo(); // puts the files of the last step back, returns what was undone, or why it couldn't be
 
   void               loadBranches();
   const git::Branch *branchFor(int id); // nullptr if the job has no branch
