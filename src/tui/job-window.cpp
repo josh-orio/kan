@@ -221,7 +221,7 @@ void JobWindow::process_input() {
       if (success) {
         _job.comments.addComment(comment);
 
-        _job.addEvent({"Comment added.", User().getFromSystem(), Timestamp().Now()});
+        _job.addEvent({"Comment added.", User().getFromSystem(), Timestamp().Now()}, false);
 
         _job_detail.Reload(_job);
         _history_viewer.Reload(_job.history);

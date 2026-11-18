@@ -81,8 +81,12 @@ void Job::reopen(std::string to_status) {
   addEvent({std::format("Job reopened to {}.", to_status), User().getFromSystem(), Timestamp().Now()});
 }
 
-void Job::addEvent(Event e) {
+void Job::addEvent(Event e, bool touch) {
   history.addEvent(e);
+
+  if (!touch) {
+    return;
+  }
 
   modifier = history.events.back().user;
   updated  = history.events.back().time;

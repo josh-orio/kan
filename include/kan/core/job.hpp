@@ -40,7 +40,7 @@ struct Job {
   void       fromYaml(YAML::Node yaml);
   YAML::Node toYaml();
 
-  void addEvent(Event e);
+  void addEvent(Event e, bool touch = true); // touch - counts as a change to the job itself, so moves updated/modifier on (comments and commit links don't)
 
   void finish(User by, Timestamp at, std::string note = "Job finished.");
   void reopen(std::string to_status);

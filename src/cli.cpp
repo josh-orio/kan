@@ -522,7 +522,7 @@ int cmdComment(const std::vector<std::string> &raw) {
   comment.created = Timestamp().Now();
 
   job.comments.addComment(comment);
-  job.addEvent({"Comment added.", comment.creator, comment.created});
+  job.addEvent({"Comment added.", comment.creator, comment.created}, false);
 
   board.saveJob(job);
 
