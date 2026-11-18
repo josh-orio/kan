@@ -121,7 +121,7 @@ void postCommit(Board &board, const std::string &hash) {
     }
 
     job->commits.addCommit(commit);
-    job->addEvent({std::format("Commit {} linked.", commit.hash.substr(0, 7)), commit.creator, commit.created});
+    job->addEvent({std::format("Commit {} linked.", commit.hash.substr(0, 7)), commit.creator, commit.created}, false);
 
     board.saveJob(*job);
 
