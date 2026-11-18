@@ -54,7 +54,11 @@ void KAN::init() {
 
   // board
   kan::Board board = Board(_path);
-  board.title      = "New Project";
+  board.title      = std::filesystem::absolute(_path).parent_path().filename().string(); // the repo's folder, eg kan
+
+  if (board.title.empty()) { // a board at /
+    board.title = "New Project";
+  }
 
   board.columns.push_back(Column(YAML::Load(R"({"title": "Backlog",})")));
 

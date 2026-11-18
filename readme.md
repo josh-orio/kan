@@ -59,7 +59,7 @@ Press `?` anywhere for the keys that work on that screen.
 | `u` | undo the last change to a job (this session) |
 | `i` | stats: throughput, cycle time, time in each column |
 | `/` | search titles, descriptions and #numbers |
-| `s` | settings: columns and their styles |
+| `s` | settings: board name, columns and their styles |
 | `q` | quit |
 
 | Job window | |
