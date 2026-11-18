@@ -3,7 +3,7 @@
 namespace kan {
 namespace tui {
 
-ControlStrip::ControlStrip(std::vector<std::pair<std::string, std::string>> control_map) : _control_map(control_map), _width(0) {}
+ControlStrip::ControlStrip(std::initializer_list<std::pair<std::string, std::string>> control_map) : _control_map(control_map), _width(0) {}
 
 ControlStrip &ControlStrip::width(uint n) {
   _width = n;

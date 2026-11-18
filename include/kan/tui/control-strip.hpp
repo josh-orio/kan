@@ -1,6 +1,7 @@
 #ifndef TUI_CONTROLSTRIP_HPP
 #define TUI_CONTROLSTRIP_HPP
 
+#include <initializer_list>
 #include <string>
 #include <vector>
 
@@ -14,7 +15,7 @@ private:
   std::string                                      _seperator = "·";
 
 public:
-  ControlStrip(std::vector<std::pair<std::string, std::string>> control_map);
+  ControlStrip(std::initializer_list<std::pair<std::string, std::string>> control_map);
 
   ControlStrip &width(uint n);
   ControlStrip &seperator(std::string s);
