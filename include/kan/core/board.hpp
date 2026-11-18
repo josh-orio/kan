@@ -74,7 +74,9 @@ public:
   void        setColumnHeader(size_t idx, termui::Style style);
 
   kan::Job *findJob(int id);
-  int       nextJobId();
+
+  std::vector<kan::Job> allJobs(); // on the board, finished and archived, each once
+  int                   nextJobId();
 
   void deleteJob(kan::Job job); // removes the job's file for good
   void archiveJob(kan::Job job);

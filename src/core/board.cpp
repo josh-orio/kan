@@ -64,6 +64,25 @@ std::vector<Job> &Board::Jobs(unsigned int col_idx) { return columns.at(col_idx)
 
 Job &Board::Job(unsigned int col_idx, unsigned int row_idx) { return columns.at(col_idx).Job(row_idx); }
 
+std::vector<kan::Job> Board::allJobs() {
+  std::vector<kan::Job> out;
+  std::set<std::string> seen;
+
+  auto add = [&](const kan::Job &job) {
+    if (seen.insert(job.uuid).second) {
+      out.push_back(job);
+    }
+  };
+
+  for (auto &col : columns) {
+    std::for_each(col.Jobs().begin(), col.Jobs().end(), add);
+  }
+  std::for_each(finished.begin(), finished.end(), add);
+  std::for_each(archive.begin(), archive.end(), add);
+
+  return out;
+}
+
 Job *Board::findJob(int id) {
   for (auto &col : columns) {
     for (auto &job : col.Jobs()) {

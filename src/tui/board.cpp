@@ -430,6 +430,10 @@ void Board::process_input() {
     tui::FinishedWindow().show();
   }
 
+  else if (inp == "i") {
+    tui::StatsWindow().show();
+  }
+
   else if (inp == "f") { // strike off the selected job, or un-strike it
     auto rows = visibleRows(ActiveColumn());
 
