@@ -8,8 +8,11 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-# define the test executable
-add_executable(kan_tests test.cpp)
+# one file per area of kan - core/, cli and so on
+file(GLOB test_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*_test.cpp")
+
+add_executable(kan_tests ${test_SOURCES})
+target_include_directories(kan_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(kan_tests PRIVATE kan_lib GTest::gtest_main)
 
 # discover tests
