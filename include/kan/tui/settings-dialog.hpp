@@ -13,7 +13,12 @@ private:
   uint         _width = 72, _height = 12;
   unsigned int _cursor = 0; // the columns come first, then the options
 
+  enum Option { Name, FinishOnLast, OptionCount }; // the option rows, in order, after the columns
+
   bool onColumn();
+  bool onOption(Option o);
+
+  void renameBoard();
 
   void addColumn();
   void renameColumn();

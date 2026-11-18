@@ -14,7 +14,7 @@ const std::vector<HelpSection> boardHelp = {
          {"F", "finished jobs"},
          {"a", "archived jobs"},
          {"i", "stats: throughput, cycle time, time in each column"},
-         {"s", "settings: columns and their styles"},
+         {"s", "settings: board name, columns and their styles"},
          {"q", "quit"},
      }},
     {"Search",
